@@ -1,29 +1,24 @@
 package com.datastax.demo.killrchat.model;
 
-import com.datastax.demo.killrchat.entity.ChatTheme;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.apache.commons.collections.CollectionUtils;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChatRoomModel {
+@EqualsAndHashCode(callSuper = true)
+public class ChatRoomModel extends LightChatRoomModel{
 
-    private UUID roomId;
+    private boolean privateRoom;
 
-    private String roomName;
+    private boolean directChat;
 
-    private ChatTheme theme;
+    private Set<LightUserModel> participants;
 
-    private List<UserModel> participants;
+    private String banner;
 
-
-    public boolean isPrivate() {
-        return theme == ChatTheme.PRIVATE;
-    }
 }

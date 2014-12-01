@@ -1,5 +1,6 @@
 package com.datastax.demo.killrchat.entity;
 
+import com.datastax.demo.killrchat.model.LightUserModel;
 import com.datastax.demo.killrchat.model.UserModel;
 import info.archinnov.achilles.annotations.Column;
 import info.archinnov.achilles.annotations.Entity;
@@ -62,6 +63,15 @@ public class User {
         model.setNickname(this.getNickname());
         model.setEmail(this.getEmail());
         model.setBio(this.getBio());
+        return model;
+    }
+
+    public LightUserModel toLightModel() {
+        final LightUserModel model = new LightUserModel();
+        model.setLogin(this.getLogin());
+        model.setFirstname(this.getFirstname());
+        model.setLastname(this.getLastname());
+        model.setNickname(this.getNickname());
         return model;
     }
 }

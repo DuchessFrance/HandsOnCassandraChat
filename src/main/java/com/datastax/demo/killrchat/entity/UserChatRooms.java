@@ -1,14 +1,13 @@
 package com.datastax.demo.killrchat.entity;
 
-import com.datastax.demo.killrchat.model.UserModel;
+import com.datastax.demo.killrchat.model.LightChatRoomModel;
 import info.archinnov.achilles.annotations.*;
 import info.archinnov.achilles.type.NamingStrategy;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.NotBlank;
 
-import java.util.List;
-import java.util.UUID;
 
 import static com.datastax.demo.killrchat.entity.Schema.KEYSPACE;
 import static com.datastax.demo.killrchat.entity.Schema.USER_CHATROOMS;
@@ -18,17 +17,26 @@ import static com.datastax.demo.killrchat.entity.Schema.USER_CHATROOMS;
 @AllArgsConstructor
 @Entity(keyspace = KEYSPACE, table = USER_CHATROOMS)
 @Strategy(naming = NamingStrategy.SNAKE_CASE)
-public class UserChatRooms extends AbstractChatRoom {
+public class UserChatRooms {
 
     @EmbeddedId
     private CompoundPk primaryKey;
 
     @Column
-    private ChatTheme theme;
+    @NotBlank
+    private String creator;
 
-    @Override
-    public UUID getRoomId() {
-        return primaryKey.roomId;
+    public UserChatRooms(String login, String roomName, String creator) {
+        this.primaryKey = new CompoundPk(login, roomName);
+        this.creator = creator;
+    }
+
+    public String getRoomName() {
+        return primaryKey.getRoomName();
+    }
+
+    public LightChatRoomModel toLightModel() {
+        return new LightChatRoomModel(primaryKey.roomName, creator);
     }
 
     @Data
@@ -42,7 +50,7 @@ public class UserChatRooms extends AbstractChatRoom {
 
         @Column
         @Order(2)
-        private UUID roomId;
+        private String roomName;
 
     }
 }

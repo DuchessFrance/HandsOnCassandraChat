@@ -9,7 +9,7 @@
     <version>1.0</version>
 
     <properties>
-        <achilles.version>3.0.10</achilles.version>
+        <achilles.version>3.0.13</achilles.version>
 
         <lombok.version>1.14.4</lombok.version>
         <slf4j.version>1.7.6</slf4j.version>

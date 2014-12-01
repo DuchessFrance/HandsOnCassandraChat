@@ -4,6 +4,7 @@ package com.datastax.demo.killrchat.service;
 import javax.inject.Inject;
 
 import com.datastax.demo.killrchat.entity.User;
+import com.datastax.demo.killrchat.exceptions.IncorrectOldPasswordException;
 import com.datastax.demo.killrchat.exceptions.UserAlreadyExistsException;
 import com.datastax.demo.killrchat.exceptions.UserNotFoundException;
 import com.datastax.demo.killrchat.exceptions.WrongLoginPasswordException;
@@ -12,6 +13,8 @@ import info.archinnov.achilles.exception.AchillesLightWeightTransactionException
 import info.archinnov.achilles.persistence.PersistenceManager;
 import info.archinnov.achilles.type.OptionsBuilder;
 
+import static info.archinnov.achilles.type.Options.LWTCondition;
+import static info.archinnov.achilles.type.OptionsBuilder.ifConditions;
 import static java.lang.String.format;
 
 public class UserService {
@@ -40,14 +43,14 @@ public class UserService {
         }
     }
 
-    public void updateUser(UserModel userModel) {
-        final User user = fetchExistingUserFromCassandra(userModel.getLogin());
-        user.setFirstname(userModel.getFirstname());
-        user.setLastname(userModel.getLastname());
-        user.setNickname(userModel.getNickname());
-        user.setBio((userModel.getBio()));
-        user.setEmail(userModel.getEmail());
-        manager.update(user);
+    public void changeUserPassword(String login, String oldPassword, String newPassword) {
+        User user = fetchExistingUserFromCassandra(login);
+        user.setPass(newPassword);
+        try {
+            manager.update(user, ifConditions(new LWTCondition("pass", oldPassword)));
+        } catch (AchillesLightWeightTransactionException ex) {
+            throw new IncorrectOldPasswordException("The provided old password does not match");
+        }
     }
 
     private User fetchExistingUserFromCassandra(String login) {

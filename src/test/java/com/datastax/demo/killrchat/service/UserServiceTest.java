@@ -1,5 +1,6 @@
 package com.datastax.demo.killrchat.service;
 
+import static com.datastax.demo.killrchat.entity.Schema.USER_CHATROOMS;
 import static com.datastax.driver.core.querybuilder.QueryBuilder.eq;
 import static com.datastax.driver.core.querybuilder.QueryBuilder.insertInto;
 import static com.datastax.driver.core.querybuilder.QueryBuilder.select;
@@ -7,10 +8,12 @@ import static com.datastax.demo.killrchat.entity.Schema.KEYSPACE;
 import static com.datastax.demo.killrchat.entity.Schema.USERS;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.datastax.demo.killrchat.exceptions.IncorrectOldPasswordException;
 import com.datastax.demo.killrchat.exceptions.UserAlreadyExistsException;
 import com.datastax.demo.killrchat.exceptions.UserNotFoundException;
 import com.datastax.demo.killrchat.exceptions.WrongLoginPasswordException;
 import com.datastax.demo.killrchat.model.UserModel;
+import com.datastax.driver.core.ResultSet;
 import info.archinnov.achilles.exception.AchillesBeanValidationException;
 import info.archinnov.achilles.exception.AchillesLightWeightTransactionException;
 import org.junit.Before;
@@ -118,33 +121,33 @@ public class UserServiceTest {
 
     }
 
+
     @Test
-    public void should_update_user() throws Exception {
+    public void should_change_user_password() throws Exception {
         //Given
         final Insert insert = insertInto(USERS).value("login", "emc²").value("pass","a.einstein").value("firstname", "Albert").value("lastname", "EINSTEIN");
         session.execute(insert);
 
-        UserModel userModel = new UserModel("emc²", "", "David", "EINSTEIN", "veryCleverGuy", "david.einstein@smart.com", "I am THE Genius");
-
         //When
-        service.updateUser(userModel);
+        service.changeUserPassword("emc²","a.einstein","new_password");
 
         //Then
-        final Row row = session.execute(select().from(USERS).where(eq("login", "emc²"))).one();
-        assertThat(row.getString("login")).isEqualTo("emc²");
-        assertThat(row.getString("firstname")).isEqualTo("David");
-        assertThat(row.getString("lastname")).isEqualTo("EINSTEIN");
-        assertThat(row.getString("nickname")).isEqualTo("veryCleverGuy");
-        assertThat(row.getString("email")).isEqualTo("david.einstein@smart.com");
-        assertThat(row.getString("bio")).isEqualTo("I am THE Genius");
+        final Row row = session.execute(select("pass").from(KEYSPACE, USERS).where(eq("login", "emc²"))).one();
+        assertThat(row).isNotNull();
+        assertThat(row.getString("pass")).isEqualTo("new_password");
     }
 
-    @Test(expected = UserNotFoundException.class)
-    public void should_fail_updating_not_existing_user() throws Exception {
+    @Test(expected = IncorrectOldPasswordException.class)
+    public void should_exception_if_old_password_does_not_match() throws Exception {
         //Given
-        UserModel userModel = new UserModel("emc²", "", "David", "EINSTEIN", "veryCleverGuy", "david.einstein@smart.com", "I am THE Genius");
+        final Insert insert = insertInto(USERS).value("login", "emc²").value("pass","a.einstein").value("firstname", "Albert").value("lastname", "EINSTEIN");
+        session.execute(insert);
 
         //When
-        service.updateUser(userModel);
+        service.changeUserPassword("emc²","wrong_old_password","new_password");
+
+
+        //Then
+
     }
 }
