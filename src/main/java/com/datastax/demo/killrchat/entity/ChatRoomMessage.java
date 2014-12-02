@@ -1,15 +1,17 @@
 package com.datastax.demo.killrchat.entity;
 
+import com.datastax.demo.killrchat.model.ChatMessageModel;
 import com.datastax.demo.killrchat.model.LightUserModel;
+import com.datastax.driver.core.utils.UUIDs;
 import info.archinnov.achilles.annotations.*;
 import info.archinnov.achilles.type.NamingStrategy;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.cassandra.utils.UUIDGen;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -53,6 +55,25 @@ public class ChatRoomMessage {
         return primaryKey.messageId;
     }
 
+    public ChatMessageModel toModel() {
+        ChatMessageModel model = new ChatMessageModel();
+        model.setAuthor(this.author);
+        model.setContent(this.content);
+        model.setMessageId(this.getMessageId());
+        model.setSystemMessage(this.systemMessage);
+        model.setCreationDate(new Date(UUIDs.unixTimestamp(this.getMessageId())));
+        return model;
+    }
+
+    public static ChatRoomMessage fromModel(String roomName, ChatMessageModel model) {
+        final ChatRoomMessage entity = new ChatRoomMessage();
+        entity.setPrimaryKey(new CompoundPk(roomName, model.getMessageId()));
+        entity.setAuthor(model.getAuthor());
+        entity.setContent(model.getContent());
+        entity.setSystemMessage(model.isSystemMessage());
+        return entity;
+    }
+
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
@@ -62,7 +83,7 @@ public class ChatRoomMessage {
         @Order(1)
         private String roomName;
 
-        @Order(2)
+        @Order(value = 2, reversed = true)
         @Column
         @TimeUUID
         private UUID messageId;
