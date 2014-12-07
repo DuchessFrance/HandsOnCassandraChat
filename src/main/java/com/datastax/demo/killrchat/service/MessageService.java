@@ -44,7 +44,7 @@ public class MessageService {
 
     }
 
-    public List<ChatMessageModel> fetchNextMessages(String roomName, UUID fromMessageId, int pageSize) {
+    public List<ChatMessageModel> fetchNextMessagesForRoom(String roomName, UUID fromMessageId, int pageSize) {
         final List<ChatRoomMessage> messages = manager.sliceQuery(ChatRoomMessage.class)
                 .forSelect()
                 .withPartitionComponents(roomName)

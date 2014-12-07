@@ -219,7 +219,8 @@ public class ChatRoomServiceTest {
         final Select helenChatRooms = select().from(KEYSPACE, USER_CHATROOMS).where(eq("login", "hsue")).limit(10);
 
         final Row participantsRow = session.execute(participants).one();
-        assertThat(participantsRow.getSet("participants",String.class)).containsOnly(johnAsJSON);
+        assertThat(participantsRow).isNotNull();
+        assertThat(participantsRow.getSet("participants", String.class)).containsOnly(johnAsJSON);
 
         final List<Row> helenChatRoomsRows = session.execute(helenChatRooms).all();
         assertThat(helenChatRoomsRows).hasSize(0);
@@ -233,6 +234,42 @@ public class ChatRoomServiceTest {
 
         //When
         service.removeUserFromRoom(chatRoomModel, helen);
+    }
 
+    @Test
+    public void should_remove_last_user_from_chat_room() throws Exception {
+        //Given
+        final LightUserModel johnny = new LightUserModel("jdoe", "John", "DOE", "johnny");
+        final LightChatRoomModel chatRoomModel = new LightChatRoomModel("politics", "jdoe");
+        final String johnAsJSON = manager.serializeToJSON(johnny);
+
+        final Insert createChatRoomStatement = insertInto(KEYSPACE, CHATROOMS)
+                .value("room_name", "politics")
+                .value("creator", "jdoe")
+                .value("private_room", false)
+                .value("direct_chat", false)
+                .value("participants", Arrays.asList(johnAsJSON));
+
+        final Insert createJohnChatRooms = insertInto(KEYSPACE, USER_CHATROOMS)
+                .value("login", "hsue")
+                .value("room_name", "politics")
+                .value("creator", "jdoe");
+
+
+        session.execute(createChatRoomStatement);
+        session.execute(createJohnChatRooms);
+
+        //When
+        service.removeUserFromRoom(chatRoomModel, johnny);
+
+        //Then
+        final Select.Where participants = select().from(KEYSPACE, CHATROOMS).where(eq("room_name", "politics"));
+        final Select johnChatRooms = select().from(KEYSPACE, USER_CHATROOMS).where(eq("login", "jdoe")).limit(10);
+
+        final Row chatRoom = session.execute(participants).one();
+        assertThat(chatRoom).isNull();
+
+        final List<Row> johnChatRoomsRows = session.execute(johnChatRooms).all();
+        assertThat(johnChatRoomsRows).hasSize(0);
     }
 }

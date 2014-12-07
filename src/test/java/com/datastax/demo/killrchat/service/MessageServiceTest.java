@@ -3,7 +3,6 @@ package com.datastax.demo.killrchat.service;
 import static com.datastax.demo.killrchat.entity.Schema.*;
 import static com.datastax.driver.core.querybuilder.QueryBuilder.*;
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 import com.datastax.demo.killrchat.entity.User;
 import com.datastax.demo.killrchat.exceptions.CannotUpdateMessageException;
@@ -12,7 +11,6 @@ import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.querybuilder.Insert;
-import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.datastax.driver.core.querybuilder.Select;
 import com.datastax.driver.core.utils.UUIDs;
 import info.archinnov.achilles.junit.AchillesResource;
@@ -22,7 +20,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.List;
@@ -172,7 +169,7 @@ public class MessageServiceTest {
         session.execute(preparedStatement.bind(roomName, messageId5, johnDoe, message5, false));
 
         //When
-        final List<ChatMessageModel> messages = service.fetchNextMessages(roomName, UUIDs.timeBased(), 2);
+        final List<ChatMessageModel> messages = service.fetchNextMessagesForRoom(roomName, UUIDs.timeBased(), 2);
 
         //Then
         assertThat(messages).hasSize(2);
@@ -222,7 +219,7 @@ public class MessageServiceTest {
         session.execute(preparedStatement.bind(roomName, messageId5, johnDoe, message5, false));
 
         //When
-        final List<ChatMessageModel> messages = service.fetchNextMessages(roomName, messageId4, 2);
+        final List<ChatMessageModel> messages = service.fetchNextMessagesForRoom(roomName, messageId4, 2);
 
         //Then
         assertThat(messages).hasSize(2);

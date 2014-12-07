@@ -78,7 +78,7 @@ public class UserServiceTest {
         session.execute(insert);
 
         //When
-        final UserModel foundUser = service.findByLogin("emc²");
+        final User foundUser = service.findByLogin("emc²");
 
         //Then
         assertThat(foundUser.getFirstname()).isEqualTo("Albert");

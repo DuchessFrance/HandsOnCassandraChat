@@ -8,6 +8,7 @@ import com.datastax.demo.killrchat.model.ChatRoomModel;
 import com.datastax.demo.killrchat.model.LightChatRoomModel;
 import com.datastax.demo.killrchat.model.LightUserModel;
 import com.datastax.driver.core.SimpleStatement;
+import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.google.common.base.Function;
 import com.google.common.collect.Sets;
 import info.archinnov.achilles.exception.AchillesLightWeightTransactionException;
@@ -86,11 +87,11 @@ public class ChatRoomService {
         final ChatRooms chatRoomProxy = manager.forUpdate(ChatRooms.class, roomName);
         chatRoomProxy.getParticipants().add(userModel);
         try {
-            manager.update(chatRoomProxy, OptionsBuilder.ifConditions(new Options.LWTCondition("creator", chatRoomCreator)));
-            manager.insert(new UserChatRooms(newParticipant, roomName, chatRoomCreator));
+            manager.update(chatRoomProxy, OptionsBuilder.ifEqualCondition("creator", chatRoomCreator));
         } catch (AchillesLightWeightTransactionException ex) {
             throw new ChatRoomDoesNotExistException(format("The chat room '%s' does not exist", roomName));
         }
+        manager.insert(new UserChatRooms(newParticipant, roomName, chatRoomCreator));
 
     }
 
@@ -102,10 +103,17 @@ public class ChatRoomService {
         chatRoomProxy.getParticipants().remove(userModel);
         try {
             manager.update(chatRoomProxy, OptionsBuilder.ifConditions(new Options.LWTCondition("creator", chatRoomCreator)));
-            manager.deleteById(UserChatRooms.class, new UserChatRooms.CompoundPk(participantToBeRemoved, roomName));
         } catch (AchillesLightWeightTransactionException ex) {
             throw new ChatRoomDoesNotExistException(format("The chat room '%s' does not exist", roomName));
         }
+        manager.deleteById(UserChatRooms.class, new UserChatRooms.CompoundPk(participantToBeRemoved, roomName));
+
+        // Remove automatically the room if no participants left
+        try {
+            manager.deleteById(ChatRooms.class, roomName, OptionsBuilder.ifEqualCondition("participants", null));
+        } catch (AchillesLightWeightTransactionException ex) {
+        }
+
 
     }
 

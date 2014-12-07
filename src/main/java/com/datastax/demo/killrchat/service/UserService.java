@@ -28,23 +28,17 @@ public class UserService {
         } catch (AchillesLightWeightTransactionException ex) {
             throw new UserAlreadyExistsException(format("The user with the login {} already exists", model.getLogin()));
         }
-
-    }
-
-    public UserModel findByLogin(String login) {
-        final User user = fetchExistingUserFromCassandra(login);
-        return user.toModel();
     }
 
     public void validatePasswordForUser(String login, String password) {
-        final User user = manager.find(User.class, login);
+        final User user = findByLogin(login);
         if (!user.getPass().equals(password)) {
             throw new WrongLoginPasswordException("The login or password is incorrect");
         }
     }
 
     public void changeUserPassword(String login, String oldPassword, String newPassword) {
-        User user = fetchExistingUserFromCassandra(login);
+        User user = findByLogin(login);
         user.setPass(newPassword);
         try {
             manager.update(user, ifConditions(new LWTCondition("pass", oldPassword)));
@@ -53,7 +47,7 @@ public class UserService {
         }
     }
 
-    private User fetchExistingUserFromCassandra(String login) {
+    protected User findByLogin(String login) {
         final User user = manager.find(User.class, login);
         if (user == null) {
             throw new UserNotFoundException(format("Cannot find user with login {}", login));
