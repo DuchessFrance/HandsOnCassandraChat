@@ -29,6 +29,8 @@ import info.archinnov.achilles.junit.AchillesResource;
 import info.archinnov.achilles.junit.AchillesResourceBuilder;
 import info.archinnov.achilles.persistence.PersistenceManager;
 
+import java.util.List;
+
 @RunWith(MockitoJUnitRunner.class)
 public class UserServiceTest {
 
@@ -69,6 +71,24 @@ public class UserServiceTest {
         assertThat(row.getString("nickname")).isEqualTo("smartGuy");
         assertThat(row.getString("email")).isEqualTo("a.einstein@smart.com");
         assertThat(row.getString("bio")).isEqualTo("I am THE Genius");
+    }
+
+    @Test
+    public void should_list_users() throws Exception {
+        //Given
+        final Insert einstein = insertInto(USERS).value("login", "emc²").value("pass","a.einstein").value("firstname", "Albert").value("lastname", "EINSTEIN");
+        final Insert maxPlank = insertInto(USERS).value("login", "maximo").value("pass","max.plank").value("firstname", "Max").value("lastname", "PLANK");
+        final Insert newton = insertInto(USERS).value("login", "newton").value("pass","isaac.newton").value("firstname", "Isaac").value("lastname", "NEWTON");
+
+        session.execute(einstein);
+        session.execute(maxPlank);
+        session.execute(newton);
+
+        //When
+        final List<UserModel> users = service.listUsers("", 10);
+
+        //Then
+        assertThat(users).hasSize(3);
     }
 
     @Test

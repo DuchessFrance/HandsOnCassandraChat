@@ -7,11 +7,13 @@ import com.datastax.driver.core.utils.UUIDs;
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import info.archinnov.achilles.persistence.PersistenceManager;
+import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import java.util.List;
 import java.util.UUID;
 
+@Service
 public class MessageService {
 
     private static final Function<ChatRoomMessage, ChatMessageModel> TO_MODEL = new Function<ChatRoomMessage, ChatMessageModel>() {
@@ -52,6 +54,6 @@ public class MessageService {
                 .fromExclusiveToInclusiveBounds()
                 .get(pageSize);
 
-        return FluentIterable.from(messages).transform(TO_MODEL).toList();
+        return FluentIterable.from(messages).transform(TO_MODEL).toList().reverse();
     }
 }

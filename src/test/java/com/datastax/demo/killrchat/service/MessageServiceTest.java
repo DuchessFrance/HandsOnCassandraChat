@@ -173,13 +173,13 @@ public class MessageServiceTest {
 
         //Then
         assertThat(messages).hasSize(2);
-        final ChatMessageModel lastMessage = messages.get(0);
+        final ChatMessageModel lastMessage = messages.get(1);
 
         assertThat(lastMessage.getAuthor()).isEqualTo(johnDoe);
         assertThat(lastMessage.getMessageId()).isEqualTo(messageId5);
         assertThat(lastMessage.getContent()).isEqualTo(message5);
 
-        final ChatMessageModel beforeLastMessage = messages.get(1);
+        final ChatMessageModel beforeLastMessage = messages.get(0);
 
         assertThat(beforeLastMessage.getAuthor()).isEqualTo(helenSue);
         assertThat(beforeLastMessage.getMessageId()).isEqualTo(messageId4);
@@ -223,13 +223,13 @@ public class MessageServiceTest {
 
         //Then
         assertThat(messages).hasSize(2);
-        final ChatMessageModel lastMessage = messages.get(0);
+        final ChatMessageModel lastMessage = messages.get(1);
 
         assertThat(lastMessage.getAuthor()).isEqualTo(johnDoe);
         assertThat(lastMessage.getMessageId()).isEqualTo(messageId3);
         assertThat(lastMessage.getContent()).isEqualTo(message3);
 
-        final ChatMessageModel beforeLastMessage = messages.get(1);
+        final ChatMessageModel beforeLastMessage = messages.get(0);
 
         assertThat(beforeLastMessage.getAuthor()).isEqualTo(helenSue);
         assertThat(beforeLastMessage.getMessageId()).isEqualTo(messageId2);

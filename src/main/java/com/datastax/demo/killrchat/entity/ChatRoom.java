@@ -1,5 +1,6 @@
 package com.datastax.demo.killrchat.entity;
 
+import com.datastax.demo.killrchat.model.ChatRoomModel;
 import com.datastax.demo.killrchat.model.LightChatRoomModel;
 import com.datastax.demo.killrchat.model.LightUserModel;
 import info.archinnov.achilles.annotations.*;
@@ -9,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.NotBlank;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -20,7 +22,7 @@ import static com.datastax.demo.killrchat.entity.Schema.KEYSPACE;
 @AllArgsConstructor
 @Entity(keyspace = KEYSPACE, table = CHATROOMS)
 @Strategy(naming = NamingStrategy.SNAKE_CASE)
-public class ChatRooms {
+public class ChatRoom {
 
     @Id
     private String roomName;
@@ -42,7 +44,7 @@ public class ChatRooms {
     @JSON
     private Set<LightUserModel> participants;
 
-    public ChatRooms(String roomName, boolean privateRoom, boolean directChat, String creator,Set<LightUserModel> participants) {
+    public ChatRoom(String roomName, boolean privateRoom, boolean directChat, String creator, Set<LightUserModel> participants) {
         this.roomName = roomName;
         this.privateRoom = privateRoom;
         this.directChat = directChat;
@@ -52,5 +54,12 @@ public class ChatRooms {
 
     public LightChatRoomModel toLightModel() {
         return new LightChatRoomModel(roomName, creator);
+    }
+
+    public ChatRoomModel toModel() {
+        final ChatRoomModel chatRoomModel = new ChatRoomModel(privateRoom, directChat, participants, banner);
+        chatRoomModel.setCreator(creator);
+        chatRoomModel.setRoomName(roomName);
+        return chatRoomModel;
     }
 }

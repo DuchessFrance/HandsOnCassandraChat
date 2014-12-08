@@ -7,13 +7,16 @@ import static org.assertj.core.api.Assertions.*;
 import com.datastax.demo.killrchat.entity.User;
 import com.datastax.demo.killrchat.exceptions.ChatRoomAlreadyExistsException;
 import com.datastax.demo.killrchat.exceptions.ChatRoomDoesNotExistException;
+import com.datastax.demo.killrchat.model.ChatRoomModel;
 import com.datastax.demo.killrchat.model.LightChatRoomModel;
 import com.datastax.demo.killrchat.model.LightUserModel;
+import com.datastax.demo.killrchat.resource.ChatRoomResource;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.querybuilder.Batch;
 import com.datastax.driver.core.querybuilder.Insert;
 import com.datastax.driver.core.querybuilder.Select;
+import com.google.common.collect.Sets;
 import info.archinnov.achilles.junit.AchillesResource;
 import info.archinnov.achilles.junit.AchillesResourceBuilder;
 import info.archinnov.achilles.persistence.PersistenceManager;
@@ -79,6 +82,35 @@ public class ChatRoomServiceTest {
     }
 
     @Test
+    public void should_find_room_by_name() throws Exception {
+        //Given
+        final Insert insertRoom = insertInto(KEYSPACE, CHATROOMS)
+                .value("room_name", "games")
+                .value("creator", "jdoe")
+                .value("private_room", false)
+                .value("direct_chat", false)
+                .value("participants", Sets.<LightUserModel>newHashSet());
+
+
+        session.execute(insertRoom);
+
+        //When
+        final ChatRoomModel model = service.findRoomByName("games");
+
+        //Then
+        assertThat(model.getCreator()).isEqualTo("jdoe");
+        assertThat(model.getRoomName()).isEqualTo("games");
+        assertThat(model.isDirectChat()).isFalse();
+        assertThat(model.isPrivateRoom()).isFalse();
+        assertThat(model.getParticipants()).isNull();
+    }
+
+    @Test(expected = ChatRoomDoesNotExistException.class)
+    public void should_exception_when_room_does_not_exist() throws Exception {
+        service.findRoomByName("games");
+    }
+
+    @Test
     public void should_list_chat_rooms_by_page() throws Exception {
         //Given
         service.roomFetchPage = 2;
@@ -97,7 +129,7 @@ public class ChatRoomServiceTest {
         session.execute(batch);
 
         //When
-        final List<LightChatRoomModel> rooms = service.listChatRooms("", 3);
+        final List<ChatRoomModel> rooms = service.listChatRooms(ChatRoomResource.EMPTY_SPACE, 3);
 
         //Then
         assertThat(rooms).hasSize(3);
