@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import com.datastax.demo.killrchat.model.ChatMessageModel;
+import com.datastax.demo.killrchat.resource.model.MessagePaging;
+import com.datastax.demo.killrchat.resource.model.MessagePosting;
 import com.datastax.demo.killrchat.service.MessageService;
 import com.datastax.driver.core.utils.UUIDs;
 import org.junit.Test;
@@ -29,7 +31,7 @@ public class MessageResourceTest {
     @Test
     public void should_post_new_message() throws Exception {
         //When
-        resource.postNewMessage("jdoe", "games", "Wow sucks!");
+        resource.postNewMessage("games", new MessagePosting("jdoe", "Wow sucks!"));
 
         //Then
         verify(service).postNewMessage("jdoe", "games", "Wow sucks!");
@@ -38,7 +40,7 @@ public class MessageResourceTest {
     @Test
     public void should_update_last_message() throws Exception {
         //When
-        resource.updateLastMessage("jdoe", "games", "Wow sucks a little bit...");
+        resource.updateLastMessage("games", new MessagePosting("jdoe", "Wow sucks a little bit..."));
 
         //Then
         verify(service).updateLastMessage("jdoe", "games", "Wow sucks a little bit...");

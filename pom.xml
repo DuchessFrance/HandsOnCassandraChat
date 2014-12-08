@@ -9,12 +9,12 @@
     <version>1.0</version>
 
     <properties>
-        <achilles.version>3.0.14</achilles.version>
 
+        <achilles.version>3.0.14</achilles.version>
+        <spring-boot.version>1.1.8.RELEASE</spring-boot.version>
         <lombok.version>1.14.4</lombok.version>
         <slf4j.version>1.7.6</slf4j.version>
         <logback.version>1.1.2</logback.version>
-
         <junit.version>4.11</junit.version>
         <mockito.version>1.9.5</mockito.version>
         <assertj.version>1.6.0</assertj.version>
@@ -36,6 +36,12 @@
             <groupId>javax.inject</groupId>
             <artifactId>javax.inject</artifactId>
             <version>${javax.inject.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <version>${spring-boot.version}</version>
         </dependency>
 
         <!-- Bean Validation -->

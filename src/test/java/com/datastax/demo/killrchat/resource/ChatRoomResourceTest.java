@@ -3,10 +3,13 @@ package com.datastax.demo.killrchat.resource;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
+import com.datastax.demo.killrchat.model.ChatRoomModel;
 import com.datastax.demo.killrchat.model.LightChatRoomModel;
 import com.datastax.demo.killrchat.model.LightUserModel;
+import com.datastax.demo.killrchat.resource.model.ChatRoomCreationModel;
+import com.datastax.demo.killrchat.resource.model.ChatRoomParticipantModel;
 import com.datastax.demo.killrchat.service.ChatRoomService;
-import org.assertj.core.api.Assertions;
+import com.google.common.collect.Sets;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -32,10 +35,23 @@ public class ChatRoomResourceTest {
         final LightUserModel userModel = new LightUserModel("jdoe", "John", "DOE", "johnny");
 
         //When
-        resource.createChatRoom(roomName, userModel, false, false);
+        resource.createChatRoom(new ChatRoomCreationModel(roomName, userModel, false, false));
 
         //Then
         verify(service).createChatRoom(roomName, userModel, false, false);
+    }
+
+    @Test
+    public void should_find_room_by_name() throws Exception {
+        //Given
+        final ChatRoomModel roomModel = new ChatRoomModel("games","jdoe", "", false, false, Sets.<LightUserModel>newHashSet());
+        when(service.findRoomByName("games")).thenReturn(roomModel);
+
+        //When
+        final ChatRoomModel found = resource.findRoomByName("games");
+
+        //Then
+        assertThat(found).isSameAs(roomModel);
     }
 
     @Test
@@ -46,7 +62,7 @@ public class ChatRoomResourceTest {
         resource.listChatRooms(null,0);
 
         //Then
-        verify(service).listChatRooms("", ChatRoomResource.DEFAULT_CHAT_ROOMS_LIST_FETCH_SIZE);
+        verify(service).listChatRooms(ChatRoomResource.EMPTY_SPACE, ChatRoomResource.DEFAULT_CHAT_ROOMS_LIST_FETCH_SIZE);
     }
 
     @Test
@@ -93,7 +109,7 @@ public class ChatRoomResourceTest {
         final LightChatRoomModel room = new LightChatRoomModel("games","jdoe");
 
         //When
-        resource.addUserToChatRoom(room, user);
+        resource.addUserToChatRoom(new ChatRoomParticipantModel(room, user));
 
         //Then
         verify(service).addUserToRoom(room, user);
@@ -106,7 +122,7 @@ public class ChatRoomResourceTest {
         final LightChatRoomModel room = new LightChatRoomModel("games","jdoe");
 
         //When
-        resource.removeUserFromChatRoom(room, user);
+        resource.removeUserFromChatRoom(new ChatRoomParticipantModel(room, user));
 
         //Then
         verify(service).removeUserFromRoom(room, user);
