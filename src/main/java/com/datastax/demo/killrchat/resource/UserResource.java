@@ -4,9 +4,13 @@ import com.datastax.demo.killrchat.exceptions.IncorrectOldPasswordException;
 import com.datastax.demo.killrchat.exceptions.UserAlreadyExistsException;
 import com.datastax.demo.killrchat.exceptions.UserNotFoundException;
 import com.datastax.demo.killrchat.exceptions.WrongLoginPasswordException;
+import com.datastax.demo.killrchat.model.LightChatRoomModel;
 import com.datastax.demo.killrchat.model.UserModel;
 import com.datastax.demo.killrchat.resource.model.UserPasswordModel;
+import com.datastax.demo.killrchat.security.utils.SecurityUtils;
+import com.datastax.demo.killrchat.service.ChatRoomService;
 import com.datastax.demo.killrchat.service.UserService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,7 +35,10 @@ public class UserResource {
     @Inject
     private UserService service;
 
-    @RequestMapping(value = "/", method = POST, consumes = APPLICATION_JSON_VALUE)
+    @Inject
+    private ChatRoomService chatRoomService;
+
+    @RequestMapping(value = "/create", method = POST, consumes = APPLICATION_JSON_VALUE)
     public void createUser(@NotNull @RequestBody UserModel model) {
         //TODO encrypt password properly for security
         service.createUser(model);
@@ -71,6 +78,14 @@ public class UserResource {
         service.changeUserPassword(login, oldPassword, newPassword);
     }
 
+    @RequestMapping(value = "/rooms", method = GET, produces = APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public List<LightChatRoomModel> listChatRoomsForUserByPage(@RequestParam(required = false) String fromRoomName, @RequestParam(required = false) int fetchSize) {
+        final String login = SecurityUtils.getCurrentLogin();
+        final String fromRoom = StringUtils.isBlank(fromRoomName) ? EMPTY_SPACE : fromRoomName;
+        final int pageSize = fetchSize <= 0 ? DEFAULT_CHAT_ROOMS_LIST_FETCH_SIZE :fetchSize;
+        return chatRoomService.listChatRoomsForUserByPage(login, fromRoom, pageSize);
+    }
 
     @ExceptionHandler(value = {
             UserAlreadyExistsException.class,

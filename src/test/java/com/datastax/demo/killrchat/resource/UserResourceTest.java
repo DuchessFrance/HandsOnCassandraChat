@@ -3,8 +3,10 @@ package com.datastax.demo.killrchat.resource;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
+import com.datastax.demo.killrchat.model.LightChatRoomModel;
 import com.datastax.demo.killrchat.model.UserModel;
 import com.datastax.demo.killrchat.resource.model.UserPasswordModel;
+import com.datastax.demo.killrchat.service.ChatRoomService;
 import com.datastax.demo.killrchat.service.UserService;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
@@ -24,6 +26,9 @@ public class UserResourceTest {
 
     @Mock
     private UserService service;
+
+    @Mock
+    private ChatRoomService chatRoomService;
 
     @Test
     public void should_create_user() throws Exception {
@@ -87,5 +92,31 @@ public class UserResourceTest {
 
         //Then
         verify(service).changeUserPassword("jdoe", "pass", "new_pass");
+    }
+
+    @Test
+    public void should_list_chat_room_for_user_from_beginning() throws Exception {
+        //Given
+        final LightChatRoomModel room = new LightChatRoomModel("games","jdoe");
+        when(chatRoomService.listChatRoomsForUserByPage(null,"", ChatRoomResource.DEFAULT_CHAT_ROOMS_LIST_FETCH_SIZE)).thenReturn(Arrays.asList(room));
+
+        //When
+        final List<LightChatRoomModel> foundRooms = resource.listChatRoomsForUserByPage(null, 0);
+
+        //Then
+        assertThat(foundRooms).containsExactly(room);
+    }
+
+    @Test
+    public void should_list_chat_room_for_user_from_lower_bound_with_paging() throws Exception {
+        //Given
+        final LightChatRoomModel room = new LightChatRoomModel("games","jdoe");
+        when(chatRoomService.listChatRoomsForUserByPage(null,"fun", 11)).thenReturn(Arrays.asList(room));
+
+        //When
+        final List<LightChatRoomModel> foundRooms = resource.listChatRoomsForUserByPage("fun", 11);
+
+        //Then
+        assertThat(foundRooms).containsExactly(room);
     }
 }

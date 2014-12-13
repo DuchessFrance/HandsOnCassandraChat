@@ -6,7 +6,6 @@ import com.datastax.demo.killrchat.model.LightChatRoomModel;
 import com.datastax.demo.killrchat.model.LightUserModel;
 import com.datastax.demo.killrchat.resource.model.ChatRoomCreationModel;
 import com.datastax.demo.killrchat.resource.model.ChatRoomParticipantModel;
-import com.datastax.demo.killrchat.resource.model.PagingByToken;
 import com.datastax.demo.killrchat.service.ChatRoomService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
@@ -52,15 +51,6 @@ public class ChatRoomResource {
         final String fromRoom = fromRoomName == null ? EMPTY_SPACE : fromRoomName;
         final int pageSize = fetchSize <= 0 ? DEFAULT_CHAT_ROOMS_LIST_FETCH_SIZE : fetchSize;
         return service.listChatRooms(fromRoom, pageSize);
-    }
-
-    @RequestMapping(value = "/{login}/list/{fromRoomName}/{fetchSize}", method = GET, produces = APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public List<LightChatRoomModel> listChatRoomsForUserByPage(@PathVariable String login, @PathVariable String fromRoomName, @PathVariable int fetchSize) {
-        Validator.validateNotBlank(login, "Missing login for user chat rooms listing");
-        final String fromRoom = StringUtils.isBlank(fromRoomName) ? EMPTY_SPACE : fromRoomName;
-        final int pageSize = fetchSize <= 0 ? DEFAULT_CHAT_ROOMS_LIST_FETCH_SIZE :fetchSize;
-        return service.listChatRoomsForUserByPage(login, fromRoom, pageSize);
     }
 
     @RequestMapping(value = "/user", method = PUT, consumes = APPLICATION_JSON_VALUE)

@@ -24,6 +24,7 @@ import static com.datastax.driver.core.querybuilder.QueryBuilder.*;
 import static com.google.common.collect.FluentIterable.from;
 import static info.archinnov.achilles.type.Options.LWTCondition;
 import static info.archinnov.achilles.type.OptionsBuilder.ifConditions;
+import static info.archinnov.achilles.type.OptionsBuilder.ifEqualCondition;
 import static java.lang.String.format;
 
 @Service
@@ -68,7 +69,7 @@ public class UserService {
         User user = findByLogin(login);
         user.setPass(newPassword);
         try {
-            manager.update(user, ifConditions(new LWTCondition("pass", oldPassword)));
+            manager.update(user, ifEqualCondition("pass", oldPassword));
         } catch (AchillesLightWeightTransactionException ex) {
             throw new IncorrectOldPasswordException("The provided old password does not match");
         }

@@ -77,32 +77,6 @@ public class ChatRoomResourceTest {
     }
 
     @Test
-    public void should_list_chat_room_for_user_from_beginning() throws Exception {
-        //Given
-        final LightChatRoomModel room = new LightChatRoomModel("games","jdoe");
-        when(service.listChatRoomsForUserByPage("jdoe","", ChatRoomResource.DEFAULT_CHAT_ROOMS_LIST_FETCH_SIZE)).thenReturn(Arrays.asList(room));
-
-        //When
-        final List<LightChatRoomModel> foundRooms = resource.listChatRoomsForUserByPage("jdoe", null, 0);
-
-        //Then
-        assertThat(foundRooms).containsExactly(room);
-    }
-
-    @Test
-    public void should_list_chat_room_for_user_from_lower_bound_with_paging() throws Exception {
-        //Given
-        final LightChatRoomModel room = new LightChatRoomModel("games","jdoe");
-        when(service.listChatRoomsForUserByPage("jdoe","fun", 11)).thenReturn(Arrays.asList(room));
-
-        //When
-        final List<LightChatRoomModel> foundRooms = resource.listChatRoomsForUserByPage("jdoe", "fun", 11);
-
-        //Then
-        assertThat(foundRooms).containsExactly(room);
-    }
-
-    @Test
     public void should_add_user_to_chat_room() throws Exception {
         //Given
         final LightUserModel user = new LightUserModel("jdoe", "John", "DOE", "johnny");
