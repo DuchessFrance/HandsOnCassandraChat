@@ -32,6 +32,8 @@ import java.util.List;
 @RunWith(MockitoJUnitRunner.class)
 public class ChatRoomServiceTest {
 
+    public static final String EMPTY_SPACE = "";
+
     @Rule
     public AchillesResource resource = AchillesResourceBuilder
             .withEntityPackages(User.class.getPackage().getName())
@@ -113,8 +115,31 @@ public class ChatRoomServiceTest {
     @Test
     public void should_list_chat_rooms_by_page() throws Exception {
         //Given
-        service.roomFetchPage = 2;
+        final Insert starcraftRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "starcraft").value("creator", "jdoe").value("private_room", false).value("direct_chat", false);
+        final Insert callOfDutyRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "call_of_duty").value("creator", "jdoe").value("private_room", false).value("direct_chat", false);
+        final Insert bioshockRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "bioshock").value("creator", "jdoe").value("private_room", false).value("direct_chat", false);
+        final Insert javaRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "java").value("creator", "jdoe").value("private_room", false).value("direct_chat", false);
+        final Insert scalaRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "scala").value("creator", "jdoe").value("private_room", false).value("direct_chat", false);
+        final Insert saasRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "saas").value("creator", "jdoe").value("private_room", false).value("direct_chat", false);
+        final Insert jenniferLaurenceRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "team_jennifer_laurence").value("creator", "jdoe").value("private_room", false).value("direct_chat", false);
+        final Insert politicsRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "politics").value("creator", "jdoe").value("private_room", false).value("direct_chat", false);
 
+        final Batch batch = batch(starcraftRoom, callOfDutyRoom, bioshockRoom, javaRoom, scalaRoom, saasRoom, jenniferLaurenceRoom, politicsRoom);
+        session.execute(batch);
+
+        //When
+        final List<ChatRoomModel> rooms = service.listChatRooms("bioshock", 3);
+
+        //Then
+        assertThat(rooms).hasSize(3);
+        assertThat(rooms.get(0).getRoomName()).isEqualTo("java");
+        assertThat(rooms.get(1).getRoomName()).isEqualTo("scala");
+        assertThat(rooms.get(2).getRoomName()).isEqualTo("politics");
+    }
+
+    @Test
+    public void should_list_first_page_of_rooms() throws Exception {
+        //Given
         final List<String> allRooms = Arrays.asList("starcraft", "call_of_duty", "bioshock", "java", "scala", "saas", "team_jennifer_laurence", "politics");
         final Insert starcraftRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "starcraft").value("creator", "jdoe").value("private_room", false).value("direct_chat", false);
         final Insert callOfDutyRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "call_of_duty").value("creator", "jdoe").value("private_room", false).value("direct_chat", false);
@@ -129,13 +154,13 @@ public class ChatRoomServiceTest {
         session.execute(batch);
 
         //When
-        final List<ChatRoomModel> rooms = service.listChatRooms(ChatRoomResource.EMPTY_SPACE, 3);
+        final List<ChatRoomModel> rooms = service.listChatRooms(EMPTY_SPACE, 3);
 
         //Then
         assertThat(rooms).hasSize(3);
-        assertThat(allRooms).contains(rooms.get(0).getRoomName());
-        assertThat(allRooms).contains(rooms.get(1).getRoomName());
-        assertThat(allRooms).contains(rooms.get(2).getRoomName());
+        assertThat(rooms.get(0).getRoomName()).isEqualTo("saas");
+        assertThat(rooms.get(1).getRoomName()).isEqualTo("bioshock");
+        assertThat(rooms.get(2).getRoomName()).isEqualTo("java");
     }
 
     @Test

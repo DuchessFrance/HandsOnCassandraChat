@@ -1,6 +1,5 @@
 package com.datastax.demo.killrchat.service;
 
-import static com.datastax.demo.killrchat.entity.Schema.USER_CHATROOMS;
 import static com.datastax.driver.core.querybuilder.QueryBuilder.eq;
 import static com.datastax.driver.core.querybuilder.QueryBuilder.insertInto;
 import static com.datastax.driver.core.querybuilder.QueryBuilder.select;
@@ -10,12 +9,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.datastax.demo.killrchat.exceptions.IncorrectOldPasswordException;
 import com.datastax.demo.killrchat.exceptions.UserAlreadyExistsException;
-import com.datastax.demo.killrchat.exceptions.UserNotFoundException;
 import com.datastax.demo.killrchat.exceptions.WrongLoginPasswordException;
 import com.datastax.demo.killrchat.model.UserModel;
-import com.datastax.driver.core.ResultSet;
 import info.archinnov.achilles.exception.AchillesBeanValidationException;
-import info.archinnov.achilles.exception.AchillesLightWeightTransactionException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -79,16 +75,48 @@ public class UserServiceTest {
         final Insert einstein = insertInto(USERS).value("login", "emc²").value("pass","a.einstein").value("firstname", "Albert").value("lastname", "EINSTEIN");
         final Insert maxPlank = insertInto(USERS).value("login", "maximo").value("pass","max.plank").value("firstname", "Max").value("lastname", "PLANK");
         final Insert newton = insertInto(USERS).value("login", "newton").value("pass","isaac.newton").value("firstname", "Isaac").value("lastname", "NEWTON");
+        final Insert galileo = insertInto(USERS).value("login", "galileo").value("pass","galileo.galilei").value("firstname", "Galileo").value("lastname", "GALILEI");
+        final Insert descartes = insertInto(USERS).value("login", "descartes").value("pass","rene.descartes").value("firstname", "René").value("lastname", "DESCARTES");
 
         session.execute(einstein);
         session.execute(maxPlank);
         session.execute(newton);
+        session.execute(galileo);
+        session.execute(descartes);
 
         //When
-        final List<UserModel> users = service.listUsers("", 10);
+        final List<UserModel> users = service.listUsers(null, 3);
 
         //Then
         assertThat(users).hasSize(3);
+        assertThat(users.get(0).getLogin()).isEqualTo("emc²");
+        assertThat(users.get(1).getLogin()).isEqualTo("maximo");
+        assertThat(users.get(2).getLogin()).isEqualTo("descartes");
+    }
+
+    @Test
+    public void should_list_users_from_lower_bound() throws Exception {
+        //Given
+        final Insert einstein = insertInto(USERS).value("login", "emc²").value("pass","a.einstein").value("firstname", "Albert").value("lastname", "EINSTEIN");
+        final Insert maxPlank = insertInto(USERS).value("login", "maximo").value("pass","max.plank").value("firstname", "Max").value("lastname", "PLANK");
+        final Insert newton = insertInto(USERS).value("login", "newton").value("pass","isaac.newton").value("firstname", "Isaac").value("lastname", "NEWTON");
+        final Insert galileo = insertInto(USERS).value("login", "galileo").value("pass","galileo.galilei").value("firstname", "Galileo").value("lastname", "GALILEI");
+        final Insert descartes = insertInto(USERS).value("login", "descartes").value("pass","rene.descartes").value("firstname", "René").value("lastname", "DESCARTES");
+
+        session.execute(einstein);
+        session.execute(maxPlank);
+        session.execute(newton);
+        session.execute(galileo);
+        session.execute(descartes);
+
+        //When
+        final List<UserModel> users = service.listUsers("maximo", 10);
+
+        //Then
+        assertThat(users).hasSize(3);
+        assertThat(users.get(0).getLogin()).isEqualTo("descartes");
+        assertThat(users.get(1).getLogin()).isEqualTo("newton");
+        assertThat(users.get(2).getLogin()).isEqualTo("galileo");
     }
 
     @Test

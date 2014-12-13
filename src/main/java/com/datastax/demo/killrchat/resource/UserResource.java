@@ -47,9 +47,8 @@ public class UserResource {
     @RequestMapping(value = "/", method = GET, produces = APPLICATION_JSON_VALUE)
     @ResponseBody
     public List<UserModel> listUsers(String fromUserLogin, int fetchSize) {
-        final String fromLogin = fromUserLogin == null ? EMPTY_SPACE : fromUserLogin;
         final int pageSize = fetchSize <= 0 ? DEFAULT_CHAT_ROOMS_LIST_FETCH_SIZE : fetchSize;
-        return service.listUsers(fromLogin, pageSize);
+        return service.listUsers(fromUserLogin, pageSize);
     }
 
     @RequestMapping(value = "/login", method = POST, consumes = APPLICATION_JSON_VALUE)

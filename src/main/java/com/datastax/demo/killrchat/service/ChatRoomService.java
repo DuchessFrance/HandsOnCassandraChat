@@ -23,14 +23,15 @@ import static com.datastax.demo.killrchat.entity.Schema.KEYSPACE;
 import static com.datastax.driver.core.querybuilder.QueryBuilder.*;
 import static com.google.common.collect.FluentIterable.from;
 import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Service
 public class ChatRoomService {
 
+    private static final Select SELECT_FIRST_PAGE_FOR_ROOMS = select().from(KEYSPACE, CHATROOMS).limit(bindMarker("fetchSize"));
+
     @Inject
     PersistenceManager manager;
-
-    int roomFetchPage;
 
     private static final Function<ChatRoom, ChatRoomModel> CHAT_ROOM_TO_MODEL = new Function<ChatRoom, ChatRoomModel>() {
         @Override
@@ -67,11 +68,18 @@ public class ChatRoomService {
     }
 
     public List<ChatRoomModel> listChatRooms(String fromRoomName, int fetchSize) {
-        final Select select = select().from(KEYSPACE, CHATROOMS)
-                .where(gt(token("room_name"), fcall("token", fromRoomName)))
-                .limit(fetchSize);
-
-        final List<ChatRoom> foundChatRooms = manager.typedQuery(ChatRoom.class, select).get();
+        final Select select;
+        final Object[] boundValues;
+        if (isBlank(fromRoomName)) {
+            select = SELECT_FIRST_PAGE_FOR_ROOMS;
+            boundValues = new Object[]{fetchSize};
+        } else {
+            select = select().from(KEYSPACE, CHATROOMS)
+                    .where(gt(token("room_name"), fcall("token", bindMarker("fromRoomName"))))
+                    .limit(bindMarker("fetchSize"));
+            boundValues = new Object[]{fromRoomName, fetchSize};
+        }
+        final List<ChatRoom> foundChatRooms = manager.typedQuery(ChatRoom.class, select, boundValues).get();
         return from(foundChatRooms).transform(CHAT_ROOM_TO_MODEL).toList();
     }
 

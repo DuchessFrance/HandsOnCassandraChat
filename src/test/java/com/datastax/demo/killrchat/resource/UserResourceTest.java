@@ -43,20 +43,6 @@ public class UserResourceTest {
     }
 
     @Test
-    public void should_list_users_from_beginning() throws Exception {
-        //Given
-        final UserModel userModel = new UserModel("jdoe", "pass", "John", "DOE", "johnny", "jdoe@gmail.com", "bio");
-
-        when(service.listUsers("", UserResource.DEFAULT_CHAT_ROOMS_LIST_FETCH_SIZE)).thenReturn(Arrays.asList(userModel));
-
-        //When
-        final List<UserModel> found = resource.listUsers(null, 0);
-
-        //Then
-        assertThat(found).containsExactly(userModel);
-    }
-
-    @Test
     public void should_list_users_from_login() throws Exception {
         //Given
         final UserModel userModel = new UserModel("jdoe", "pass", "John", "DOE", "johnny", "jdoe@gmail.com", "bio");

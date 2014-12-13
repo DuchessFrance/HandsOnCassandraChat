@@ -8,7 +8,6 @@ import com.datastax.demo.killrchat.resource.model.ChatRoomCreationModel;
 import com.datastax.demo.killrchat.resource.model.ChatRoomParticipantModel;
 //import com.datastax.demo.killrchat.resource.model.PagingByToken;
 import com.datastax.demo.killrchat.service.ChatRoomService;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,8 +23,6 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 public class ChatRoomResource {
 
     public static final int DEFAULT_CHAT_ROOMS_LIST_FETCH_SIZE = 10;
-
-    public static final String EMPTY_SPACE = "";
 
     @Inject
     private ChatRoomService service;
@@ -49,9 +46,8 @@ public class ChatRoomResource {
     @RequestMapping(value = "/list", method = GET, produces = APPLICATION_JSON_VALUE)
     @ResponseBody
     public List<ChatRoomModel> listChatRooms(@RequestParam(required = false) String fromRoomName, @RequestParam(required = false) int fetchSize) {
-        final String fromRoom = fromRoomName == null ? EMPTY_SPACE : fromRoomName;
         final int pageSize = fetchSize <= 0 ? DEFAULT_CHAT_ROOMS_LIST_FETCH_SIZE : fetchSize;
-        return service.listChatRooms(fromRoom, pageSize);
+        return service.listChatRooms(fromRoomName, pageSize);
     }
 
     @RequestMapping(value = "/user", method = PUT, consumes = APPLICATION_JSON_VALUE)

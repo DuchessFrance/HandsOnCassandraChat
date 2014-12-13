@@ -14,21 +14,21 @@ import com.google.common.base.Function;
 import info.archinnov.achilles.exception.AchillesLightWeightTransactionException;
 import info.archinnov.achilles.persistence.PersistenceManager;
 import info.archinnov.achilles.type.OptionsBuilder;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static com.datastax.demo.killrchat.entity.Schema.KEYSPACE;
-import static com.datastax.demo.killrchat.entity.Schema.USERS;
+import static com.datastax.demo.killrchat.entity.Schema.*;
 import static com.datastax.driver.core.querybuilder.QueryBuilder.*;
 import static com.google.common.collect.FluentIterable.from;
-import static info.archinnov.achilles.type.Options.LWTCondition;
-import static info.archinnov.achilles.type.OptionsBuilder.ifConditions;
 import static info.archinnov.achilles.type.OptionsBuilder.ifEqualCondition;
 import static java.lang.String.format;
 
 @Service
 public class UserService {
+
+    private static final Select SELECT_FIRST_PAGE_FOR_USERS = select().from(KEYSPACE, USERS).limit(bindMarker("fetchSize"));
 
     @Inject
     PersistenceManager manager;
@@ -50,11 +50,20 @@ public class UserService {
     }
 
     public List<UserModel> listUsers(String fromUserLogin, int fetchSize) {
-        final Select select = select().from(KEYSPACE, USERS)
-                .where(gt(token("login"), fcall("token",fromUserLogin)))
-                .limit(fetchSize);
+        final Select select;
+        final Object[] boundValues;
+        if (StringUtils.isBlank(fromUserLogin)) {
+            select = SELECT_FIRST_PAGE_FOR_USERS;
+            boundValues = new Object[]{fetchSize};
+        } else {
 
-        final List<User> foundUsers = manager.typedQuery(User.class, select).get();
+            select = select().from(KEYSPACE, USERS)
+                    .where(gt(token("login"), fcall("token",bindMarker("fromUserLogin"))))
+                    .limit(bindMarker("fetchSize"));
+            boundValues = new Object[]{fromUserLogin, fetchSize};
+        }
+
+        final List<User> foundUsers = manager.typedQuery(User.class, select, boundValues).get();
         return from(foundUsers).transform(USER_TO_MODEL).toList();
     }
 

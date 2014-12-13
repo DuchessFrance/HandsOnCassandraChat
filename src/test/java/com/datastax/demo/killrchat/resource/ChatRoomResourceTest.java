@@ -55,17 +55,6 @@ public class ChatRoomResourceTest {
     }
 
     @Test
-    public void should_list_chat_rooms_from_the_beginning() throws Exception {
-        //Given
-
-        //When
-        resource.listChatRooms(null,0);
-
-        //Then
-        verify(service).listChatRooms(ChatRoomResource.EMPTY_SPACE, ChatRoomResource.DEFAULT_CHAT_ROOMS_LIST_FETCH_SIZE);
-    }
-
-    @Test
     public void should_list_chat_rooms_from_lower_bound_with_page_size() throws Exception {
         //Given
 
