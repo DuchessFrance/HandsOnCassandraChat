@@ -2,6 +2,9 @@ package com.datastax.demo.killrchat.entity;
 
 import com.datastax.demo.killrchat.model.LightUserModel;
 import com.datastax.demo.killrchat.model.UserModel;
+import com.datastax.demo.killrchat.security.authority.CustomUserDetails;
+import com.datastax.demo.killrchat.security.authority.UserAuthority;
+import com.google.common.collect.Sets;
 import info.archinnov.achilles.annotations.Column;
 import info.archinnov.achilles.annotations.Entity;
 import info.archinnov.achilles.annotations.Id;
@@ -73,5 +76,9 @@ public class User {
         model.setLastname(this.getLastname());
         model.setNickname(this.getNickname());
         return model;
+    }
+
+    public CustomUserDetails toUserDetails() {
+        return new CustomUserDetails(Sets.newHashSet(new UserAuthority()),this.login,this.pass);
     }
 }

@@ -6,4 +6,5 @@ public interface Schema {
     static String CHATROOMS = "chat_rooms";
     static String USER_CHATROOMS = "user_chat_rooms";
     static String CHATROOM_MESSAGES = "chat_room_messages";
+    static String PERSISTENT_TOKEN = "security_tokens";
 }

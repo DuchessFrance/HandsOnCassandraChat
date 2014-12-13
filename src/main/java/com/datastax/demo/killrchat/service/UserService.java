@@ -74,7 +74,7 @@ public class UserService {
         }
     }
 
-    protected User findByLogin(String login) {
+    public User findByLogin(String login) {
         final User user = manager.find(User.class, login);
         if (user == null) {
             throw new UserNotFoundException(format("Cannot find user with login {}", login));
