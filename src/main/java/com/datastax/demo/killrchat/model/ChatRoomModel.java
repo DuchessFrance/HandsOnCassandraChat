@@ -1,5 +1,6 @@
 package com.datastax.demo.killrchat.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,8 +14,10 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = true)
 public class ChatRoomModel extends LightChatRoomModel{
 
+    @JsonProperty("private-room")
     private boolean privateRoom;
 
+    @JsonProperty("direct-chat")
     private boolean directChat;
 
     private Set<LightUserModel> participants;

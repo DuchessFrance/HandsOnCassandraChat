@@ -1,5 +1,6 @@
 package com.datastax.demo.killrchat.resource.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,6 +17,7 @@ public class UserPasswordModel {
     @NotEmpty
     private String password;
 
+    @JsonProperty("new-password")
     private String newPassword;
 
     public UserPasswordModel(String login, String password) {

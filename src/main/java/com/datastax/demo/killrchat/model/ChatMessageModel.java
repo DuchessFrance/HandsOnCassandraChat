@@ -1,5 +1,6 @@
 package com.datastax.demo.killrchat.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,10 +15,13 @@ import java.util.UUID;
 @AllArgsConstructor
 public class ChatMessageModel {
 
+    @JsonProperty("message-id")
     private UUID messageId;
 
+    @JsonProperty("creation-date")
     @NotNull
     private Date creationDate;
+
 
     @NotBlank
     private String author;
@@ -25,5 +29,6 @@ public class ChatMessageModel {
     @NotBlank
     private String content;
 
+    @JsonProperty("system-message")
     private boolean systemMessage;
 }
