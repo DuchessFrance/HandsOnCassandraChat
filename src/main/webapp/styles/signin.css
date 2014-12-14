@@ -1,7 +1,9 @@
-body {
+.signin {
     padding-top: 40px;
     padding-bottom: 40px;
     background-color: #eee;
+    width: 100%;
+    height: 100%;
 }
 
 .nav > li > a {

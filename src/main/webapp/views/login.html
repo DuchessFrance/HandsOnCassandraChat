@@ -1,4 +1,5 @@
-<div ng-controller="SignInCtrl">
+<div ng-controller="SignInCtrl" class="signin">
+    <p class="text-danger text-center" ng-if="loginError"><strong>{{loginError}}</strong></p>
     <form class="form-signin" role="form" name="signin_form">
         <h2 class="form-signin-heading text-center"> </h2>
         <label for="j_username" class="sr-only">Login</label>
@@ -23,15 +24,16 @@
         </button>
     </form>
     <br/>
-    <p class="text-primary text-center" ng-show="userCreated == null">Do not have an account ? Sign up <strong><a ng-click="open()">here</a></strong></p>
-    <p class="text-success text-center" ng-show="userCreated == true"><strong>You can now log in with your new account</strong></p>
+    <p class="text-primary text-center" ng-if="userCreated == null">Do not have an account ? Sign up <strong><a ng-click="open()">here</a></strong></p>
+    <p class="text-success text-center" ng-if="userCreated == true"><strong>You can now log in with your new account</strong></p>
 
+    <!--Signup Modal Panel-->
     <script type="text/ng-template" id="signUpModal.html">
         <div class="modal-header">
             <h3 class="modal-title">Create your KillrChat account</h3>
         </div>
         <div class="modal-body">
-            <p class="bg-danger well well-sm" ng-show="user_create_error != null">
+            <p class="bg-danger well well-sm" ng-if="user_create_error != null">
                 Error while creating user: {{user_create_error}}
             </p>
             <form class="form-horizontal" role="form" name="user_form">

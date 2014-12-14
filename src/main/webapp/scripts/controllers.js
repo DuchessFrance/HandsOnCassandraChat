@@ -34,6 +34,9 @@ killrChat.controller('SignInCtrl', function ($rootScope, $scope, $modal, User) {
                 $rootScope.user.login = $scope.username;
                 // Remove user password now for security purpose!
                 delete $rootScope.user.password;
+                delete $scope.loginError;
+            },function(httpResponse){
+                $scope.loginError = httpResponse.data.message;
             })
     };
 });
