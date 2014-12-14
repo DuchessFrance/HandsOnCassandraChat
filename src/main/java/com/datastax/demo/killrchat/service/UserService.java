@@ -45,7 +45,7 @@ public class UserService {
         try {
             manager.insert(User.fromModel(model), OptionsBuilder.ifNotExists());
         } catch (AchillesLightWeightTransactionException ex) {
-            throw new UserAlreadyExistsException(format("The user with the login {} already exists", model.getLogin()));
+            throw new UserAlreadyExistsException(format("The user with the login '%s' already exists", model.getLogin()));
         }
     }
 
@@ -87,7 +87,7 @@ public class UserService {
     public User findByLogin(String login) {
         final User user = manager.find(User.class, login);
         if (user == null) {
-            throw new UserNotFoundException(format("Cannot find user with login {}", login));
+            throw new UserNotFoundException(format("Cannot find user with login '%s'", login));
         }
         return user;
     }
