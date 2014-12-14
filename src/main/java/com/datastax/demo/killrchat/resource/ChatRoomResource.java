@@ -6,6 +6,7 @@ import com.datastax.demo.killrchat.model.LightChatRoomModel;
 import com.datastax.demo.killrchat.model.LightUserModel;
 import com.datastax.demo.killrchat.resource.model.ChatRoomCreationModel;
 import com.datastax.demo.killrchat.resource.model.ChatRoomParticipantModel;
+//import com.datastax.demo.killrchat.resource.model.PagingByToken;
 import com.datastax.demo.killrchat.service.ChatRoomService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
