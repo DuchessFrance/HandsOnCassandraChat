@@ -9,7 +9,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.datastax.demo.killrchat.exceptions.IncorrectOldPasswordException;
 import com.datastax.demo.killrchat.exceptions.UserAlreadyExistsException;
-import com.datastax.demo.killrchat.exceptions.WrongLoginPasswordException;
 import com.datastax.demo.killrchat.model.UserModel;
 import info.archinnov.achilles.exception.AchillesBeanValidationException;
 import org.junit.Before;
@@ -155,20 +154,6 @@ public class UserServiceTest {
         //Then
 
     }
-
-    @Test(expected = WrongLoginPasswordException.class)
-    public void should_exception_if_incorrect_password() throws Exception {
-        //Given
-        final Insert insert = insertInto(USERS).value("login", "emc²").value("pass","a.einstein").value("firstname", "Albert").value("lastname", "EINSTEIN");
-        session.execute(insert);
-
-        //When
-        service.validatePasswordForUser("emc²", "wrong_password");
-
-        //Then
-
-    }
-
 
     @Test
     public void should_change_user_password() throws Exception {

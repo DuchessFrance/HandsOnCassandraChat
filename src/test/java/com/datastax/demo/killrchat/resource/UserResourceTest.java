@@ -56,19 +56,6 @@ public class UserResourceTest {
         assertThat(found).containsExactly(userModel);
     }
 
-
-    @Test
-    public void should_login() throws Exception {
-        //Given
-        final UserPasswordModel userPasswordModel = new UserPasswordModel("jdoe", "pass");
-
-        //When
-        resource.login(userPasswordModel);
-
-        //Then
-        verify(service).validatePasswordForUser("jdoe","pass");
-    }
-
     @Test
     public void should_change_user_password() throws Exception {
         //When

@@ -7,7 +7,6 @@ import com.datastax.demo.killrchat.entity.User;
 import com.datastax.demo.killrchat.exceptions.IncorrectOldPasswordException;
 import com.datastax.demo.killrchat.exceptions.UserAlreadyExistsException;
 import com.datastax.demo.killrchat.exceptions.UserNotFoundException;
-import com.datastax.demo.killrchat.exceptions.WrongLoginPasswordException;
 import com.datastax.demo.killrchat.model.UserModel;
 import com.datastax.driver.core.querybuilder.Select;
 import com.google.common.base.Function;
@@ -65,13 +64,6 @@ public class UserService {
 
         final List<User> foundUsers = manager.typedQuery(User.class, select, boundValues).get();
         return from(foundUsers).transform(USER_TO_MODEL).toList();
-    }
-
-    public void validatePasswordForUser(String login, String password) {
-        final User user = findByLogin(login);
-        if (!user.getPass().equals(password)) {
-            throw new WrongLoginPasswordException("The login or password is incorrect");
-        }
     }
 
     public void changeUserPassword(String login, String oldPassword, String newPassword) {

@@ -3,7 +3,6 @@ package com.datastax.demo.killrchat.resource;
 import com.datastax.demo.killrchat.exceptions.IncorrectOldPasswordException;
 import com.datastax.demo.killrchat.exceptions.UserAlreadyExistsException;
 import com.datastax.demo.killrchat.exceptions.UserNotFoundException;
-import com.datastax.demo.killrchat.exceptions.WrongLoginPasswordException;
 import com.datastax.demo.killrchat.model.LightChatRoomModel;
 import com.datastax.demo.killrchat.model.UserModel;
 import com.datastax.demo.killrchat.resource.model.UserPasswordModel;
@@ -51,17 +50,6 @@ public class UserResource {
         return service.listUsers(fromUserLogin, pageSize);
     }
 
-    @RequestMapping(value = "/login", method = POST, consumes = APPLICATION_JSON_VALUE)
-    public void login(@NotNull @RequestBody UserPasswordModel userPassword) {
-        final String login = userPassword.getLogin();
-        final String password = userPassword.getPassword();
-        Validator.validateNotBlank(login, "Missing login for user authentication");
-        Validator.validateNotBlank(password, "Missing password for user authentication");
-
-        //TODO hash password and check with the saved hash in Cassandra
-        service.validatePasswordForUser(login, password);
-    }
-
     @RequestMapping(value = "/password", method = PUT, consumes = APPLICATION_JSON_VALUE)
     public void changeUserPassword(@NotNull @RequestBody UserPasswordModel userPassword) {
 
@@ -89,7 +77,6 @@ public class UserResource {
     @ExceptionHandler(value = {
             UserAlreadyExistsException.class,
             UserNotFoundException.class,
-            WrongLoginPasswordException.class,
             IncorrectOldPasswordException.class
     })
     @ResponseBody
