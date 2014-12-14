@@ -61,7 +61,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .antMatchers("/bower_components/**")
             .antMatchers("/fonts/**")
             .antMatchers("/images/**")
-            .antMatchers("/views/**")
+            .antMatchers("/views/login**")
             .antMatchers("/scripts/**")
             .antMatchers("/styles/**");
 
@@ -100,6 +100,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/users/create").permitAll()
                 .antMatchers("/authenticate").permitAll()
                 .antMatchers("/websocket/**").permitAll()
+                .antMatchers("/views/chat**").authenticated()
                 .antMatchers("/users/**").authenticated()
                 .antMatchers("/rooms/**").authenticated()
                 .antMatchers("/messages/**").authenticated();

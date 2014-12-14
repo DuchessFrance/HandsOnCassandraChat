@@ -1,7 +1,19 @@
 /**
  * Login page
  */
-killrChat.controller('SignInCtrl', function ($rootScope, $scope, $modal, User) {
+
+killrChat.controller('NavBarCtrl', function($rootScope, $scope){
+    $rootScope
+        .$on("$routeChangeError",function (event, current, previous, rejection) {
+            $rootScope.accessDeniedMsg = rejection.data.message;
+        });
+
+    $scope.closeAlert = function() {
+        delete $rootScope.accessDeniedMsg;
+    };
+});
+
+killrChat.controller('SignInCtrl', function ($rootScope, $scope, $modal, $location,User) {
 
     $scope.username = null;
     $scope.password = null;
@@ -32,9 +44,16 @@ killrChat.controller('SignInCtrl', function ($rootScope, $scope, $modal, User) {
             },
             function() {
                 $rootScope.user.login = $scope.username;
+
                 // Remove user password now for security purpose!
                 delete $rootScope.user.password;
+
+                // Reset any previous error
                 delete $scope.loginError;
+
+                //Switch to chat view
+                $location.path('/chat');
+
             },function(httpResponse){
                 $scope.loginError = httpResponse.data.message;
             })

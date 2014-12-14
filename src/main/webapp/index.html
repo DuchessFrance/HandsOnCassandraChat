@@ -16,7 +16,7 @@
         <!-- endbuild -->
     </head>
     <body ng-app="KillrChat">
-        <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="navbar navbar-inverse navbar-fixed-top" ng-controller="NavBarCtrl">
             <div class="navbar-inner" >
                 <div class="container-fluid">
                     <a class="navbar-brand">KillrChat</a>
@@ -24,6 +24,10 @@
                         <li><a href="http://cassandra.apache.org/" target="_blank">powered by <strong>Apache Cassandra™</strong></a></li>
                     </ul>
                 </div>
+            </div>
+            <div class="alert alert-danger" role="alert" ng-show="accessDeniedMsg != null">
+                <button type="button" class="close" ng-click="closeAlert()">×</button>
+                {{accessDeniedMsg}}
             </div>
         </div>
         <div class="container-fluid">

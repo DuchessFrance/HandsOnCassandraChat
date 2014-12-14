@@ -7,10 +7,13 @@ var killrChat = angular.module('KillrChat', ['ngRoute','ngResource','ui.bootstra
         $routeProvider
             .when('/', {
                 templateUrl: 'views/login.html'
+            })
+            .when('/chat', {
+            	templateUrl: 'views/chat.html'
+            })
+            .otherwise({
+                redirectTo: '/'
             });
-//            .when('/user/:action/:param1/:param2?', {
-//            	templateUrl: 'assets/views/user.html'
-//            })
 //	        .when('/tweet/:action/:param1/:param2?', {
 //	        	templateUrl: 'assets/views/tweet.html'
 //	        })

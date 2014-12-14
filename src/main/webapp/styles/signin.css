@@ -1,4 +1,4 @@
-.signin {
+.signin-background {
     padding-top: 40px;
     padding-bottom: 40px;
     background-color: #eee;
@@ -6,9 +6,9 @@
     height: 100%;
 }
 
-.nav > li > a {
-    padding-left: 0px !important;
-}
+/*.nav > li > a {*/
+    /*padding-left: 0px !important;*/
+/*}*/
 
 .form-signin {
     max-width: 330px;
