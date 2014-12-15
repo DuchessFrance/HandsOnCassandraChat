@@ -2,23 +2,31 @@
  * Login page
  */
 
-killrChat.controller('NavBarCtrl', function($rootScope, $scope){
+killrChat.controller('NavBarCtrl', function($rootScope, $scope, $location, User){
+    delete $rootScope.generalError;
     $rootScope
         .$on("$routeChangeError",function (event, current, previous, rejection) {
-            $rootScope.accessDeniedMsg = rejection.data.message;
+            console.error("root change error");
+            $rootScope.generalError = rejection.data.message;
         });
 
     $scope.closeAlert = function() {
-        delete $rootScope.accessDeniedMsg;
+        delete $rootScope.generalError;
+    };
+
+    $scope.logout = function() {
+        User.logout(function() {
+            $location.path('/');
+            delete $rootScope.user;
+        });
     };
 });
 
-killrChat.controller('SignInCtrl', function ($rootScope, $scope, $modal, $location,User) {
+killrChat.controller('SignInCtrl', function ($rootScope, $scope, $modal, $location, User) {
 
     $scope.username = null;
     $scope.password = null;
     $scope.rememberMe = false;
-    $rootScope.user = new User();
 
     $scope.open = function () {
         var modalInstance = $modal.open({
@@ -30,33 +38,38 @@ killrChat.controller('SignInCtrl', function ($rootScope, $scope, $modal, $locati
         modalInstance.result.then(function (createdUser) {
             $scope.username = createdUser.login;
             $scope.password = createdUser.password;
-            $rootScope.user = createdUser;
-            $rootScope.userCreated = true;
+            $scope.userCreated = true;
         });
     };
 
     $scope.login = function() {
+
+        var user = new User();
+
         //call $login method on the resource User
-        $rootScope.user.$login({
-                j_username: $scope.username,
-                j_password: $scope.password,
-                _spring_security_remember_me: $scope.rememberMe
-            },
-            function() {
-                $rootScope.user.login = $scope.username;
+        user.$login({
+            j_username: $scope.username,
+            j_password: $scope.password,
+            _spring_security_remember_me: $scope.rememberMe
+        })
+        .then(function() {
+            // Reset any previous error
+            delete $scope.loginError;
 
-                // Remove user password now for security purpose!
-                delete $rootScope.user.password;
+            user.$load({login: $scope.username})
+                .then(function(){
+                    $rootScope.user = user;
 
-                // Reset any previous error
-                delete $scope.loginError;
-
-                //Switch to chat view
-                $location.path('/chat');
-
-            },function(httpResponse){
+                    //Switch to chat view
+                    $location.path('/chat');
+                })
+                .catch(function(httpResponse){
+                    $scope.loginError = httpResponse.message;
+                });
+        })
+        .catch(function(httpResponse){
                 $scope.loginError = httpResponse.data.message;
-            })
+        });
     };
 });
 
@@ -80,10 +93,12 @@ killrChat.controller('SignUpModalCtrl',function ($scope, $modalInstance, User) {
     });
 
     $scope.ok = function () {
-        $scope.user.$create(function(){
+        $scope.user.$create()
+        .then(function(){
             delete $scope.user.passwordConfirm;
             $modalInstance.close($scope.user);
-        },function(error) {
+        })
+        .catch(function(error) {
             $scope.user_create_error = error.data;
         });
     };
@@ -91,4 +106,70 @@ killrChat.controller('SignUpModalCtrl',function ($scope, $modalInstance, User) {
     $scope.cancel = function () {
         $modalInstance.dismiss();
     };
+});
+
+/**
+ * Rooms management
+ */
+
+killrChat.controller('ChatRoomCtrl',function ($rootScope, $scope, eventBus, User, Room) {
+
+    $scope.section = 'home';
+    $scope.userRooms = [];
+
+    $scope.loadUsersRooms = function() {
+        var userRooms = User.listRooms({fetchSize:100},
+            function(){
+                $scope.userRooms = userRooms;
+            },
+            function(httpResponse){
+                $rootScope.generalError = httpResponse.message;
+            });
+    };
+
+    $scope.switchRoom = function(roomName) {
+        var targetRoom = Room.load({roomName:roomName},
+            function(){
+                $scope.currentRoom = targetRoom;
+                $scope.section = 'room';
+                eventBus.emitMsg('switchRoom');
+            },
+            function(httpResponse){
+                $rootScope.generalError = httpResponse.message;
+            });
+    };
+
+    $scope.leaveRoom = function(roomToLeave) {
+
+        Room.$removeParticipant({room:roomToLeave })
+            .then(function(httpResponse){})
+            .catch(function(httpResponse){});
+
+    };
+
+    $scope.$evalAsync($scope.loadUsersRooms());
+});
+
+
+killrChat.controller('ChatCtrl', function($rootScope, $scope, eventBus, Message, Room){
+
+    $scope.messages = [];
+    $scope.participants = [];
+
+    $scope.loadInitialRoomMessages = function() {
+        var messages = Message.load({roomName:$scope.currentRoom.roomName, fetchSize: 20},
+        function() {
+            $scope.messages = messages;
+        },
+        function (httpResponse) {
+            $rootScope.generalError = httpResponse.data;
+        });
+    };
+
+    $scope.$evalAsync($scope.loadInitialRoomMessages());
+
+    eventBus.onMsg('switchRoom', $scope, function() {
+        $scope.loadInitialRoomMessages();
+    });
+
 });

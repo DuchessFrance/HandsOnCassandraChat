@@ -11,6 +11,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
         <link rel="icon" href="images/favicon.ico" />
         <link rel="stylesheet" href="styles/bootstrap.css">
+        <link rel="stylesheet" href="styles/font-awesome.css">
         <link rel="stylesheet" href="styles/main.css">
         <link rel="stylesheet" href="styles/signin.css">
         <!-- endbuild -->
@@ -19,15 +20,18 @@
         <div class="navbar navbar-inverse navbar-fixed-top" ng-controller="NavBarCtrl">
             <div class="navbar-inner" >
                 <div class="container-fluid">
-                    <a class="navbar-brand">KillrChat</a>
+                    <a href="/" class="navbar-brand">KillrChat</a>
                     <ul class="nav navbar-nav">
                         <li><a href="http://cassandra.apache.org/" target="_blank">powered by <strong>Apache Cassandra™</strong></a></li>
                     </ul>
+                    <ul class="nav navbar-nav navbar-right" ng-if="user != null" ng-click="logout()">
+                        <li><a><i class="fa fa-sign-out fa-lg"></i></a></li>
+                    </ul>
                 </div>
             </div>
-            <div class="alert alert-danger" role="alert" ng-show="accessDeniedMsg != null">
+            <div class="alert alert-danger" role="alert" ng-show="generalError != null">
                 <button type="button" class="close" ng-click="closeAlert()">×</button>
-                {{accessDeniedMsg}}
+                {{generalError}}
             </div>
         </div>
         <div class="container-fluid">

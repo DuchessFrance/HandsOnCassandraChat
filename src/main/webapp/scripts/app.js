@@ -20,9 +20,20 @@ var killrChat = angular.module('KillrChat', ['ngRoute','ngResource','ui.bootstra
 //	        .when('/line/:type/:param1', {
 //	        	templateUrl: 'assets/views/line.html'
 //	        });
-        
+
 });
 
+killrChat.factory('eventBus', ['$rootScope', function($rootScope) {
+    var msgBus = {};
+    msgBus.emitMsg = function(msg) {
+        $rootScope.$emit(msg);
+    };
+    msgBus.onMsg = function(msg, scope, func) {
+        var unbind = $rootScope.$on(msg, func);
+        scope.$on('$destroy', unbind);
+    };
+    return msgBus;
+}]);
 
 
 

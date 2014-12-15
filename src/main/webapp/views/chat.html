@@ -1,204 +1,85 @@
 <!--Left Column-->
-<div class="col-md-2 sidebar">
-    <p>Rooms</p>
-    <ul class="nav nav-sidebar half-height">
-        <li class="active">
-            <a href="#">
-                <img src="images/public_room.png"/>
-                Room 1
-                <img src="images/quit_room_small.png" class="pull-right"/>
-            </a>
-        </li>
-        <li>
-            <a href="#">
-                <img src="images/private_room.png"/>
-                Room 2 private
-            </a>
-        </li>
-        <li>
-            <a href="#">
-                <img src="images/public_room.png"/>
-                Room 3
-            </a>
-        </li>
-        <li>
-            <a href="#">
-                <img src="images/public_room.png"/>
-                Room 4
-            </a>
-        </li>
-        <li>
-            <a href="#">
-                <img src="images/public_room.png"/>
-                Room 5
-            </a>
-        </li>
-        <li>
-            <a href="#">
-                <img src="images/public_room.png"/>
-                Room 6
-            </a>
-        </li>
-        <li>
-            <a href="#">
-                <img src="images/public_room.png"/>
-                Room 7
-            </a>
-        </li>
-        <li>
-            <a href="#">
-                <img src="images/public_room.png"/>
-                Room 8
-            </a>
-        </li>
-        <li>
-            <a href="#">
-                <img src="images/public_room.png"/>
-                Room 9
-
-            </a>
-        </li>
-
-    </ul>
-    <hr/>
-    <p>Private chats</p>
-    <ul class="nav nav-sidebar half-height">
-        <li>
-            <a href="#">
-                <img src="images/conversation.png"/>
-                John DOE
-            </a>
-        </li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-    </ul>
-</div>
-
-<!--Central Section-->
-<div class="col-md-8 col-md-offset-2 chat-zone">
-    <div class="row chat-room-banner-height">
-        <div class="chat-room-banner bg-primary">
-            <p>Games</p>
-        </div>
+<div ng-controller="ChatRoomCtrl">
+    <div class="col-md-2 sidebar">
+        <p>My rooms <i class="fa fa-plus-square fa-lg pull-right"></i><i class="fa fa-list-alt fa-lg pull-right"></i></p>
+        <hr/>
+        <ul class="nav nav-sidebar full-height">
+            <li ng-repeat="room in userRooms">
+                <a ng-click="switchRoom(room.roomName)">
+                    <i class="fa fa-comments fa-lg pull-left"></i>
+                    &nbsp;&nbsp;{{room.roomName}}
+                    <i class="fa fa-sign-out fa-lg pull-right exit-room"></i>
+                </a>
+            </li>
+        </ul>
     </div>
-    <div class="row chat-room-messages-height">
-        <div class="chat-room-messages">
-            <ul class="list-group">
-                <li class="list-group-item">Message chat 1</li>
-                <li class="list-group-item">Message chat 1</li>
-                <li class="list-group-item">Message chat 1</li>
-                <li class="list-group-item">Message chat 1</li>
-                <li class="list-group-item">Message chat 1</li>
-                <li class="list-group-item">Message chat 1</li>
-                <li class="list-group-item">Message chat 1</li>
-                <li class="list-group-item">Message chat 1</li>
-                <li class="list-group-item">Message chat 1</li>
-                <li class="list-group-item">Message chat 1</li>
-                <li class="list-group-item">Message chat 1</li>
-                <li class="list-group-item">Message chat 1</li>
-                <li class="list-group-item">Message chat 1</li>
-                <li class="list-group-item">Message chat 1</li>
-                <li class="list-group-item">Message chat 1</li>
-                <li class="list-group-item">Message chat 1</li>
-                <li class="list-group-item">Message chat 1</li>
-                <li class="list-group-item">Message chat 1</li>
-                <li class="list-group-item">Message chat 1</li>
-                <li class="list-group-item">Message chat 1</li>
-                <li class="list-group-item">Message chat 1</li>
-                <li class="list-group-item">Message chat 1</li>
-                <li class="list-group-item">Message chat 1</li>
-                <li class="list-group-item">Message chat 1</li>
-                <li class="list-group-item">Message chat 1</li>
-                <li class="list-group-item">Message chat 1</li>
-                <li class="list-group-item">Message chat 1</li>
-                <li class="list-group-item">Message chat 1</li>
-                <li class="list-group-item">Message chat 1</li>
-                <li class="list-group-item">Message chat 1</li>
-                <li class="list-group-item">Message chat 1</li>
-                <li class="list-group-item">Message chat 1</li>
-                <li class="list-group-item">Message chat 1</li>
-                <li class="list-group-item">Message chat 1</li>
-                <li class="list-group-item">Message chat 11</li>
-            </ul>
-        </div>
-    </div>
-    <div class="row chat-room-separator-height"></div>
-    <div class="row chat-room-input-message well well-lg">
-        <!--<form class="form-inline" role="form">-->
-        <div class="col-md-12">
-            <div class="input-group">
-                <input type="text" class="form-control" placeholder="New message"/>
-                                    <span class="input-group-btn">
-                                        <button class="btn btn-default" type="button">:D</button>
-                                    </span>
+
+    <div ng-switch on="section">
+
+        <div class="col-md-10 col-md-offset-2 chat-zone" ng-switch-when="home">
+            <div class="jumbotron">
+                <h1>Welcome to KillrChat</h1>
+                <p>
+                    You can join an existing chat room (displayed on the left)
+                    <br/>
+                    Next to <strong>My rooms</strong> you can
+                    <ul>
+                        <li>
+                            search for a room by clicking on the &nbsp;<i class="fa fa-list-alt fa-lg"></i>&nbsp;
+                        </li>
+                        <li>
+                            or create a new room by clicking on the &nbsp;<i class="fa fa-plus-square fa-lg"></i>&nbsp;
+                        </li>
+                    </ul>
+                </p>
             </div>
         </div>
-        <!--</form>-->
-    </div>
-</div>
 
-<!--Right Column-->
-<div class="col-md-2 sidebar col-md-offset-10">
-    <p>Participants</p>
-    <hr/>
-    <ul class="nav nav-sidebar full-height">
-        <li><a href="#">John DOE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-        <li><a href="#">Helen SUE</a></li>
-    </ul>
+        <div class="col-md-10 col-md-offset-2" ng-switch-when="room" ng-controller="ChatCtrl">
+            <div class="row">
+                <!--Central Section-->
+                <div class="col-md-8 chat-zone">
+                    <div class="row chat-room-banner-height">
+                        <div class="chat-room-banner bg-primary">
+                            <p>{{currentRoom.roomName}}</p>
+                        </div>
+                    </div>
+                    <div class="row chat-room-messages-height">
+                        <div class="chat-room-messages">
+                            <ul class="list-group">
+                                <li class="list-group-item" ng-repeat="message in messages">{{message.content}}</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="row chat-room-separator-height"></div>
+                    <div class="row chat-room-input-message well well-lg">
+                        <!--<form class="form-inline" role="form">-->
+                        <div class="col-md-12">
+                            <div class="input-group">
+                                <input type="text" class="form-control" name="new_message" placeholder="New message" required/>
+                                <span class="input-group-btn">
+                                    <button class="btn btn-default" type="button" ng-disabled="new_message.$error.required">:D</button>
+                                </span>
+                            </div>
+                        </div>
+                        <!--</form>-->
+                    </div>
+                </div>
+
+                <!--Right Column-->
+                <div class="col-md-2 sidebar col-md-offset-10" >
+                    <p>Participants</p>
+                    <hr/>
+                    <ul class="nav nav-sidebar full-height">
+                        <li ng-repeat="participant in currentRoom.participants">
+                            <a href="#"><i class="fa fa-user fa-lg pull-left"></i> {{participant.firstname}} {{participant.lastname}}</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+
+
+    </div>
 </div>

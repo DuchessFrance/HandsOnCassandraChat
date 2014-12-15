@@ -67,16 +67,36 @@ body {
 }
 
 .nav-sidebar > li > a {
-     padding-right: 5px;
-     padding-left: 5px;
+    padding-right: 5px;
+    padding-left: 5px;
  }
 
-.nav-sidebar > .active > a,
-.nav-sidebar > .active > a:hover,
-.nav-sidebar > .active > a:focus {
+
+.nav-sidebar > .active > a > .room-name {
     color: #fff;
     background-color: #428bca;
 }
+
+.nav-sidebar > li > a > i {
+    color: gray;
+}
+
+.nav-sidebar > li > a:hover {
+    color: #fff;
+    background-color: #428bca;
+}
+
+.nav-sidebar > li > a > i.exit-room {
+    display: none;
+}
+.nav-sidebar > li > a:hover > i {
+    color: #ffffff;
+}
+
+.nav-sidebar > li > a:hover > i.exit-room {
+    display: inline;
+}
+
 
 .nav-sidebar > li > a > span {
     color: #888888;
@@ -96,7 +116,7 @@ body {
 }
 
 .chat-room-messages-height {
-    height: 73%;
+    height: 72%;
 }
 
 .chat-room-separator-height {
@@ -125,8 +145,4 @@ body {
     padding-bottom: 10px;
     padding-left: 1px;
     /*border-color: #555555;*/
-}
-
-.room-privacy-icon {
-    padding-right: 5px;
 }
