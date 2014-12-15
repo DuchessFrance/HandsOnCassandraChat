@@ -68,7 +68,7 @@ killrChat.controller('SignInCtrl', function ($rootScope, $scope, $modal, $locati
                 });
         })
         .catch(function(httpResponse){
-                $scope.loginError = httpResponse.data.message;
+                $scope.loginError = httpResponse;
         });
     };
 });
@@ -150,11 +150,14 @@ killrChat.controller('ChatRoomCtrl',function ($rootScope, $scope, eventBus, User
     $scope.$evalAsync($scope.loadUsersRooms());
 });
 
-
-killrChat.controller('ChatCtrl', function($rootScope, $scope, eventBus, Message, Room){
+/**
+ * The real Chat
+ */
+killrChat.controller('ChatCtrl', function($rootScope, $scope, eventBus, Message){
 
     $scope.messages = [];
     $scope.participants = [];
+
 
     $scope.loadInitialRoomMessages = function() {
         var messages = Message.load({roomName:$scope.currentRoom.roomName, fetchSize: 20},
@@ -164,6 +167,22 @@ killrChat.controller('ChatCtrl', function($rootScope, $scope, eventBus, Message,
         function (httpResponse) {
             $rootScope.generalError = httpResponse.data;
         });
+    };
+
+    $scope.postMessage = function(){
+        if($scope.message){
+            var message = new Message({author: $scope.user, content: $scope.message});
+            message.$create({roomName:$scope.currentRoom.roomName})
+                .then(function(){
+                    $scope.loadInitialRoomMessages();
+                    delete $scope.message;
+                })
+                .catch(function(httpResponse) {
+                    $rootScope.generalError = httpResponse.data;
+                });
+        } else {
+            $rootScope.generalError = 'Hey dude, post a non blank message ...';
+        }
     };
 
     $scope.$evalAsync($scope.loadInitialRoomMessages());

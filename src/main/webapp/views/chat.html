@@ -47,7 +47,12 @@
                     <div class="row chat-room-messages-height">
                         <div class="chat-room-messages">
                             <ul class="list-group">
-                                <li class="list-group-item" ng-repeat="message in messages">{{message.content}}</li>
+                                <li class="list-group-item" ng-repeat="message in messages">
+                                    <p class="chat-metadata text-right">
+                                        <i class="fa fa-clock-o"></i>&nbsp;&nbsp;{{message.creationDate | onlyMinute}}&nbsp;&nbsp;<strong>{{message.author}}</strong>
+                                    </p>
+                                    <p class="chat-content text-justify text-muted">{{message.content}}</p>
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -56,9 +61,9 @@
                         <!--<form class="form-inline" role="form">-->
                         <div class="col-md-12">
                             <div class="input-group">
-                                <input type="text" class="form-control" name="new_message" placeholder="New message" required/>
+                                <input type="text" class="form-control" name="new_message" placeholder="New message" ng-model="message" ng-enter="postMessage()"/>
                                 <span class="input-group-btn">
-                                    <button class="btn btn-default" type="button" ng-disabled="new_message.$error.required">:D</button>
+                                    <button class="btn btn-default" type="button">:D</button>
                                 </span>
                             </div>
                         </div>

@@ -23,7 +23,5 @@ public class LightUserModel {
     @Size(max = 100)
     protected String lastname;
 
-    @Size(max = 100)
-    protected String nickname;
 
 }

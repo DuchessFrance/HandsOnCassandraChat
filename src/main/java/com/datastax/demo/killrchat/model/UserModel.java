@@ -17,6 +17,9 @@ import javax.validation.constraints.Size;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UserModel extends LightUserModel {
 
+    @Size(max = 100)
+    protected String nickname;
+
     @NotEmpty
     private String password;
 
@@ -27,7 +30,8 @@ public class UserModel extends LightUserModel {
     private String bio;
 
     public UserModel(String login, String password, String firstname, String lastname, String nickname, String email, String bio) {
-        super(login, firstname, lastname, nickname);
+        super(login, firstname, lastname);
+        this.nickname = nickname;
         this.password = password;
         this.email = email;
         this.bio = bio;

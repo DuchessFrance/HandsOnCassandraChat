@@ -1,6 +1,8 @@
 package com.datastax.demo.killrchat.model;
 
+import com.datastax.demo.killrchat.json.JsonDateSerializer;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,10 +21,11 @@ public class ChatMessageModel {
     private UUID messageId;
 
     @NotNull
+    @JsonSerialize(using = JsonDateSerializer.class)
     private Date creationDate;
 
-    @NotBlank
-    private String author;
+    @NotNull
+    private LightUserModel author;
 
     @NotBlank
     private String content;

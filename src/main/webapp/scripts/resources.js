@@ -22,7 +22,7 @@ killrChat.factory('Room', function($resource) {
 });
 
 killrChat.factory('Message', function($resource) {
-    return $resource('/rooms', [],{
+    return $resource('/messages', [],{
         'create': {url: '/messages/:roomName', method: 'POST', isArray:false,headers: {'Content-Type': 'application/json'}},
         'load': {url: '/messages/:roomName', method: 'GET', isArray:true, headers:{'Accept': 'application/json'}}
     });

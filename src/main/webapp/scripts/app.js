@@ -35,5 +35,24 @@ killrChat.factory('eventBus', ['$rootScope', function($rootScope) {
     return msgBus;
 }]);
 
+killrChat.directive('ngEnter', function() {
+    return function(scope, element, attrs) {
+        element.bind("keydown keypress", function(event) {
+            if(event.which === 13) {
+                scope.$apply(function(){
+                    scope.$eval(attrs.ngEnter, {'event': event});
+                });
 
+                event.preventDefault();
+            }
+        });
+    };
+});
+
+killrChat.filter('onlyMinute', function(){
+    return function(dateString) {
+        var regexp = /[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:([0-9]{2}:[0-9]{2})/;
+        return dateString.replace(regexp,"$1");
+    }
+});
 

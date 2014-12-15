@@ -30,7 +30,7 @@ public class ChatRoomResourceTest {
     public void should_create_chat_room() throws Exception {
         //Given
         String roomName = "games";
-        final LightUserModel userModel = new LightUserModel("jdoe", "John", "DOE", "johnny");
+        final LightUserModel userModel = new LightUserModel("jdoe", "John", "DOE");
 
         //When
         resource.createChatRoom(new ChatRoomCreationModel(roomName, userModel));
@@ -66,7 +66,7 @@ public class ChatRoomResourceTest {
     @Test
     public void should_add_user_to_chat_room() throws Exception {
         //Given
-        final LightUserModel user = new LightUserModel("jdoe", "John", "DOE", "johnny");
+        final LightUserModel user = new LightUserModel("jdoe", "John", "DOE");
         final LightChatRoomModel room = new LightChatRoomModel("games","jdoe");
 
         //When
@@ -79,7 +79,7 @@ public class ChatRoomResourceTest {
     @Test
     public void should_remove_user_from_chat_room() throws Exception {
         //Given
-        final LightUserModel user = new LightUserModel("jdoe", "John", "DOE", "johnny");
+        final LightUserModel user = new LightUserModel("jdoe", "John", "DOE");
         final LightChatRoomModel room = new LightChatRoomModel("games","jdoe");
 
         //When

@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -28,9 +29,10 @@ public class ChatRoomMessage {
     @EmbeddedId
     private CompoundPk primaryKey;
 
-    @NotEmpty
+    @NotNull
+    @JSON
     @Column
-    private String author;
+    private LightUserModel author;
 
     @NotEmpty
     @Column
@@ -39,7 +41,7 @@ public class ChatRoomMessage {
     @Column
     private boolean systemMessage;
 
-    public ChatRoomMessage(String roomName, UUID messageId, String author, String content) {
+    public ChatRoomMessage(String roomName, UUID messageId, LightUserModel author, String content) {
         this.primaryKey = new CompoundPk(roomName, messageId);
         this.author = author;
         this.content = content;

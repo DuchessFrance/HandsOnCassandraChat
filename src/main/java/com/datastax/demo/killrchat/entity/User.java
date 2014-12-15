@@ -68,15 +68,14 @@ public class User {
         model.setBio(this.getBio());
         return model;
     }
-
-    public LightUserModel toLightModel() {
-        final LightUserModel model = new LightUserModel();
-        model.setLogin(this.getLogin());
-        model.setFirstname(this.getFirstname());
-        model.setLastname(this.getLastname());
-        model.setNickname(this.getNickname());
-        return model;
-    }
+//
+//    public LightUserModel toLightModel() {
+//        final LightUserModel model = new LightUserModel();
+//        model.setLogin(this.getLogin());
+//        model.setFirstname(this.getFirstname());
+//        model.setLastname(this.getLastname());
+//        return model;
+//    }
 
     public CustomUserDetails toUserDetails() {
         return new CustomUserDetails(Sets.newHashSet(new UserAuthority()),this.login,this.pass);

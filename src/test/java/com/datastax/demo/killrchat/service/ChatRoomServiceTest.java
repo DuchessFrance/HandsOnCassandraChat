@@ -55,7 +55,7 @@ public class ChatRoomServiceTest {
     @Test
     public void should_create_chat_room() throws Exception {
         //Given
-        LightUserModel jdoe = new LightUserModel("jdoe","John", "DOE", "johnny");
+        LightUserModel jdoe = new LightUserModel("jdoe","John", "DOE");
         final String roomName = "random_thoughts";
 
         //When
@@ -79,7 +79,7 @@ public class ChatRoomServiceTest {
         session.execute(insertInto(KEYSPACE, CHATROOMS).value("room_name", "all"));
 
         //When
-        service.createChatRoom("all", new LightUserModel("jdoe","John", "DOE", "johnny"));
+        service.createChatRoom("all", new LightUserModel("jdoe","John", "DOE"));
     }
 
     @Test
@@ -196,8 +196,8 @@ public class ChatRoomServiceTest {
     @Test
     public void should_add_user_to_room() throws Exception {
         //Given
-        final LightUserModel johnny = new LightUserModel("jdoe", "John", "DOE", "johnny");
-        final LightUserModel helen = new LightUserModel("hsue", "Helen", "SUE", "helena");
+        final LightUserModel johnny = new LightUserModel("jdoe", "John", "DOE");
+        final LightUserModel helen = new LightUserModel("hsue", "Helen", "SUE");
         final LightChatRoomModel chatRoomModel = new LightChatRoomModel("politics", "jdoe");
         final String johnAsJSON = manager.serializeToJSON(johnny);
         final String helenAsJSON = manager.serializeToJSON(helen);
@@ -230,7 +230,7 @@ public class ChatRoomServiceTest {
     @Test(expected = ChatRoomDoesNotExistException.class)
     public void should_exception_when_adding_user_to_non_existing_chat_room() throws Exception {
         //Given
-        final LightUserModel helen = new LightUserModel("hsue", "Helen", "SUE", "helena");
+        final LightUserModel helen = new LightUserModel("hsue", "Helen", "SUE");
         final LightChatRoomModel chatRoomModel = new LightChatRoomModel("politics", "jdoe");
 
         //When
@@ -240,8 +240,8 @@ public class ChatRoomServiceTest {
     @Test
     public void should_remove_user_from_chat_room() throws Exception {
         //Given
-        final LightUserModel johnny = new LightUserModel("jdoe", "John", "DOE", "johnny");
-        final LightUserModel helen = new LightUserModel("hsue", "Helen", "SUE", "helena");
+        final LightUserModel johnny = new LightUserModel("jdoe", "John", "DOE");
+        final LightUserModel helen = new LightUserModel("hsue", "Helen", "SUE");
         final LightChatRoomModel chatRoomModel = new LightChatRoomModel("politics", "jdoe");
         final String johnAsJSON = manager.serializeToJSON(johnny);
         final String helenAsJSON = manager.serializeToJSON(helen);
@@ -278,7 +278,7 @@ public class ChatRoomServiceTest {
     public void should_exception_when_removing_user_from_non_existing_room() throws Exception {
         //Given
         final LightChatRoomModel chatRoomModel = new LightChatRoomModel("politics", "jdoe");
-        final LightUserModel helen = new LightUserModel("hsue", "Helen", "SUE", "helena");
+        final LightUserModel helen = new LightUserModel("hsue", "Helen", "SUE");
 
         //When
         service.removeUserFromRoom(chatRoomModel, helen);
@@ -287,7 +287,7 @@ public class ChatRoomServiceTest {
     @Test
     public void should_remove_last_user_from_chat_room() throws Exception {
         //Given
-        final LightUserModel johnny = new LightUserModel("jdoe", "John", "DOE", "johnny");
+        final LightUserModel johnny = new LightUserModel("jdoe", "John", "DOE");
         final LightChatRoomModel chatRoomModel = new LightChatRoomModel("politics", "jdoe");
         final String johnAsJSON = manager.serializeToJSON(johnny);
 

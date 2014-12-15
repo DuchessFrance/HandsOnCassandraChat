@@ -5,8 +5,8 @@ import static com.datastax.driver.core.querybuilder.QueryBuilder.*;
 import static org.assertj.core.api.Assertions.*;
 
 import com.datastax.demo.killrchat.entity.User;
-import com.datastax.demo.killrchat.exceptions.CannotUpdateMessageException;
 import com.datastax.demo.killrchat.model.ChatMessageModel;
+import com.datastax.demo.killrchat.model.LightUserModel;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
@@ -42,6 +42,9 @@ public class MessageServiceTest {
 
     private MessageService service = new MessageService();
 
+    private LightUserModel johnDoe = new LightUserModel("jdoe","John","DOE");
+    private LightUserModel helenSue = new LightUserModel("hsue","Helen","SUE");
+
     @Before
     public void setUp() {
         service.manager = this.manager;
@@ -50,7 +53,7 @@ public class MessageServiceTest {
     @Test
     public void should_create_new_chat_message() throws Exception {
         //Given
-        String johnDoe = "jdoe";
+        LightUserModel johnDoe = new LightUserModel("jdoe","John","DOE");
         String roomName = "games";
         String messageContent = "Starcraft2 is awesome!";
 
@@ -65,82 +68,15 @@ public class MessageServiceTest {
         final Row lastMessage = session.execute(selectMessages).one();
 
         assertThat(lastMessage.getUUID("message_id")).isNotNull();
-        assertThat(lastMessage.getString("author")).isEqualTo(johnDoe);
+        assertThat(lastMessage.getString("author")).contains(manager.serializeToJSON(johnDoe));
         assertThat(lastMessage.getString("content")).isEqualTo(messageContent);
         assertThat(lastMessage.getBool("system_message")).isFalse();
     }
 
-    @Test
-    public void should_update_last_message_for_user() throws Exception {
-        //Given
-        String johnDoe = "jdoe";
-        String roomName = "games";
-        String messageContent = "Starcraft2 is awesome!";
-        final UUID messageId = UUIDs.timeBased();
-
-        final Insert createMessage = insertInto(KEYSPACE, CHATROOM_MESSAGES)
-                .value("room_name", roomName)
-                .value("message_id", messageId)
-                .value("author", johnDoe)
-                .value("content", messageContent)
-                .value("system_message", false);
-
-        session.execute(createMessage);
-
-        //When
-        final String newMessageContent = "Starcraft2 is the ultimate RTS";
-        service.updateLastMessage(johnDoe, roomName, newMessageContent);
-
-        //Then
-        final Select selectMessages = select().from(KEYSPACE, CHATROOM_MESSAGES)
-                .where(eq("room_name", roomName))
-                .limit(1);
-
-        final Row lastMessage = session.execute(selectMessages).one();
-
-        assertThat(lastMessage.getUUID("message_id")).isNotNull();
-        assertThat(lastMessage.getString("author")).isEqualTo(johnDoe);
-        assertThat(lastMessage.getString("content")).isEqualTo(newMessageContent);
-        assertThat(lastMessage.getBool("system_message")).isFalse();
-    }
-
-    @Test(expected = CannotUpdateMessageException.class)
-    public void should_exception_if_no_longer_possible_to_update_message() throws Exception {
-        //Given
-        String johnDoe = "jdoe";
-        String helenSue = "hsue";
-        String roomName = "games";
-        String johnMessage = "Starcraft2 is awesome!";
-        String helenMessage = "No, WoW is ways better";
-        final UUID messageId1 = UUIDs.timeBased();
-        final UUID messageId2 = UUIDs.timeBased();
-
-        final Insert createJohnMessage = insertInto(KEYSPACE, CHATROOM_MESSAGES)
-                .value("room_name", roomName)
-                .value("message_id", messageId1)
-                .value("author", johnDoe)
-                .value("content", johnMessage)
-                .value("system_message", false);
-
-        final Insert createHelenMessage = insertInto(KEYSPACE, CHATROOM_MESSAGES)
-                .value("room_name", roomName)
-                .value("message_id", messageId2)
-                .value("author", helenSue)
-                .value("content", helenMessage)
-                .value("system_message", false);
-
-        session.execute(createJohnMessage);
-        session.execute(createHelenMessage);
-
-        //When
-        service.updateLastMessage(johnDoe, roomName, "Starcraft2 and Wow are awesome!");
-    }
 
     @Test
     public void should_fetch_next_messages_starting_from_now() throws Exception {
         //Given
-        String johnDoe = "jdoe";
-        String helenSue = "hsue";
         String roomName = "games";
         String message1 = "Starcraft2 is awesome!";
         String message2 = "No, WoW is ways better";
@@ -162,11 +98,11 @@ public class MessageServiceTest {
 
         final PreparedStatement preparedStatement = session.prepare(createMessage);
 
-        session.execute(preparedStatement.bind(roomName, messageId1, johnDoe, message1, false));
-        session.execute(preparedStatement.bind(roomName, messageId2, helenSue, message2, false));
-        session.execute(preparedStatement.bind(roomName, messageId3, johnDoe, message3, false));
-        session.execute(preparedStatement.bind(roomName, messageId4, helenSue, message4, false));
-        session.execute(preparedStatement.bind(roomName, messageId5, johnDoe, message5, false));
+        session.execute(preparedStatement.bind(roomName, messageId1, manager.serializeToJSON(johnDoe), message1, false));
+        session.execute(preparedStatement.bind(roomName, messageId2, manager.serializeToJSON(helenSue), message2, false));
+        session.execute(preparedStatement.bind(roomName, messageId3, manager.serializeToJSON(johnDoe), message3, false));
+        session.execute(preparedStatement.bind(roomName, messageId4, manager.serializeToJSON(helenSue), message4, false));
+        session.execute(preparedStatement.bind(roomName, messageId5, manager.serializeToJSON(johnDoe), message5, false));
 
         //When
         final List<ChatMessageModel> messages = service.fetchNextMessagesForRoom(roomName, UUIDs.timeBased(), 2);
@@ -189,8 +125,6 @@ public class MessageServiceTest {
     @Test
     public void should_fetch_some_message_starting_from_the_last_one_excluding() throws Exception {
         //Given
-        String johnDoe = "jdoe";
-        String helenSue = "hsue";
         String roomName = "games";
         String message1 = "Starcraft2 is awesome!";
         String message2 = "No, WoW is ways better";
@@ -212,11 +146,11 @@ public class MessageServiceTest {
 
         final PreparedStatement preparedStatement = session.prepare(createMessage);
 
-        session.execute(preparedStatement.bind(roomName, messageId1, johnDoe, message1, false));
-        session.execute(preparedStatement.bind(roomName, messageId2, helenSue, message2, false));
-        session.execute(preparedStatement.bind(roomName, messageId3, johnDoe, message3, false));
-        session.execute(preparedStatement.bind(roomName, messageId4, helenSue, message4, false));
-        session.execute(preparedStatement.bind(roomName, messageId5, johnDoe, message5, false));
+        session.execute(preparedStatement.bind(roomName, messageId1, manager.serializeToJSON(johnDoe), message1, false));
+        session.execute(preparedStatement.bind(roomName, messageId2, manager.serializeToJSON(helenSue), message2, false));
+        session.execute(preparedStatement.bind(roomName, messageId3, manager.serializeToJSON(johnDoe), message3, false));
+        session.execute(preparedStatement.bind(roomName, messageId4, manager.serializeToJSON(helenSue), message4, false));
+        session.execute(preparedStatement.bind(roomName, messageId5, manager.serializeToJSON(johnDoe), message5, false));
 
         //When
         final List<ChatMessageModel> messages = service.fetchNextMessagesForRoom(roomName, messageId4, 2);

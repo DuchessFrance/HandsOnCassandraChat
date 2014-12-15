@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import com.datastax.demo.killrchat.model.ChatMessageModel;
+import com.datastax.demo.killrchat.model.LightUserModel;
 import com.datastax.demo.killrchat.resource.model.MessagePaging;
 import com.datastax.demo.killrchat.resource.model.MessagePosting;
 import com.datastax.demo.killrchat.service.MessageService;
@@ -28,22 +29,16 @@ public class MessageResourceTest {
     @Mock
     private MessageService service;
 
+    private LightUserModel jdoe = new LightUserModel("jdoe","John","DOE");
+
     @Test
     public void should_post_new_message() throws Exception {
         //When
-        resource.postNewMessage("games", new MessagePosting("jdoe", "Wow sucks!"));
+        final LightUserModel author = new LightUserModel("jdoe", "John", "DOE");
+        resource.postNewMessage("games", new MessagePosting(author, "Wow sucks!"));
 
         //Then
-        verify(service).postNewMessage("jdoe", "games", "Wow sucks!");
-    }
-
-    @Test
-    public void should_update_last_message() throws Exception {
-        //When
-        resource.updateLastMessage("games", new MessagePosting("jdoe", "Wow sucks a little bit..."));
-
-        //Then
-        verify(service).updateLastMessage("jdoe", "games", "Wow sucks a little bit...");
+        verify(service).postNewMessage(author, "games", "Wow sucks!");
     }
 
     @Test
@@ -51,7 +46,7 @@ public class MessageResourceTest {
         //Given
         UUID messageId = UUIDs.timeBased();
         final Date creationDate = new Date(UUIDs.unixTimestamp(messageId));
-        final ChatMessageModel message = new ChatMessageModel(messageId, creationDate, "jdoe", "bla bla", false);
+        final ChatMessageModel message = new ChatMessageModel(messageId, creationDate, jdoe, "bla bla", false);
         when(service.fetchNextMessagesForRoom(eq("games"), any(UUID.class),eq(MessageResource.DEFAULT_MESSAGES_FETCH_SIZE)))
                 .thenReturn(Arrays.asList(message));
 
@@ -68,7 +63,7 @@ public class MessageResourceTest {
         UUID messageId = UUIDs.timeBased();
         UUID now = UUIDs.timeBased();
         final Date creationDate = new Date(UUIDs.unixTimestamp(messageId));
-        final ChatMessageModel message = new ChatMessageModel(messageId, creationDate, "jdoe", "bla bla", false);
+        final ChatMessageModel message = new ChatMessageModel(messageId, creationDate, jdoe, "bla bla", false);
         when(service.fetchNextMessagesForRoom("games", now,11)).thenReturn(Arrays.asList(message));
 
         //When
