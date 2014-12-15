@@ -4,6 +4,7 @@ import com.datastax.demo.killrchat.exceptions.IncorrectOldPasswordException;
 import com.datastax.demo.killrchat.exceptions.UserAlreadyExistsException;
 import com.datastax.demo.killrchat.exceptions.UserNotFoundException;
 import com.datastax.demo.killrchat.model.LightChatRoomModel;
+import com.datastax.demo.killrchat.model.LightUserModel;
 import com.datastax.demo.killrchat.model.UserModel;
 import com.datastax.demo.killrchat.resource.model.UserPasswordModel;
 import com.datastax.demo.killrchat.security.utils.SecurityUtils;
@@ -43,9 +44,15 @@ public class UserResource {
         service.createUser(model);
     }
 
-    @RequestMapping(value = "/", method = GET, produces = APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{login}", method = GET, produces = APPLICATION_JSON_VALUE)
     @ResponseBody
-    public List<UserModel> listUsers(String fromUserLogin, int fetchSize) {
+    public UserModel findByLogin(@PathVariable String login) {
+        return service.findByLogin(login).toModel();
+    }
+
+    @RequestMapping(value = "/list", method = GET, produces = APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public List<UserModel> listUsers(@RequestParam(required = false) String fromUserLogin, @RequestParam(required = false) int fetchSize) {
         final int pageSize = fetchSize <= 0 ? DEFAULT_CHAT_ROOMS_LIST_FETCH_SIZE : fetchSize;
         return service.listUsers(fromUserLogin, pageSize);
     }

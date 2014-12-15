@@ -3,6 +3,7 @@ package com.datastax.demo.killrchat.resource;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
+import com.datastax.demo.killrchat.entity.User;
 import com.datastax.demo.killrchat.model.LightChatRoomModel;
 import com.datastax.demo.killrchat.model.UserModel;
 import com.datastax.demo.killrchat.resource.model.UserPasswordModel;
@@ -40,6 +41,19 @@ public class UserResourceTest {
 
         //Then
         verify(service).createUser(userModel);
+    }
+
+    @Test
+    public void should_find_user_by_login() throws Exception {
+        //Given
+        final User user = new User("jdoe", "pass", "John", "DOE", "johnny", "jdoe@gmail.com", "bio");
+        when(service.findByLogin("jdoe")).thenReturn(user);
+
+        //When
+        final UserModel found = resource.findByLogin("jdoe");
+
+        //Then
+        assertThat(found).isEqualTo(user.toModel());
     }
 
     @Test
