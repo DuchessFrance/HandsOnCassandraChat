@@ -1,6 +1,9 @@
 package com.datastax.demo.killrchat.entity;
 
+import com.datastax.demo.killrchat.model.ChatRoomModel;
 import com.datastax.demo.killrchat.model.LightChatRoomModel;
+import com.datastax.demo.killrchat.model.LightUserModel;
+import com.google.common.collect.Sets;
 import info.archinnov.achilles.annotations.*;
 import info.archinnov.achilles.type.NamingStrategy;
 import lombok.AllArgsConstructor;
@@ -26,13 +29,9 @@ public class UserChatRooms {
     @NotBlank
     private String creator;
 
-    @Column
-    private boolean directChat;
-
-    public UserChatRooms(String login, String roomName, String creator, boolean directChat) {
+    public UserChatRooms(String login, String roomName, String creator) {
         this.primaryKey = new CompoundPk(login, roomName);
         this.creator = creator;
-        this.directChat = directChat;
     }
 
     public String getRoomName() {
@@ -40,9 +39,8 @@ public class UserChatRooms {
     }
 
     public LightChatRoomModel toLightModel() {
-        return new LightChatRoomModel(primaryKey.roomName, creator, directChat);
+        return new LightChatRoomModel(primaryKey.roomName, creator);
     }
-
 
 
     @Data

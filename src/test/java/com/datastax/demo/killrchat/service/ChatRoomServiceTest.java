@@ -10,7 +10,6 @@ import com.datastax.demo.killrchat.exceptions.ChatRoomDoesNotExistException;
 import com.datastax.demo.killrchat.model.ChatRoomModel;
 import com.datastax.demo.killrchat.model.LightChatRoomModel;
 import com.datastax.demo.killrchat.model.LightUserModel;
-import com.datastax.demo.killrchat.resource.ChatRoomResource;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.querybuilder.Batch;
@@ -60,7 +59,7 @@ public class ChatRoomServiceTest {
         final String roomName = "random_thoughts";
 
         //When
-        service.createChatRoom(roomName, jdoe, true, true);
+        service.createChatRoom(roomName, jdoe);
 
         //Then
         final Row chatRoomByTheme = session.execute(select().from(KEYSPACE, CHATROOMS).where(eq("room_name", "random_thoughts"))).one();
@@ -80,7 +79,7 @@ public class ChatRoomServiceTest {
         session.execute(insertInto(KEYSPACE, CHATROOMS).value("room_name", "all"));
 
         //When
-        service.createChatRoom("all", new LightUserModel("jdoe","John", "DOE", "johnny"), true, true);
+        service.createChatRoom("all", new LightUserModel("jdoe","John", "DOE", "johnny"));
     }
 
     @Test
@@ -89,8 +88,7 @@ public class ChatRoomServiceTest {
         final Insert insertRoom = insertInto(KEYSPACE, CHATROOMS)
                 .value("room_name", "games")
                 .value("creator", "jdoe")
-                .value("private_room", false)
-                .value("direct_chat", false)
+
                 .value("participants", Sets.<LightUserModel>newHashSet());
 
 
@@ -102,8 +100,6 @@ public class ChatRoomServiceTest {
         //Then
         assertThat(model.getCreator()).isEqualTo("jdoe");
         assertThat(model.getRoomName()).isEqualTo("games");
-        assertThat(model.isDirectChat()).isFalse();
-        assertThat(model.isPrivateRoom()).isFalse();
         assertThat(model.getParticipants()).isNull();
     }
 
@@ -115,14 +111,14 @@ public class ChatRoomServiceTest {
     @Test
     public void should_list_chat_rooms_by_page() throws Exception {
         //Given
-        final Insert starcraftRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "starcraft").value("creator", "jdoe").value("private_room", false).value("direct_chat", false);
-        final Insert callOfDutyRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "call_of_duty").value("creator", "jdoe").value("private_room", false).value("direct_chat", false);
-        final Insert bioshockRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "bioshock").value("creator", "jdoe").value("private_room", false).value("direct_chat", false);
-        final Insert javaRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "java").value("creator", "jdoe").value("private_room", false).value("direct_chat", false);
-        final Insert scalaRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "scala").value("creator", "jdoe").value("private_room", false).value("direct_chat", false);
-        final Insert saasRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "saas").value("creator", "jdoe").value("private_room", false).value("direct_chat", false);
-        final Insert jenniferLaurenceRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "team_jennifer_laurence").value("creator", "jdoe").value("private_room", false).value("direct_chat", false);
-        final Insert politicsRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "politics").value("creator", "jdoe").value("private_room", false).value("direct_chat", false);
+        final Insert starcraftRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "starcraft").value("creator", "jdoe");
+        final Insert callOfDutyRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "call_of_duty").value("creator", "jdoe");
+        final Insert bioshockRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "bioshock").value("creator", "jdoe");
+        final Insert javaRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "java").value("creator", "jdoe");
+        final Insert scalaRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "scala").value("creator", "jdoe");
+        final Insert saasRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "saas").value("creator", "jdoe");
+        final Insert jenniferLaurenceRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "team_jennifer_laurence").value("creator", "jdoe");
+        final Insert politicsRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "politics").value("creator", "jdoe");
 
         final Batch batch = batch(starcraftRoom, callOfDutyRoom, bioshockRoom, javaRoom, scalaRoom, saasRoom, jenniferLaurenceRoom, politicsRoom);
         session.execute(batch);
@@ -140,15 +136,14 @@ public class ChatRoomServiceTest {
     @Test
     public void should_list_first_page_of_rooms() throws Exception {
         //Given
-        final List<String> allRooms = Arrays.asList("starcraft", "call_of_duty", "bioshock", "java", "scala", "saas", "team_jennifer_laurence", "politics");
-        final Insert starcraftRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "starcraft").value("creator", "jdoe").value("private_room", false).value("direct_chat", false);
-        final Insert callOfDutyRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "call_of_duty").value("creator", "jdoe").value("private_room", false).value("direct_chat", false);
-        final Insert bioshockRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "bioshock").value("creator", "jdoe").value("private_room", false).value("direct_chat", false);
-        final Insert javaRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "java").value("creator", "jdoe").value("private_room", false).value("direct_chat", false);
-        final Insert scalaRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "scala").value("creator", "jdoe").value("private_room", false).value("direct_chat", false);
-        final Insert saasRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "saas").value("creator", "jdoe").value("private_room", false).value("direct_chat", false);
-        final Insert jenniferLaurenceRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "team_jennifer_laurence").value("creator", "jdoe").value("private_room", false).value("direct_chat", false);
-        final Insert politicsRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "politics").value("creator", "jdoe").value("private_room", false).value("direct_chat", false);
+        final Insert starcraftRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "starcraft").value("creator", "jdoe");
+        final Insert callOfDutyRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "call_of_duty").value("creator", "jdoe");
+        final Insert bioshockRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "bioshock").value("creator", "jdoe");
+        final Insert javaRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "java").value("creator", "jdoe");
+        final Insert scalaRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "scala").value("creator", "jdoe");
+        final Insert saasRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "saas").value("creator", "jdoe");
+        final Insert jenniferLaurenceRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "team_jennifer_laurence").value("creator", "jdoe");
+        final Insert politicsRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "politics").value("creator", "jdoe");
 
         final Batch batch = batch(starcraftRoom, callOfDutyRoom, bioshockRoom, javaRoom, scalaRoom, saasRoom, jenniferLaurenceRoom, politicsRoom);
         session.execute(batch);
@@ -210,8 +205,6 @@ public class ChatRoomServiceTest {
         final Insert insert = insertInto(KEYSPACE, CHATROOMS)
                 .value("room_name", "politics")
                 .value("creator", "jdoe")
-                .value("private_room", false)
-                .value("direct_chat", false)
                 .value("participants", Arrays.asList(johnAsJSON));
 
         session.execute(insert);
@@ -256,8 +249,6 @@ public class ChatRoomServiceTest {
         final Insert createChatRoomStatement = insertInto(KEYSPACE, CHATROOMS)
                 .value("room_name", "politics")
                 .value("creator", "jdoe")
-                .value("private_room", false)
-                .value("direct_chat", false)
                 .value("participants", Arrays.asList(johnAsJSON, helenAsJSON));
 
         final Insert createHelenChatRooms = insertInto(KEYSPACE, USER_CHATROOMS)
@@ -303,8 +294,6 @@ public class ChatRoomServiceTest {
         final Insert createChatRoomStatement = insertInto(KEYSPACE, CHATROOMS)
                 .value("room_name", "politics")
                 .value("creator", "jdoe")
-                .value("private_room", false)
-                .value("direct_chat", false)
                 .value("participants", Arrays.asList(johnAsJSON));
 
         final Insert createJohnChatRooms = insertInto(KEYSPACE, USER_CHATROOMS)

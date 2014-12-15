@@ -47,16 +47,16 @@ public class ChatRoomService {
         }
     };
 
-    public void createChatRoom(String roomName, LightUserModel creator, boolean directChat) {
+    public void createChatRoom(String roomName, LightUserModel creator) {
         final Set<LightUserModel> participantsList = Sets.newHashSet(creator);
         final String creatorLogin = creator.getLogin();
-        final ChatRoom room = new ChatRoom(roomName, directChat, creatorLogin, participantsList);
+        final ChatRoom room = new ChatRoom(roomName, creatorLogin, participantsList);
         try {
             manager.insert(room, OptionsBuilder.ifNotExists());
         } catch (AchillesLightWeightTransactionException ex) {
             throw new ChatRoomAlreadyExistsException(format("The room '%s' already exists", roomName));
         }
-        manager.insert(new UserChatRooms(creatorLogin, roomName, creatorLogin, directChat));
+        manager.insert(new UserChatRooms(creatorLogin, roomName, creatorLogin));
     }
 
     public ChatRoomModel findRoomByName(String roomName) {
@@ -105,7 +105,7 @@ public class ChatRoomService {
         } catch (AchillesLightWeightTransactionException ex) {
             throw new ChatRoomDoesNotExistException(format("The chat room '%s' does not exist", roomName));
         }
-        manager.insert(new UserChatRooms(newParticipant, roomName, chatRoomCreator, chatRoomModel.isDirectChat()));
+        manager.insert(new UserChatRooms(newParticipant, roomName, chatRoomCreator));
 
     }
 

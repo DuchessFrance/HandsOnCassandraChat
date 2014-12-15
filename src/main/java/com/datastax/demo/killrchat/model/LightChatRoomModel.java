@@ -19,5 +19,4 @@ public class LightChatRoomModel {
     @NotBlank
     private String creator;
 
-    private boolean directChat;
 }

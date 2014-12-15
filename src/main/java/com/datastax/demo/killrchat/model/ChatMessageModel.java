@@ -21,7 +21,6 @@ public class ChatMessageModel {
     @NotNull
     private Date creationDate;
 
-
     @NotBlank
     private String author;
 

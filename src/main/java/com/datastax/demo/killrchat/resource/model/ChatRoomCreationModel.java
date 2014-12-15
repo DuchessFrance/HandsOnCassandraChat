@@ -20,7 +20,4 @@ public class ChatRoomCreationModel {
 
     @NotNull
     private LightUserModel creator;
-
-    private boolean directChat;
-
 }

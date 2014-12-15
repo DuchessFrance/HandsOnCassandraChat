@@ -23,7 +23,6 @@ public class LightUserModel {
     @Size(max = 100)
     protected String lastname;
 
-    @NotEmpty
     @Size(max = 100)
     protected String nickname;
 

@@ -17,8 +17,8 @@ public class ChatRoomModel extends LightChatRoomModel{
 
     private Set<LightUserModel> participants;
 
-    public ChatRoomModel(String roomName, String creator, boolean directChat, Set<LightUserModel> participants) {
-        super(roomName, creator, directChat);
+    public ChatRoomModel(String roomName, String creator, Set<LightUserModel> participants) {
+        super(roomName, creator);
         this.participants = participants;
     }
 }

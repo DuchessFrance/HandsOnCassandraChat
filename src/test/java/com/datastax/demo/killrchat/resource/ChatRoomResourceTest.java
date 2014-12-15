@@ -16,8 +16,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Arrays;
-import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ChatRoomResourceTest {
@@ -35,16 +33,16 @@ public class ChatRoomResourceTest {
         final LightUserModel userModel = new LightUserModel("jdoe", "John", "DOE", "johnny");
 
         //When
-        resource.createChatRoom(new ChatRoomCreationModel(roomName, userModel, false, false));
+        resource.createChatRoom(new ChatRoomCreationModel(roomName, userModel));
 
         //Then
-        verify(service).createChatRoom(roomName, userModel, false, false);
+        verify(service).createChatRoom(roomName, userModel);
     }
 
     @Test
     public void should_find_room_by_name() throws Exception {
         //Given
-        final ChatRoomModel roomModel = new ChatRoomModel("games","jdoe", "", false, false, Sets.<LightUserModel>newHashSet());
+        final ChatRoomModel roomModel = new ChatRoomModel("games","jdoe", Sets.<LightUserModel>newHashSet());
         when(service.findRoomByName("games")).thenReturn(roomModel);
 
         //When

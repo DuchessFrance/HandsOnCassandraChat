@@ -9,7 +9,6 @@ import com.datastax.demo.killrchat.model.UserModel;
 import com.datastax.demo.killrchat.resource.model.UserPasswordModel;
 import com.datastax.demo.killrchat.service.ChatRoomService;
 import com.datastax.demo.killrchat.service.UserService;
-import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
