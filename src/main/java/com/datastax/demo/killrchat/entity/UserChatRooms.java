@@ -26,9 +26,13 @@ public class UserChatRooms {
     @NotBlank
     private String creator;
 
-    public UserChatRooms(String login, String roomName, String creator) {
+    @Column
+    private boolean directChat;
+
+    public UserChatRooms(String login, String roomName, String creator, boolean directChat) {
         this.primaryKey = new CompoundPk(login, roomName);
         this.creator = creator;
+        this.directChat = directChat;
     }
 
     public String getRoomName() {
@@ -36,8 +40,10 @@ public class UserChatRooms {
     }
 
     public LightChatRoomModel toLightModel() {
-        return new LightChatRoomModel(primaryKey.roomName, creator);
+        return new LightChatRoomModel(primaryKey.roomName, creator, directChat);
     }
+
+
 
     @Data
     @NoArgsConstructor

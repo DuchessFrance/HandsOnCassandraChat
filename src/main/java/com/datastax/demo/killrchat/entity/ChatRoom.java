@@ -28,9 +28,6 @@ public class ChatRoom {
     private String roomName;
 
     @Column
-    private boolean privateRoom;
-
-    @Column
     private boolean directChat;
 
     @Column
@@ -44,22 +41,18 @@ public class ChatRoom {
     @JSON
     private Set<LightUserModel> participants;
 
-    public ChatRoom(String roomName, boolean privateRoom, boolean directChat, String creator, Set<LightUserModel> participants) {
+    public ChatRoom(String roomName, boolean directChat, String creator, Set<LightUserModel> participants) {
         this.roomName = roomName;
-        this.privateRoom = privateRoom;
         this.directChat = directChat;
         this.creator = creator;
         this.participants = participants;
     }
 
     public LightChatRoomModel toLightModel() {
-        return new LightChatRoomModel(roomName, creator);
+        return new LightChatRoomModel(roomName, creator, directChat);
     }
 
     public ChatRoomModel toModel() {
-        final ChatRoomModel chatRoomModel = new ChatRoomModel(privateRoom, directChat, participants, banner);
-        chatRoomModel.setCreator(creator);
-        chatRoomModel.setRoomName(roomName);
-        return chatRoomModel;
+        return new ChatRoomModel(roomName, creator, directChat, participants);
     }
 }

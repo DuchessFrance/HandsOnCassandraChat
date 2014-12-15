@@ -32,9 +32,8 @@ public class ChatRoomResource {
         final String roomName = model.getRoomName();
         final LightUserModel creator = model.getCreator();
         final boolean directChat = model.isDirectChat();
-        final boolean privateRoom = model.isPrivateRoom();
 
-        service.createChatRoom(roomName, creator, directChat, privateRoom);
+        service.createChatRoom(roomName, creator, directChat);
     }
 
     @RequestMapping(value = "/{roomName}", method = GET, produces = APPLICATION_JSON_VALUE)
