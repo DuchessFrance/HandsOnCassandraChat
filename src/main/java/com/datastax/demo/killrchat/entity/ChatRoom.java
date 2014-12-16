@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.NotBlank;
 
+import javax.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,17 +29,13 @@ public class ChatRoom {
     private String roomName;
 
     @Column
-    @NotBlank
-    private String creator;
+    @NotNull
+    @JSON
+    private LightUserModel creator;
 
     @Column
     @JSON
     private Set<LightUserModel> participants;
-
-
-    public LightChatRoomModel toLightModel() {
-        return new LightChatRoomModel(roomName, creator);
-    }
 
     public ChatRoomModel toModel() {
         return new ChatRoomModel(roomName, creator, participants);

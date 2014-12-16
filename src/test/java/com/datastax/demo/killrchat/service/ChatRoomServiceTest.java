@@ -47,6 +47,9 @@ public class ChatRoomServiceTest {
 
     private ChatRoomService service = new ChatRoomService();
 
+    private LightUserModel john = new LightUserModel("jdoe", "John", "DOE");
+    private LightUserModel helen = new LightUserModel("hsue", "Helen", "SUE");
+
     @Before
     public void setUp() {
         service.manager = this.manager;
@@ -85,9 +88,10 @@ public class ChatRoomServiceTest {
     @Test
     public void should_find_room_by_name() throws Exception {
         //Given
+        final String johnAsJSON = manager.serializeToJSON(john);
         final Insert insertRoom = insertInto(KEYSPACE, CHATROOMS)
                 .value("room_name", "games")
-                .value("creator", "jdoe")
+                .value("creator", johnAsJSON)
 
                 .value("participants", Sets.<LightUserModel>newHashSet());
 
@@ -98,7 +102,7 @@ public class ChatRoomServiceTest {
         final ChatRoomModel model = service.findRoomByName("games");
 
         //Then
-        assertThat(model.getCreator()).isEqualTo("jdoe");
+        assertThat(model.getCreator()).isEqualTo(john);
         assertThat(model.getRoomName()).isEqualTo("games");
         assertThat(model.getParticipants()).isNull();
     }
@@ -111,14 +115,16 @@ public class ChatRoomServiceTest {
     @Test
     public void should_list_chat_rooms_by_page() throws Exception {
         //Given
-        final Insert starcraftRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "starcraft").value("creator", "jdoe");
-        final Insert callOfDutyRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "call_of_duty").value("creator", "jdoe");
-        final Insert bioshockRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "bioshock").value("creator", "jdoe");
-        final Insert javaRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "java").value("creator", "jdoe");
-        final Insert scalaRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "scala").value("creator", "jdoe");
-        final Insert saasRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "saas").value("creator", "jdoe");
-        final Insert jenniferLaurenceRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "team_jennifer_laurence").value("creator", "jdoe");
-        final Insert politicsRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "politics").value("creator", "jdoe");
+        final String johnAsJSON = manager.serializeToJSON(john);
+
+        final Insert starcraftRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "starcraft").value("creator", johnAsJSON);
+        final Insert callOfDutyRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "call_of_duty").value("creator", johnAsJSON);
+        final Insert bioshockRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "bioshock").value("creator", johnAsJSON);
+        final Insert javaRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "java").value("creator", johnAsJSON);
+        final Insert scalaRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "scala").value("creator", johnAsJSON);
+        final Insert saasRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "saas").value("creator", johnAsJSON);
+        final Insert jenniferLaurenceRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "team_jennifer_laurence").value("creator", johnAsJSON);
+        final Insert politicsRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "politics").value("creator", johnAsJSON);
 
         final Batch batch = batch(starcraftRoom, callOfDutyRoom, bioshockRoom, javaRoom, scalaRoom, saasRoom, jenniferLaurenceRoom, politicsRoom);
         session.execute(batch);
@@ -136,14 +142,15 @@ public class ChatRoomServiceTest {
     @Test
     public void should_list_first_page_of_rooms() throws Exception {
         //Given
-        final Insert starcraftRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "starcraft").value("creator", "jdoe");
-        final Insert callOfDutyRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "call_of_duty").value("creator", "jdoe");
-        final Insert bioshockRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "bioshock").value("creator", "jdoe");
-        final Insert javaRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "java").value("creator", "jdoe");
-        final Insert scalaRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "scala").value("creator", "jdoe");
-        final Insert saasRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "saas").value("creator", "jdoe");
-        final Insert jenniferLaurenceRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "team_jennifer_laurence").value("creator", "jdoe");
-        final Insert politicsRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "politics").value("creator", "jdoe");
+        final String johnAsJSON = manager.serializeToJSON(john);
+        final Insert starcraftRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "starcraft").value("creator", johnAsJSON);
+        final Insert callOfDutyRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "call_of_duty").value("creator", johnAsJSON);
+        final Insert bioshockRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "bioshock").value("creator", johnAsJSON);
+        final Insert javaRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "java").value("creator", johnAsJSON);
+        final Insert scalaRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "scala").value("creator", johnAsJSON);
+        final Insert saasRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "saas").value("creator", johnAsJSON);
+        final Insert jenniferLaurenceRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "team_jennifer_laurence").value("creator", johnAsJSON);
+        final Insert politicsRoom = insertInto(KEYSPACE, CHATROOMS).value("room_name", "politics").value("creator", johnAsJSON);
 
         final Batch batch = batch(starcraftRoom, callOfDutyRoom, bioshockRoom, javaRoom, scalaRoom, saasRoom, jenniferLaurenceRoom, politicsRoom);
         session.execute(batch);
@@ -196,15 +203,13 @@ public class ChatRoomServiceTest {
     @Test
     public void should_add_user_to_room() throws Exception {
         //Given
-        final LightUserModel johnny = new LightUserModel("jdoe", "John", "DOE");
-        final LightUserModel helen = new LightUserModel("hsue", "Helen", "SUE");
-        final LightChatRoomModel chatRoomModel = new LightChatRoomModel("politics", "jdoe");
-        final String johnAsJSON = manager.serializeToJSON(johnny);
+        final LightChatRoomModel chatRoomModel = new LightChatRoomModel("politics", john);
+        final String johnAsJSON = manager.serializeToJSON(john);
         final String helenAsJSON = manager.serializeToJSON(helen);
 
         final Insert insert = insertInto(KEYSPACE, CHATROOMS)
                 .value("room_name", "politics")
-                .value("creator", "jdoe")
+                .value("creator", johnAsJSON)
                 .value("participants", Arrays.asList(johnAsJSON));
 
         session.execute(insert);
@@ -224,14 +229,13 @@ public class ChatRoomServiceTest {
         assertThat(helenChatRoomsRows).hasSize(1);
         final Row userRoomRow = helenChatRoomsRows.get(0);
         assertThat(userRoomRow.getString("room_name")).isEqualTo("politics");
-        assertThat(userRoomRow.getString("creator")).isEqualTo("jdoe");
+        assertThat(userRoomRow.getString("creator")).isEqualTo(johnAsJSON);
     }
 
     @Test(expected = ChatRoomDoesNotExistException.class)
     public void should_exception_when_adding_user_to_non_existing_chat_room() throws Exception {
         //Given
-        final LightUserModel helen = new LightUserModel("hsue", "Helen", "SUE");
-        final LightChatRoomModel chatRoomModel = new LightChatRoomModel("politics", "jdoe");
+        final LightChatRoomModel chatRoomModel = new LightChatRoomModel("politics", john);
 
         //When
         service.addUserToRoom(chatRoomModel, helen);
@@ -240,21 +244,19 @@ public class ChatRoomServiceTest {
     @Test
     public void should_remove_user_from_chat_room() throws Exception {
         //Given
-        final LightUserModel johnny = new LightUserModel("jdoe", "John", "DOE");
-        final LightUserModel helen = new LightUserModel("hsue", "Helen", "SUE");
-        final LightChatRoomModel chatRoomModel = new LightChatRoomModel("politics", "jdoe");
-        final String johnAsJSON = manager.serializeToJSON(johnny);
+        final LightChatRoomModel chatRoomModel = new LightChatRoomModel("politics", john);
+        final String johnAsJSON = manager.serializeToJSON(john);
         final String helenAsJSON = manager.serializeToJSON(helen);
 
         final Insert createChatRoomStatement = insertInto(KEYSPACE, CHATROOMS)
                 .value("room_name", "politics")
-                .value("creator", "jdoe")
+                .value("creator", johnAsJSON)
                 .value("participants", Arrays.asList(johnAsJSON, helenAsJSON));
 
         final Insert createHelenChatRooms = insertInto(KEYSPACE, USER_CHATROOMS)
                 .value("login", "hsue")
                 .value("room_name", "politics")
-                .value("creator", "jdoe");
+                .value("creator", johnAsJSON);
 
         session.execute(createChatRoomStatement);
         session.execute(createHelenChatRooms);
@@ -277,7 +279,7 @@ public class ChatRoomServiceTest {
     @Test(expected = ChatRoomDoesNotExistException.class)
     public void should_exception_when_removing_user_from_non_existing_room() throws Exception {
         //Given
-        final LightChatRoomModel chatRoomModel = new LightChatRoomModel("politics", "jdoe");
+        final LightChatRoomModel chatRoomModel = new LightChatRoomModel("politics", john);
         final LightUserModel helen = new LightUserModel("hsue", "Helen", "SUE");
 
         //When
@@ -287,26 +289,25 @@ public class ChatRoomServiceTest {
     @Test
     public void should_remove_last_user_from_chat_room() throws Exception {
         //Given
-        final LightUserModel johnny = new LightUserModel("jdoe", "John", "DOE");
-        final LightChatRoomModel chatRoomModel = new LightChatRoomModel("politics", "jdoe");
-        final String johnAsJSON = manager.serializeToJSON(johnny);
+        final LightChatRoomModel chatRoomModel = new LightChatRoomModel("politics", john);
+        final String johnAsJSON = manager.serializeToJSON(john);
 
         final Insert createChatRoomStatement = insertInto(KEYSPACE, CHATROOMS)
                 .value("room_name", "politics")
-                .value("creator", "jdoe")
+                .value("creator", johnAsJSON)
                 .value("participants", Arrays.asList(johnAsJSON));
 
         final Insert createJohnChatRooms = insertInto(KEYSPACE, USER_CHATROOMS)
                 .value("login", "hsue")
                 .value("room_name", "politics")
-                .value("creator", "jdoe");
+                .value("creator", johnAsJSON);
 
 
         session.execute(createChatRoomStatement);
         session.execute(createJohnChatRooms);
 
         //When
-        service.removeUserFromRoom(chatRoomModel, johnny);
+        service.removeUserFromRoom(chatRoomModel, john);
 
         //Then
         final Select.Where participants = select().from(KEYSPACE, CHATROOMS).where(eq("room_name", "politics"));

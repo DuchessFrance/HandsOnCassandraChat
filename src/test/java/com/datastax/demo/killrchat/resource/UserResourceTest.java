@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 
 import com.datastax.demo.killrchat.entity.User;
 import com.datastax.demo.killrchat.model.LightChatRoomModel;
+import com.datastax.demo.killrchat.model.LightUserModel;
 import com.datastax.demo.killrchat.model.UserModel;
 import com.datastax.demo.killrchat.resource.model.UserPasswordModel;
 import com.datastax.demo.killrchat.service.ChatRoomService;
@@ -29,6 +30,8 @@ public class UserResourceTest {
 
     @Mock
     private ChatRoomService chatRoomService;
+
+    private LightUserModel john = new LightUserModel("jdoe", "John", "DOE");
 
     @Test
     public void should_create_user() throws Exception {
@@ -83,7 +86,7 @@ public class UserResourceTest {
     @Test
     public void should_list_chat_room_for_user_from_beginning() throws Exception {
         //Given
-        final LightChatRoomModel room = new LightChatRoomModel("games","jdoe");
+        final LightChatRoomModel room = new LightChatRoomModel("games",john);
         when(chatRoomService.listChatRoomsForUserByPage(null,"", ChatRoomResource.DEFAULT_CHAT_ROOMS_LIST_FETCH_SIZE)).thenReturn(Arrays.asList(room));
 
         //When
@@ -96,7 +99,7 @@ public class UserResourceTest {
     @Test
     public void should_list_chat_room_for_user_from_lower_bound_with_paging() throws Exception {
         //Given
-        final LightChatRoomModel room = new LightChatRoomModel("games","jdoe");
+        final LightChatRoomModel room = new LightChatRoomModel("games",john);
         when(chatRoomService.listChatRoomsForUserByPage(null,"fun", 11)).thenReturn(Arrays.asList(room));
 
         //When

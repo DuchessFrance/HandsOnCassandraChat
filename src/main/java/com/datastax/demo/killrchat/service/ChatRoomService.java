@@ -50,13 +50,13 @@ public class ChatRoomService {
     public void createChatRoom(String roomName, LightUserModel creator) {
         final Set<LightUserModel> participantsList = Sets.newHashSet(creator);
         final String creatorLogin = creator.getLogin();
-        final ChatRoom room = new ChatRoom(roomName, creatorLogin, participantsList);
+        final ChatRoom room = new ChatRoom(roomName, creator, participantsList);
         try {
             manager.insert(room, OptionsBuilder.ifNotExists());
         } catch (AchillesLightWeightTransactionException ex) {
             throw new ChatRoomAlreadyExistsException(format("The room '%s' already exists", roomName));
         }
-        manager.insert(new UserChatRooms(creatorLogin, roomName, creatorLogin));
+        manager.insert(new UserChatRooms(creatorLogin, roomName, creator));
     }
 
     public ChatRoomModel findRoomByName(String roomName) {
@@ -97,7 +97,7 @@ public class ChatRoomService {
     public void addUserToRoom(LightChatRoomModel chatRoomModel, LightUserModel userModel) {
         final String roomName = chatRoomModel.getRoomName();
         final String newParticipant = userModel.getLogin();
-        final String chatRoomCreator = chatRoomModel.getCreator();
+        final LightUserModel chatRoomCreator = chatRoomModel.getCreator();
         final ChatRoom chatRoomProxy = manager.forUpdate(ChatRoom.class, roomName);
         chatRoomProxy.getParticipants().add(userModel);
         try {
@@ -112,7 +112,7 @@ public class ChatRoomService {
     public void removeUserFromRoom(LightChatRoomModel chatRoomModel, LightUserModel userModel) {
         final String roomName = chatRoomModel.getRoomName();
         final String participantToBeRemoved = userModel.getLogin();
-        final String chatRoomCreator = chatRoomModel.getCreator();
+        final LightUserModel chatRoomCreator = chatRoomModel.getCreator();
         final ChatRoom chatRoomProxy = manager.forUpdate(ChatRoom.class, roomName);
         chatRoomProxy.getParticipants().remove(userModel);
         try {

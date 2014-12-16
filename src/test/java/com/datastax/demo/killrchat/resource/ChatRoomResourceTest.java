@@ -26,6 +26,8 @@ public class ChatRoomResourceTest {
     @Mock
     private ChatRoomService service;
 
+    private LightUserModel john = new LightUserModel("jdoe", "John", "DOE");
+
     @Test
     public void should_create_chat_room() throws Exception {
         //Given
@@ -42,7 +44,7 @@ public class ChatRoomResourceTest {
     @Test
     public void should_find_room_by_name() throws Exception {
         //Given
-        final ChatRoomModel roomModel = new ChatRoomModel("games","jdoe", Sets.<LightUserModel>newHashSet());
+        final ChatRoomModel roomModel = new ChatRoomModel("games",john, Sets.<LightUserModel>newHashSet());
         when(service.findRoomByName("games")).thenReturn(roomModel);
 
         //When
@@ -66,26 +68,24 @@ public class ChatRoomResourceTest {
     @Test
     public void should_add_user_to_chat_room() throws Exception {
         //Given
-        final LightUserModel user = new LightUserModel("jdoe", "John", "DOE");
-        final LightChatRoomModel room = new LightChatRoomModel("games","jdoe");
+        final LightChatRoomModel room = new LightChatRoomModel("games",john);
 
         //When
-        resource.addUserToChatRoom(new ChatRoomParticipantModel(room, user));
+        resource.addUserToChatRoom(new ChatRoomParticipantModel(room, john));
 
         //Then
-        verify(service).addUserToRoom(room, user);
+        verify(service).addUserToRoom(room, john);
     }
 
     @Test
     public void should_remove_user_from_chat_room() throws Exception {
         //Given
-        final LightUserModel user = new LightUserModel("jdoe", "John", "DOE");
-        final LightChatRoomModel room = new LightChatRoomModel("games","jdoe");
+        final LightChatRoomModel room = new LightChatRoomModel("games",john);
 
         //When
-        resource.removeUserFromChatRoom(new ChatRoomParticipantModel(room, user));
+        resource.removeUserFromChatRoom(new ChatRoomParticipantModel(room, john));
 
         //Then
-        verify(service).removeUserFromRoom(room, user);
+        verify(service).removeUserFromRoom(room, john);
     }
 }

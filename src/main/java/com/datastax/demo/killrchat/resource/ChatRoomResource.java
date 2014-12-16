@@ -27,7 +27,7 @@ public class ChatRoomResource {
     @Inject
     private ChatRoomService service;
 
-    @RequestMapping(value = "/", method = POST, consumes = APPLICATION_JSON_VALUE)
+    @RequestMapping(method = POST, consumes = APPLICATION_JSON_VALUE)
     public void createChatRoom(@NotNull @RequestBody ChatRoomCreationModel model) {
         final String roomName = model.getRoomName();
         final LightUserModel creator = model.getCreator();
@@ -53,7 +53,7 @@ public class ChatRoomResource {
         service.addUserToRoom(model.getRoom(), model.getParticipant());
     }
 
-    @RequestMapping(value = "/user", method = DELETE, consumes = APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/user/remove", method = PUT, consumes = APPLICATION_JSON_VALUE)
     public void removeUserFromChatRoom(@NotNull @RequestBody ChatRoomParticipantModel model) {
         service.removeUserFromRoom(model.getRoom(), model.getParticipant());
     }
