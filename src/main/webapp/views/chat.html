@@ -1,87 +1,32 @@
 <!--Left Column-->
-<div ng-controller="ChatRoomCtrl">
-    <div class="col-md-2 sidebar">
-        <p>My rooms <i class="fa fa-plus-square fa-lg pull-right"></i><i class="fa fa-list-alt fa-lg pull-right"></i></p>
-        <hr/>
-        <ul class="nav nav-sidebar full-height">
-            <li ng-repeat="room in userRooms">
-                <a ng-click="switchRoom(room.roomName)">
-                    <i class="fa fa-comments fa-lg pull-left"></i>
-                    &nbsp;&nbsp;{{room.roomName}}
-                    <i class="fa fa-sign-out fa-lg pull-right exit-room"></i>
-                </a>
-            </li>
-        </ul>
-    </div>
+<div ng-controller="ChatNavigationCtrl">
+
+    <!--Chat Rooms Column-->
+    <div id="chatRoomList" ng-include="'views/fragments/userChatRooms.html'"></div>
 
     <div ng-switch on="section">
 
-        <div class="col-md-10 col-md-offset-2 chat-zone" ng-switch-when="home">
-            <div class="jumbotron">
-                <h1>Welcome to KillrChat</h1>
-                <p>
-                    You can join an existing chat room (displayed on the left)
-                    <br/>
-                    Next to <strong>My rooms</strong> you can
-                    <ul>
-                        <li>
-                            search for a room by clicking on the &nbsp;<i class="fa fa-list-alt fa-lg"></i>&nbsp;
-                        </li>
-                        <li>
-                            or create a new room by clicking on the &nbsp;<i class="fa fa-plus-square fa-lg"></i>&nbsp;
-                        </li>
-                    </ul>
-                </p>
-            </div>
+        <!--Chat Landing Page-->
+        <div ng-switch-when="home">
+            <div id="chatHomePage" class="col-md-10 col-md-offset-2 chat-zone" ng-include="'views/fragments/chatHomePage.html'"></div>
         </div>
 
+        <div ng-switch-when="allRooms">
+            <div id="chatRoomsList" class="col-md-10 col-md-offset-2 chat-zone" ng-include="'views/fragments/chatRoomsList.html'"></div>
+        </div>
+
+        <div ng-switch-when="newRoom">
+            <div id="newChatRoomPanel" class="col-md-10 col-md-offset-2 chat-zone" ng-include="'views/fragments/newChatRoom.html'"></div>
+        </div>
+
+        <!--Inside a chat room-->
         <div class="col-md-10 col-md-offset-2" ng-switch-when="room" ng-controller="ChatCtrl">
             <div class="row">
-                <!--Central Section-->
-                <div class="col-md-8 chat-zone">
-                    <div class="row chat-room-banner-height">
-                        <div class="chat-room-banner bg-primary">
-                            <p>{{currentRoom.roomName}}</p>
-                        </div>
-                    </div>
-                    <div class="row chat-room-messages-height">
-                        <div class="chat-room-messages">
-                            <ul class="list-group">
-                                <li class="list-group-item" ng-repeat="message in messages">
-                                    <p class="chat-metadata text-right">
-                                        <i class="fa fa-clock-o"></i>&nbsp;&nbsp;{{message.creationDate | onlyMinute}}&nbsp;&nbsp;<strong>{{message.author}}</strong>
-                                    </p>
-                                    <p class="chat-content text-justify text-muted">{{message.content}}</p>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="row chat-room-separator-height"></div>
-                    <div class="row chat-room-input-message well well-lg">
-                        <!--<form class="form-inline" role="form">-->
-                        <div class="col-md-12">
-                            <div class="input-group">
-                                <input type="text" class="form-control" name="new_message" placeholder="New message" ng-model="message" ng-enter="postMessage()"/>
-                                <span class="input-group-btn">
-                                    <button class="btn btn-default" type="button">:D</button>
-                                </span>
-                            </div>
-                        </div>
-                        <!--</form>-->
-                    </div>
-                </div>
+                <!--Chat Main Section-->
+                <div id="chatMainSection" class="col-md-8 chat-zone" ng-include="'views/fragments/chatMainSection.html'"></div>
 
-                <!--Right Column-->
-                <div class="col-md-2 sidebar col-md-offset-10" >
-                    <p>Participants</p>
-                    <hr/>
-                    <ul class="nav nav-sidebar full-height">
-                        <li ng-repeat="participant in currentRoom.participants">
-                            <a href="#"><i class="fa fa-user fa-lg pull-left"></i> {{participant.firstname}} {{participant.lastname}}</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+                <!--Participants Column-->
+                <div id="chatParticipants" class="col-md-2 sidebar col-md-offset-10" ng-include="'views/fragments/chatParticipants.html'"></div>
         </div>
 
 

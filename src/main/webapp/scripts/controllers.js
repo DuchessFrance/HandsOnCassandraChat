@@ -1,7 +1,6 @@
 /**
- * Login page
+ * Navigation Bar Controller
  */
-
 killrChat.controller('NavBarCtrl', function($rootScope, $scope, $location, User){
     delete $rootScope.generalError;
     $rootScope
@@ -22,6 +21,9 @@ killrChat.controller('NavBarCtrl', function($rootScope, $scope, $location, User)
     };
 });
 
+/**
+ * Sign In Controller
+ */
 killrChat.controller('SignInCtrl', function ($rootScope, $scope, $modal, $location, User) {
 
     $scope.username = null;
@@ -68,7 +70,7 @@ killrChat.controller('SignInCtrl', function ($rootScope, $scope, $modal, $locati
                 });
         })
         .catch(function(httpResponse){
-                $scope.loginError = httpResponse;
+                $scope.loginError = httpResponse.data.message;
         });
     };
 });
@@ -109,22 +111,29 @@ killrChat.controller('SignUpModalCtrl',function ($scope, $modalInstance, User) {
 });
 
 /**
- * Rooms management
+ * Chat Navigation Controller
  */
-
-killrChat.controller('ChatRoomCtrl',function ($rootScope, $scope, eventBus, User, Room) {
+killrChat.controller('ChatNavigationCtrl',function ($rootScope, $scope, eventBus, User, Room) {
 
     $scope.section = 'home';
     $scope.userRooms = [];
+    $scope.userRoomNames = [];
 
     $scope.loadUsersRooms = function() {
         var userRooms = User.listRooms({fetchSize:100},
             function(){
                 $scope.userRooms = userRooms;
+                $scope.computeRoomNames();
             },
             function(httpResponse){
                 $rootScope.generalError = httpResponse.message;
             });
+    };
+
+    $scope.computeRoomNames = function(){
+        $scope.userRoomNames = $scope.userRooms.map(function(room) {
+            return room.roomName;
+        });
     };
 
     $scope.switchRoom = function(roomName) {
@@ -139,12 +148,35 @@ killrChat.controller('ChatRoomCtrl',function ($rootScope, $scope, eventBus, User
             });
     };
 
-    $scope.leaveRoom = function(roomToLeave) {
+    $scope.home = function() {
+        $scope.section = 'home';
+    };
 
-        Room.$removeParticipant({room:roomToLeave })
-            .then(function(httpResponse){})
-            .catch(function(httpResponse){});
+    $scope.allRooms = function() {
+        $scope.section = 'allRooms';
+    };
 
+    $scope.newRoom = function() {
+        $scope.section = 'newRoom';
+    };
+
+    $scope.quitRoom = function(room) {
+        var resource = new Room({room:room, participant:$scope.user});
+        resource.$removeParticipant()
+            .then(function(){
+                var indexToRemove = -1;
+                angular.forEach($scope.userRooms, function(userRoom,index){
+                    if(userRoom.roomName == room.roomName) {
+                        indexToRemove = index;
+                        return;
+                    }
+                });
+                $scope.userRooms.splice(indexToRemove,1);
+                $scope.computeRoomNames();
+            })
+            .catch(function(httpResponse){
+                $rootScope.generalError = httpResponse.message;
+            });
     };
 
     $scope.$evalAsync($scope.loadUsersRooms());
@@ -156,7 +188,10 @@ killrChat.controller('ChatRoomCtrl',function ($rootScope, $scope, eventBus, User
 killrChat.controller('ChatCtrl', function($rootScope, $scope, eventBus, Message){
 
     $scope.messages = [];
-    $scope.participants = [];
+    $scope.newMessage = {
+        author: $scope.user,
+        content:null
+    };
 
 
     $scope.loadInitialRoomMessages = function() {
@@ -170,12 +205,12 @@ killrChat.controller('ChatCtrl', function($rootScope, $scope, eventBus, Message)
     };
 
     $scope.postMessage = function(){
-        if($scope.message){
-            var message = new Message({author: $scope.user, content: $scope.message});
+        if($scope.newMessage.content){
+            var message = new Message($scope.newMessage);
             message.$create({roomName:$scope.currentRoom.roomName})
                 .then(function(){
                     $scope.loadInitialRoomMessages();
-                    delete $scope.message;
+                    delete $scope.newMessage.content;
                 })
                 .catch(function(httpResponse) {
                     $rootScope.generalError = httpResponse.data;
@@ -190,5 +225,104 @@ killrChat.controller('ChatCtrl', function($rootScope, $scope, eventBus, Message)
     eventBus.onMsg('switchRoom', $scope, function() {
         $scope.loadInitialRoomMessages();
     });
+
+});
+
+killrChat.controller('RoomsListCtrl', function($rootScope, $scope, Room){
+
+    $scope.rooms = [];
+
+    $scope.loadInitialRooms = function() {
+        var rooms = Room.list({fetchSize:10},
+        function(){
+            $scope.rooms = rooms;
+        },
+        function(httpResponse){
+           $rootScope.generalError = httpResponse.message;
+        });
+    };
+
+    $scope.joinRoom = function(room) {
+        var resource = new Room({room:room, participant:$scope.user});
+        resource.$addParticipant()
+        .then(function(){
+
+            var roomToJoin = $scope.rooms.filter(function(existingRoom){
+                return existingRoom.roomName == room.roomName;
+            })[0];
+
+            roomToJoin.participants.push({
+                login:$scope.user.login,
+                firstname:$scope.user.firstname,
+                lastname:$scope.user.lastname
+
+            });
+            var copy = angular.copy(room);
+            delete copy.participants;
+            $scope.userRooms.push(copy);
+            $scope.computeRoomNames();
+        })
+        .catch(function(httpResponse){
+            $rootScope.generalError = httpResponse.message;
+        });
+    };
+
+    $scope.quitRoom = function(room) {
+        var resource = new Room({room:room, participant:$scope.user});
+        resource.$removeParticipant()
+            .then(function(){
+                var indexToRemove = -1;
+                angular.forEach($scope.userRooms, function(userRoom,index){
+                    if(userRoom.roomName == room.roomName) {
+                        indexToRemove = index;
+                        return;
+                    }
+                });
+
+                $scope.userRooms.splice(indexToRemove,1);
+
+                var roomToLeave = $scope.rooms.filter(function(existingRoom){
+                    return existingRoom.roomName == room.roomName;
+                })[0];
+
+                angular.forEach(roomToLeave.participants, function(participant,index){
+                    if(participant.login == $scope.user.login) {
+                        indexToRemove = index;
+                        return;
+                    }
+                });
+
+                roomToLeave.participants.splice(indexToRemove,1);
+                $scope.computeRoomNames();
+            })
+            .catch(function(httpResponse){
+                $rootScope.generalError = httpResponse.message;
+            });
+    };
+    $scope.$evalAsync($scope.loadInitialRooms());
+});
+
+killrChat.controller('newRoomCtrl', function($rootScope, $scope, Room){
+    $scope.input_ok = 'form-group has-feedback';
+    $scope.input_error = 'form-group has-feedback has-error';
+    $scope.room_form_error= null;
+    $scope.newRoom = {
+        creator: $scope.user,
+        roomName:null
+    };
+
+    $scope.createNewRoom = function() {
+        new Room($scope.newRoom)
+            .$create()
+            .then(function(){
+                var copy = angular.copy($scope.newRoom);
+                $scope.userRooms.push(copy);
+                $scope.computeRoomNames();
+                delete $scope.newRoom.roomName;
+            })
+            .catch(function(httpResponse){
+               $scope.room_form_error = httpResponse.data;
+            });
+    };
 
 });

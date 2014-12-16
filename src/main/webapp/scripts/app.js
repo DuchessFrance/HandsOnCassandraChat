@@ -56,3 +56,8 @@ killrChat.filter('onlyMinute', function(){
     }
 });
 
+killrChat.filter('displayUserName', function(){
+    return function(user) {
+        return user.firstname+' '+user.lastname;
+    }
+});

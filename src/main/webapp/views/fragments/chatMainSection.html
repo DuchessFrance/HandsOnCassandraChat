@@ -1,0 +1,28 @@
+<div class="row chat-room-banner-height">
+    <div class="chat-room-banner bg-primary">
+        <p>{{currentRoom.roomName}}</p>
+    </div>
+</div>
+<div class="row chat-room-messages-height">
+    <div class="chat-room-messages">
+        <ul class="list-group">
+            <li class="list-group-item" ng-repeat="message in messages">
+                <p class="chat-metadata text-right">
+                    <i class="fa fa-clock-o"></i>&nbsp;&nbsp;{{message.creationDate | onlyMinute}}&nbsp;&nbsp;<strong>{{message.author | displayUserName}}</strong>
+                </p>
+                <p class="chat-content text-justify text-muted">{{message.content}}</p>
+            </li>
+        </ul>
+    </div>
+</div>
+<div class="row chat-room-separator-height"></div>
+<div class="row chat-room-input-message well well-lg">
+    <div class="col-md-12">
+        <div class="input-group">
+            <input type="text" class="form-control" name="new_message" placeholder="New message" ng-model="newMessage.content" ng-enter="postMessage()"/>
+            <span class="input-group-btn">
+                <button class="btn btn-default" type="button" ng-click="postMessage()">:D</button>
+            </span>
+        </div>
+    </div>
+</div>
