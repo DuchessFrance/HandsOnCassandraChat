@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS killrchat.chat_room_messages(
     author text,
     system_message boolean,
     PRIMARY KEY(room_name, message_id)
-);
+) WITH CLUSTERING ORDER BY (message_id DESC);
 
 CREATE TABLE IF NOT EXISTS killrchat.chat_rooms(
     room_name text,
