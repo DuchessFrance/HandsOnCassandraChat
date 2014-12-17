@@ -4,9 +4,13 @@ import com.datastax.demo.killrchat.model.ChatMessageModel;
 import com.datastax.demo.killrchat.resource.model.MessagePosting;
 import com.datastax.demo.killrchat.service.MessageService;
 import com.datastax.driver.core.utils.UUIDs;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.common.collect.ImmutableMap;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.UUID;
@@ -21,14 +25,18 @@ public class MessageResource {
 
     static final int DEFAULT_MESSAGES_FETCH_SIZE = 10;
 
-
     @Inject
     private MessageService service;
 
+
+    @Inject
+    private SimpMessagingTemplate template;
+
     @RequestMapping(value = "/{roomName}", method = POST, consumes = APPLICATION_JSON_VALUE)
-    public void postNewMessage(@PathVariable String roomName, @NotNull @RequestBody MessagePosting messagePosting) {
+    public void postNewMessage(@PathVariable String roomName, @NotNull @RequestBody @Valid MessagePosting messagePosting) throws JsonProcessingException {
         Validator.validateNotBlank(roomName, "Room name can not be blank for posting new message");
-        service.postNewMessage(messagePosting.getAuthor(), roomName, messagePosting.getContent());
+        final ChatMessageModel model = service.postNewMessage(messagePosting.getAuthor(), roomName, messagePosting.getContent());
+        template.convertAndSend("/topic/room/"+roomName, model);
     }
 
     @RequestMapping(value = "/{roomName}", method = GET, produces = APPLICATION_JSON_VALUE)

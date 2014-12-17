@@ -192,24 +192,29 @@ killrChat.controller('ChatCtrl', function($rootScope, $scope, eventBus, Message)
         author: $scope.user,
         content:null
     };
+    $scope.socket = {
+        client: null,
+        stomp: null
+    }
 
 
     $scope.loadInitialRoomMessages = function() {
         var messages = Message.load({roomName:$scope.currentRoom.roomName, fetchSize: 20},
         function() {
             $scope.messages = messages;
+            $scope.initSockets();
         },
         function (httpResponse) {
             $rootScope.generalError = httpResponse.data;
         });
     };
 
+
     $scope.postMessage = function(){
         if($scope.newMessage.content){
             var message = new Message($scope.newMessage);
             message.$create({roomName:$scope.currentRoom.roomName})
                 .then(function(){
-                    $scope.loadInitialRoomMessages();
                     delete $scope.newMessage.content;
                 })
                 .catch(function(httpResponse) {
@@ -219,15 +224,45 @@ killrChat.controller('ChatCtrl', function($rootScope, $scope, eventBus, Message)
             $rootScope.generalError = 'Hey dude, post a non blank message ...';
         }
     };
-
     $scope.$evalAsync($scope.loadInitialRoomMessages());
 
+    $scope.notify = function(message) {
+        console.info("Message received : "+message.body);
+        $scope.$apply(function(){
+            $scope.messages.push(angular.fromJson(message.body));
+        });
+    };
+
+    $scope.initSockets = function() {
+        $scope.socket.client = new SockJS('/chat');
+        $scope.socket.stomp = Stomp.over($scope.socket.client);
+        $scope.socket.stomp.connect({}, function() {
+            console.info("subscription");
+            $scope.socket.stomp.subscribe('/topic/room/'+$scope.currentRoom.roomName, $scope.notify);
+        });
+    };
+
+
+    $scope.closeSocket = function() {
+        console.info("Close socket called");
+        if($scope.socket.client) {
+            $scope.socket.client.close();
+        }
+        if($scope.socket.stomp) {
+            $scope.socket.stomp.disconnect();
+        }
+    };
+
     eventBus.onMsg('switchRoom', $scope, function() {
+        $scope.closeSocket();
         $scope.loadInitialRoomMessages();
     });
 
 });
 
+/**
+ * Rooms Management
+ */
 killrChat.controller('RoomsListCtrl', function($rootScope, $scope, Room){
 
     $scope.rooms = [];
@@ -302,6 +337,9 @@ killrChat.controller('RoomsListCtrl', function($rootScope, $scope, Room){
     $scope.$evalAsync($scope.loadInitialRooms());
 });
 
+/**
+ * Room Creation
+ */
 killrChat.controller('newRoomCtrl', function($rootScope, $scope, Room){
     $scope.input_ok = 'form-group has-feedback';
     $scope.input_error = 'form-group has-feedback has-error';

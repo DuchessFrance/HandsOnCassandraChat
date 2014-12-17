@@ -26,8 +26,10 @@ public class MessageService {
     @Inject
     PersistenceManager manager;
 
-    public void postNewMessage(LightUserModel author, String roomName, String messageContent) {
-        manager.insert(new ChatRoomMessage(roomName, UUIDs.timeBased(), author, messageContent));
+    public ChatMessageModel postNewMessage(LightUserModel author, String roomName, String messageContent) {
+        final ChatRoomMessage entity = new ChatRoomMessage(roomName, UUIDs.timeBased(), author, messageContent);
+        manager.insert(entity);
+        return entity.toModel();
     }
 
     public List<ChatMessageModel> fetchNextMessagesForRoom(String roomName, UUID fromMessageId, int pageSize) {

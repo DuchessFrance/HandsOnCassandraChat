@@ -100,6 +100,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/users/create").permitAll()
                 .antMatchers("/authenticate").permitAll()
                 .antMatchers("/websocket/**").permitAll()
+                .antMatchers("/chat/**").authenticated()
                 .antMatchers("/views/chat**").authenticated()
                 .antMatchers("/users/**").authenticated()
                 .antMatchers("/rooms/**").authenticated()

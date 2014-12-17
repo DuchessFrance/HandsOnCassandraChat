@@ -9,9 +9,11 @@ import com.datastax.demo.killrchat.resource.model.ChatRoomParticipantModel;
 //import com.datastax.demo.killrchat.resource.model.PagingByToken;
 import com.datastax.demo.killrchat.service.ChatRoomService;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
@@ -28,7 +30,7 @@ public class ChatRoomResource {
     private ChatRoomService service;
 
     @RequestMapping(method = POST, consumes = APPLICATION_JSON_VALUE)
-    public void createChatRoom(@NotNull @RequestBody ChatRoomCreationModel model) {
+    public void createChatRoom(@NotNull @RequestBody @Valid ChatRoomCreationModel model) {
         final String roomName = model.getRoomName();
         final LightUserModel creator = model.getCreator();
 
@@ -49,12 +51,12 @@ public class ChatRoomResource {
     }
 
     @RequestMapping(value = "/user", method = PUT, consumes = APPLICATION_JSON_VALUE)
-    public void addUserToChatRoom(@NotNull @RequestBody ChatRoomParticipantModel model) {
+    public void addUserToChatRoom(@NotNull @RequestBody @Valid ChatRoomParticipantModel model) {
         service.addUserToRoom(model.getRoom(), model.getParticipant());
     }
 
     @RequestMapping(value = "/user/remove", method = PUT, consumes = APPLICATION_JSON_VALUE)
-    public void removeUserFromChatRoom(@NotNull @RequestBody ChatRoomParticipantModel model) {
+    public void removeUserFromChatRoom(@NotNull @RequestBody @Valid ChatRoomParticipantModel model) {
         service.removeUserFromRoom(model.getRoom(), model.getParticipant());
     }
 

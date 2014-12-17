@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import java.util.List;
@@ -39,7 +40,7 @@ public class UserResource {
     private ChatRoomService chatRoomService;
 
     @RequestMapping(value = "/create", method = POST, consumes = APPLICATION_JSON_VALUE)
-    public void createUser(@NotNull @RequestBody UserModel model) {
+    public void createUser(@NotNull @RequestBody @Valid UserModel model) {
         //TODO encrypt password properly for security
         service.createUser(model);
     }
@@ -58,7 +59,7 @@ public class UserResource {
     }
 
     @RequestMapping(value = "/password", method = PUT, consumes = APPLICATION_JSON_VALUE)
-    public void changeUserPassword(@NotNull @RequestBody UserPasswordModel userPassword) {
+    public void changeUserPassword(@NotNull @RequestBody @Valid UserPasswordModel userPassword) {
 
         final String login = userPassword.getLogin();
         final String oldPassword = userPassword.getPassword();

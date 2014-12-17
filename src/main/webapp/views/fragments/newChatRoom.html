@@ -5,12 +5,14 @@
             Error while creating room: {{room_form_error}}
         </p>
         <form class="form-horizontal" role="form" name="room_form">
-            <div ng-class="{true: input_error, false: input_ok}[room_form.name.$error.required]">
+            <div ng-class="{true: input_error, false: input_ok}[room_form.name.$error.required || room_form.name.$error.pattern]">
                 <label for="name" class="col-md-offset-2 col-md-2 control-label">Name</label>
                 <div class="col-md-4">
-                    <input type="text" class="form-control" id="name" name="name" placeholder="Room name" ng-model="newRoom.roomName" required>
+                    <input type="text" class="form-control" id="name" name="name" placeholder="Room name with pattern [a-zA-Z0-9]{3,30}"
+                           ng-model="newRoom.roomName" required ng-pattern="/^[a-zA-Z0-9]{3,30}$/">
+                    <br/>
                     <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"
-                          ng-show="room_form.name.$error.required"></span>
+                          ng-show="room_form.name.$error.required || room_form.name.$error.pattern"></span>
                 </div>
             </div>
             <div class="form-group">
