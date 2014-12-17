@@ -43,6 +43,7 @@ public class MessageServiceTest {
     private MessageService service = new MessageService();
 
     private LightUserModel johnDoe = new LightUserModel("jdoe","John","DOE");
+
     private LightUserModel helenSue = new LightUserModel("hsue","Helen","SUE");
 
     @Before

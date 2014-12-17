@@ -67,15 +67,6 @@ public class ChatRoomMessage {
         return model;
     }
 
-    public static ChatRoomMessage fromModel(String roomName, ChatMessageModel model) {
-        final ChatRoomMessage entity = new ChatRoomMessage();
-        entity.setPrimaryKey(new CompoundPk(roomName, model.getMessageId()));
-        entity.setAuthor(model.getAuthor());
-        entity.setContent(model.getContent());
-        entity.setSystemMessage(model.isSystemMessage());
-        return entity;
-    }
-
     @Data
     @NoArgsConstructor
     @AllArgsConstructor

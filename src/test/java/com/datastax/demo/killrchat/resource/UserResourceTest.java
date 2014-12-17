@@ -58,30 +58,6 @@ public class UserResourceTest {
         assertThat(found).isEqualTo(user.toModel());
     }
 
-    @Test
-    public void should_list_users_from_login() throws Exception {
-        //Given
-        final UserModel userModel = new UserModel("jdoe", "pass", "John", "DOE", "johnny", "jdoe@gmail.com", "bio");
-
-        when(service.listUsers("a", 12)).thenReturn(Arrays.asList(userModel));
-
-        //When
-        final List<UserModel> found = resource.listUsers("a", 12);
-
-        //Then
-        assertThat(found).containsExactly(userModel);
-    }
-
-    @Test
-    public void should_change_user_password() throws Exception {
-        //When
-        final UserPasswordModel userPasswordModel = new UserPasswordModel("jdoe", "pass","new_pass");
-
-        resource.changeUserPassword(userPasswordModel);
-
-        //Then
-        verify(service).changeUserPassword("jdoe", "pass", "new_pass");
-    }
 
     @Test
     public void should_list_chat_room_for_user_from_beginning() throws Exception {

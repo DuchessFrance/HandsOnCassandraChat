@@ -35,9 +35,7 @@ public class GlobalExceptionHandler {
             if (error instanceof FieldError) {
                 FieldError fieldError = (FieldError)error;
                 errorMsg.append("\n\t")
-                        .append("Field error in object '")
-                        .append(fieldError.getObjectName()).append("'")
-                        .append(" on field '")
+                        .append(" Error on field '")
                         .append(fieldError.getField()).append("'")
                         .append(". Failed validation : '")
                         .append(fieldError.getDefaultMessage()).append("'")

@@ -15,6 +15,7 @@ import javax.validation.constraints.Size;
 public class LightUserModel {
 
     @NotEmpty
+    @Size(min = 3, max = 20)
     protected String login;
 
     @Size(max = 100)

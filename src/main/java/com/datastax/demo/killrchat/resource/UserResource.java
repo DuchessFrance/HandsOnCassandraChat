@@ -39,7 +39,7 @@ public class UserResource {
     @Inject
     private ChatRoomService chatRoomService;
 
-    @RequestMapping(value = "/create", method = POST, consumes = APPLICATION_JSON_VALUE)
+    @RequestMapping(method = POST, consumes = APPLICATION_JSON_VALUE)
     public void createUser(@NotNull @RequestBody @Valid UserModel model) {
         //TODO encrypt password properly for security
         service.createUser(model);
@@ -49,28 +49,6 @@ public class UserResource {
     @ResponseBody
     public UserModel findByLogin(@PathVariable String login) {
         return service.findByLogin(login).toModel();
-    }
-
-    @RequestMapping(value = "/list", method = GET, produces = APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public List<UserModel> listUsers(@RequestParam(required = false) String fromUserLogin, @RequestParam(required = false) int fetchSize) {
-        final int pageSize = fetchSize <= 0 ? DEFAULT_CHAT_ROOMS_LIST_FETCH_SIZE : fetchSize;
-        return service.listUsers(fromUserLogin, pageSize);
-    }
-
-    @RequestMapping(value = "/password", method = PUT, consumes = APPLICATION_JSON_VALUE)
-    public void changeUserPassword(@NotNull @RequestBody @Valid UserPasswordModel userPassword) {
-
-        final String login = userPassword.getLogin();
-        final String oldPassword = userPassword.getPassword();
-        final String newPassword = userPassword.getNewPassword();
-
-        Validator.validateNotBlank(login, "Missing login for user authentication");
-        Validator.validateNotBlank(oldPassword, "Missing oldPassword for user authentication");
-        Validator.validateNotBlank(newPassword, "Missing newPassword for user authentication");
-
-        //TODO hash passwords properly for security
-        service.changeUserPassword(login, oldPassword, newPassword);
     }
 
     @RequestMapping(value = "/rooms", method = GET, produces = APPLICATION_JSON_VALUE)

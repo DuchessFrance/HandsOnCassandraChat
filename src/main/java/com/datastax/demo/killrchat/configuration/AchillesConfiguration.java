@@ -29,6 +29,7 @@ public class AchillesConfiguration {
     @Bean
     public PersistenceManager getPersistenceManager() {
 
+
         final List<String> activeProfiles = Arrays.asList(env.getActiveProfiles());
         boolean isProduction = activeProfiles.contains(Profiles.SPRING_PROFILE_PRODUCTION);
         PersistenceManagerFactory pmFactory = PersistenceManagerFactoryBuilder

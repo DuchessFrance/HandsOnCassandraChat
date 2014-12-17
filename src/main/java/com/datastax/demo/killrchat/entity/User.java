@@ -1,6 +1,5 @@
 package com.datastax.demo.killrchat.entity;
 
-import com.datastax.demo.killrchat.model.LightUserModel;
 import com.datastax.demo.killrchat.model.UserModel;
 import com.datastax.demo.killrchat.security.authority.CustomUserDetails;
 import com.datastax.demo.killrchat.security.authority.UserAuthority;
@@ -68,14 +67,6 @@ public class User {
         model.setBio(this.getBio());
         return model;
     }
-//
-//    public LightUserModel toLightModel() {
-//        final LightUserModel model = new LightUserModel();
-//        model.setLogin(this.getLogin());
-//        model.setFirstname(this.getFirstname());
-//        model.setLastname(this.getLastname());
-//        return model;
-//    }
 
     public CustomUserDetails toUserDetails() {
         return new CustomUserDetails(Sets.newHashSet(new UserAuthority()),this.login,this.pass);

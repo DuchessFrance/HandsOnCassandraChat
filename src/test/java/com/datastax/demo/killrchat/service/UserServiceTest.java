@@ -68,55 +68,6 @@ public class UserServiceTest {
         assertThat(row.getString("bio")).isEqualTo("I am THE Genius");
     }
 
-    @Test
-    public void should_list_users() throws Exception {
-        //Given
-        final Insert einstein = insertInto(USERS).value("login", "emc²").value("pass","a.einstein").value("firstname", "Albert").value("lastname", "EINSTEIN");
-        final Insert maxPlank = insertInto(USERS).value("login", "maximo").value("pass","max.plank").value("firstname", "Max").value("lastname", "PLANK");
-        final Insert newton = insertInto(USERS).value("login", "newton").value("pass","isaac.newton").value("firstname", "Isaac").value("lastname", "NEWTON");
-        final Insert galileo = insertInto(USERS).value("login", "galileo").value("pass","galileo.galilei").value("firstname", "Galileo").value("lastname", "GALILEI");
-        final Insert descartes = insertInto(USERS).value("login", "descartes").value("pass","rene.descartes").value("firstname", "René").value("lastname", "DESCARTES");
-
-        session.execute(einstein);
-        session.execute(maxPlank);
-        session.execute(newton);
-        session.execute(galileo);
-        session.execute(descartes);
-
-        //When
-        final List<UserModel> users = service.listUsers(null, 3);
-
-        //Then
-        assertThat(users).hasSize(3);
-        assertThat(users.get(0).getLogin()).isEqualTo("emc²");
-        assertThat(users.get(1).getLogin()).isEqualTo("maximo");
-        assertThat(users.get(2).getLogin()).isEqualTo("descartes");
-    }
-
-    @Test
-    public void should_list_users_from_lower_bound() throws Exception {
-        //Given
-        final Insert einstein = insertInto(USERS).value("login", "emc²").value("pass","a.einstein").value("firstname", "Albert").value("lastname", "EINSTEIN");
-        final Insert maxPlank = insertInto(USERS).value("login", "maximo").value("pass","max.plank").value("firstname", "Max").value("lastname", "PLANK");
-        final Insert newton = insertInto(USERS).value("login", "newton").value("pass","isaac.newton").value("firstname", "Isaac").value("lastname", "NEWTON");
-        final Insert galileo = insertInto(USERS).value("login", "galileo").value("pass","galileo.galilei").value("firstname", "Galileo").value("lastname", "GALILEI");
-        final Insert descartes = insertInto(USERS).value("login", "descartes").value("pass","rene.descartes").value("firstname", "René").value("lastname", "DESCARTES");
-
-        session.execute(einstein);
-        session.execute(maxPlank);
-        session.execute(newton);
-        session.execute(galileo);
-        session.execute(descartes);
-
-        //When
-        final List<UserModel> users = service.listUsers("maximo", 10);
-
-        //Then
-        assertThat(users).hasSize(3);
-        assertThat(users.get(0).getLogin()).isEqualTo("descartes");
-        assertThat(users.get(1).getLogin()).isEqualTo("newton");
-        assertThat(users.get(2).getLogin()).isEqualTo("galileo");
-    }
 
     @Test
     public void should_find_user_by_login() throws Exception {
@@ -152,35 +103,7 @@ public class UserServiceTest {
         service.createUser(model);
 
         //Then
-
     }
 
-    @Test
-    public void should_change_user_password() throws Exception {
-        //Given
-        final Insert insert = insertInto(USERS).value("login", "emc²").value("pass","a.einstein").value("firstname", "Albert").value("lastname", "EINSTEIN");
-        session.execute(insert);
 
-        //When
-        service.changeUserPassword("emc²","a.einstein","new_password");
-
-        //Then
-        final Row row = session.execute(select("pass").from(KEYSPACE, USERS).where(eq("login", "emc²"))).one();
-        assertThat(row).isNotNull();
-        assertThat(row.getString("pass")).isEqualTo("new_password");
-    }
-
-    @Test(expected = IncorrectOldPasswordException.class)
-    public void should_exception_if_old_password_does_not_match() throws Exception {
-        //Given
-        final Insert insert = insertInto(USERS).value("login", "emc²").value("pass","a.einstein").value("firstname", "Albert").value("lastname", "EINSTEIN");
-        session.execute(insert);
-
-        //When
-        service.changeUserPassword("emc²","wrong_old_password","new_password");
-
-
-        //Then
-
-    }
 }

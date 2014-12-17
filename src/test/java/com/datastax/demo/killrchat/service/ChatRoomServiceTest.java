@@ -48,6 +48,7 @@ public class ChatRoomServiceTest {
     private ChatRoomService service = new ChatRoomService();
 
     private LightUserModel john = new LightUserModel("jdoe", "John", "DOE");
+
     private LightUserModel helen = new LightUserModel("hsue", "Helen", "SUE");
 
     @Before
@@ -58,11 +59,10 @@ public class ChatRoomServiceTest {
     @Test
     public void should_create_chat_room() throws Exception {
         //Given
-        LightUserModel jdoe = new LightUserModel("jdoe","John", "DOE");
         final String roomName = "random_thoughts";
 
         //When
-        service.createChatRoom(roomName, jdoe);
+        service.createChatRoom(roomName, john);
 
         //Then
         final Row chatRoomByTheme = session.execute(select().from(KEYSPACE, CHATROOMS).where(eq("room_name", "random_thoughts"))).one();
@@ -70,7 +70,7 @@ public class ChatRoomServiceTest {
 
         assertThat(chatRoomByTheme).isNotNull();
         assertThat(chatRoomByTheme.getString("room_name")).isEqualTo(roomName);
-        assertThat(chatRoomByTheme.getSet("participants", String.class)).contains(manager.serializeToJSON(jdoe));
+        assertThat(chatRoomByTheme.getSet("participants", String.class)).contains(manager.serializeToJSON(john));
 
         assertThat(jdoeChatRooms).hasSize(1);
         assertThat(jdoeChatRooms.get(0).getString("room_name")).isEqualTo(roomName);
@@ -88,13 +88,10 @@ public class ChatRoomServiceTest {
     @Test
     public void should_find_room_by_name() throws Exception {
         //Given
-        final String johnAsJSON = manager.serializeToJSON(john);
         final Insert insertRoom = insertInto(KEYSPACE, CHATROOMS)
                 .value("room_name", "games")
-                .value("creator", johnAsJSON)
-
+                .value("creator", manager.serializeToJSON(john))
                 .value("participants", Sets.<LightUserModel>newHashSet());
-
 
         session.execute(insertRoom);
 
