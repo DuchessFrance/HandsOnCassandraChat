@@ -1,6 +1,8 @@
 package com.datastax.demo.killrchat.resource;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.BDDMockito.*;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 import com.datastax.demo.killrchat.model.ChatMessageModel;
@@ -11,10 +13,14 @@ import com.datastax.demo.killrchat.service.MessageService;
 import com.datastax.driver.core.utils.UUIDs;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -29,16 +35,23 @@ public class MessageResourceTest {
     @Mock
     private MessageService service;
 
+    @Mock
+    private SimpMessagingTemplate template;
+
     private LightUserModel jdoe = new LightUserModel("jdoe","John","DOE");
 
     @Test
     public void should_post_new_message() throws Exception {
-        //When
+        //Given
         final LightUserModel author = new LightUserModel("jdoe", "John", "DOE");
+        ChatMessageModel chatMessageModel = new ChatMessageModel();
+        given(service.postNewMessage(eq(author), eq("games"), eq("Wow sucks!"))).willReturn(chatMessageModel);
+
+        //When
         resource.postNewMessage("games", new MessagePosting(author, "Wow sucks!"));
 
         //Then
-        verify(service).postNewMessage(author, "games", "Wow sucks!");
+        verify(template).convertAndSend("/topic/messages/games",chatMessageModel);
     }
 
     @Test

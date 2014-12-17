@@ -28,7 +28,6 @@ public class MessageResource {
     @Inject
     private MessageService service;
 
-
     @Inject
     private SimpMessagingTemplate template;
 

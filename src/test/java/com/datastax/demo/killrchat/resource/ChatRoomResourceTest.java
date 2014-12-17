@@ -9,12 +9,17 @@ import com.datastax.demo.killrchat.model.LightUserModel;
 import com.datastax.demo.killrchat.resource.model.ChatRoomCreationModel;
 import com.datastax.demo.killrchat.resource.model.ChatRoomParticipantModel;
 import com.datastax.demo.killrchat.service.ChatRoomService;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+
+import javax.inject.Inject;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -25,6 +30,9 @@ public class ChatRoomResourceTest {
 
     @Mock
     private ChatRoomService service;
+
+    @Mock
+    private SimpMessagingTemplate template;
 
     private LightUserModel john = new LightUserModel("jdoe", "John", "DOE");
 
@@ -75,6 +83,7 @@ public class ChatRoomResourceTest {
 
         //Then
         verify(service).addUserToRoom(room, john);
+        verify(template).convertAndSend("/topic/participants/games",john, ImmutableMap.<String,Object>of("status", ChatRoomParticipantModel.Status.JOIN));
     }
 
     @Test
@@ -87,5 +96,6 @@ public class ChatRoomResourceTest {
 
         //Then
         verify(service).removeUserFromRoom(room, john);
+        verify(template).convertAndSend("/topic/participants/games",john, ImmutableMap.<String,Object>of("status", ChatRoomParticipantModel.Status.LEAVE));
     }
 }
