@@ -49,11 +49,9 @@ public class UserChatRooms {
     public static class CompoundPk {
 
         @PartitionKey
-        @Order(1)
         private String login;
 
-        @Column
-        @Order(2)
+        @ClusteringColumn
         private String roomName;
 
     }

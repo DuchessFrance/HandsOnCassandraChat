@@ -73,11 +73,9 @@ public class ChatRoomMessage {
     public static class CompoundPk {
 
         @PartitionKey
-        @Order(1)
         private String roomName;
 
-        @Order(value = 2, reversed = true)
-        @Column
+        @ClusteringColumn(value = 2, reversed = true)
         @TimeUUID
         private UUID messageId;
     }
