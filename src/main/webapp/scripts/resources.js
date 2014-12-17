@@ -1,6 +1,6 @@
 killrChat.factory('User', function($resource) {
     return $resource('/users', [],{
-        'create': {url: '/users/create', method: 'POST', isArray:false, headers:{'Content-Type': 'application/json'}},
+        'create': {url: '/users', method: 'POST', isArray:false, headers:{'Content-Type': 'application/json'}},
         'login': {url: '/authenticate', method: 'POST', isArray:false, headers: {'Content-Type': 'application/x-www-form-urlencoded'},
             transformRequest: function(){return {} }},
         'load': {url : '/users/:login', method:'GET', isArray:false, headers:{'Accept': 'application/json'}},
