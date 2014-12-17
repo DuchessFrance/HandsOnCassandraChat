@@ -21,4 +21,9 @@ public class ChatRoomParticipantModel {
     @NotNull
     private LightUserModel participant;
 
+
+    public static enum Status {
+        JOIN, LEAVE;
+    }
+
 }

@@ -5,7 +5,6 @@ killrChat.controller('NavBarCtrl', function($rootScope, $scope, $location, User)
     delete $rootScope.generalError;
     $rootScope
         .$on("$routeChangeError",function (event, current, previous, rejection) {
-            console.error("root change error");
             $rootScope.generalError = rejection.data.message;
         });
 
@@ -113,7 +112,7 @@ killrChat.controller('SignUpModalCtrl',function ($scope, $modalInstance, User) {
 /**
  * Chat Navigation Controller
  */
-killrChat.controller('ChatNavigationCtrl',function ($rootScope, $scope, eventBus, User, Room) {
+killrChat.controller('ChatNavigationCtrl',function ($rootScope, $scope, eventBus, User, ChatService, Room) {
 
     $scope.section = 'home';
     $scope.userRooms = [];
@@ -160,19 +159,13 @@ killrChat.controller('ChatNavigationCtrl',function ($rootScope, $scope, eventBus
         $scope.section = 'newRoom';
     };
 
-    $scope.quitRoom = function(room) {
-        var resource = new Room({room:room, participant:$scope.user});
+    $scope.quitRoom = function(roomToLeave) {
+        var resource = new Room({room:roomToLeave, participant:$scope.user});
         resource.$removeParticipant()
             .then(function(){
-                var indexToRemove = -1;
-                angular.forEach($scope.userRooms, function(userRoom,index){
-                    if(userRoom.roomName == room.roomName) {
-                        indexToRemove = index;
-                        return;
-                    }
-                });
-                $scope.userRooms.splice(indexToRemove,1);
+                ChatService.removeParticipant($scope.user, [], $scope.userRooms, roomToLeave);
                 $scope.computeRoomNames();
+                $scope.section='home';
             })
             .catch(function(httpResponse){
                 $rootScope.generalError = httpResponse.message;
@@ -185,7 +178,7 @@ killrChat.controller('ChatNavigationCtrl',function ($rootScope, $scope, eventBus
 /**
  * The real Chat
  */
-killrChat.controller('ChatCtrl', function($rootScope, $scope, eventBus, Message){
+killrChat.controller('ChatCtrl', function($rootScope, $scope, eventBus, Message, ChatService){
 
     $scope.messages = [];
     $scope.newMessage = {
@@ -226,10 +219,21 @@ killrChat.controller('ChatCtrl', function($rootScope, $scope, eventBus, Message)
     };
     $scope.$evalAsync($scope.loadInitialRoomMessages());
 
-    $scope.notify = function(message) {
-        console.info("Message received : "+message.body);
+    $scope.notifyNewMessage = function(message) {
         $scope.$apply(function(){
             $scope.messages.push(angular.fromJson(message.body));
+        });
+    };
+
+    $scope.notifyParticipant = function(message) {
+        var participant = angular.fromJson(message.body);
+        var status = message.headers.status;
+        $scope.$apply(function(){
+              if(status == 'JOIN') {
+                  $scope.currentRoom.participants.push(participant);
+              } else if(status == 'LEAVE') {
+                  ChatService.removeMatchingParticipant($scope.currentRoom.participants, participant);
+              }
         });
     };
 
@@ -237,14 +241,13 @@ killrChat.controller('ChatCtrl', function($rootScope, $scope, eventBus, Message)
         $scope.socket.client = new SockJS('/chat');
         $scope.socket.stomp = Stomp.over($scope.socket.client);
         $scope.socket.stomp.connect({}, function() {
-            console.info("subscription");
-            $scope.socket.stomp.subscribe('/topic/room/'+$scope.currentRoom.roomName, $scope.notify);
+            $scope.socket.stomp.subscribe('/topic/messages/'+$scope.currentRoom.roomName, $scope.notifyNewMessage);
+            $scope.socket.stomp.subscribe('/topic/participants/'+$scope.currentRoom.roomName, $scope.notifyParticipant);
         });
     };
 
 
     $scope.closeSocket = function() {
-        console.info("Close socket called");
         if($scope.socket.client) {
             $scope.socket.client.close();
         }
@@ -263,38 +266,26 @@ killrChat.controller('ChatCtrl', function($rootScope, $scope, eventBus, Message)
 /**
  * Rooms Management
  */
-killrChat.controller('RoomsListCtrl', function($rootScope, $scope, Room){
+killrChat.controller('RoomsListCtrl', function($rootScope, $scope, ChatService, Room){
 
-    $scope.rooms = [];
+    $scope.allRooms = [];
 
     $scope.loadInitialRooms = function() {
         var rooms = Room.list({fetchSize:10},
         function(){
-            $scope.rooms = rooms;
+            $scope.allRooms = rooms;
         },
         function(httpResponse){
            $rootScope.generalError = httpResponse.message;
         });
     };
 
-    $scope.joinRoom = function(room) {
-        var resource = new Room({room:room, participant:$scope.user});
+    $scope.joinRoom = function(roomToJoin) {
+        var resource = new Room({room:roomToJoin, participant:$scope.user});
         resource.$addParticipant()
         .then(function(){
 
-            var roomToJoin = $scope.rooms.filter(function(existingRoom){
-                return existingRoom.roomName == room.roomName;
-            })[0];
-
-            roomToJoin.participants.push({
-                login:$scope.user.login,
-                firstname:$scope.user.firstname,
-                lastname:$scope.user.lastname
-
-            });
-            var copy = angular.copy(room);
-            delete copy.participants;
-            $scope.userRooms.push(copy);
+            ChatService.addParticipant($scope.user, $scope.allRooms, $scope.userRooms, roomToJoin)
             $scope.computeRoomNames();
         })
         .catch(function(httpResponse){
@@ -302,32 +293,11 @@ killrChat.controller('RoomsListCtrl', function($rootScope, $scope, Room){
         });
     };
 
-    $scope.quitRoom = function(room) {
-        var resource = new Room({room:room, participant:$scope.user});
+    $scope.quitRoom = function(roomToLeave) {
+        var resource = new Room({room:roomToLeave, participant:$scope.user});
         resource.$removeParticipant()
             .then(function(){
-                var indexToRemove = -1;
-                angular.forEach($scope.userRooms, function(userRoom,index){
-                    if(userRoom.roomName == room.roomName) {
-                        indexToRemove = index;
-                        return;
-                    }
-                });
-
-                $scope.userRooms.splice(indexToRemove,1);
-
-                var roomToLeave = $scope.rooms.filter(function(existingRoom){
-                    return existingRoom.roomName == room.roomName;
-                })[0];
-
-                angular.forEach(roomToLeave.participants, function(participant,index){
-                    if(participant.login == $scope.user.login) {
-                        indexToRemove = index;
-                        return;
-                    }
-                });
-
-                roomToLeave.participants.splice(indexToRemove,1);
+                ChatService.removeParticipant($scope.user, $scope.allRooms, $scope.userRooms, roomToLeave)
                 $scope.computeRoomNames();
             })
             .catch(function(httpResponse){

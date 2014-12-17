@@ -8,7 +8,9 @@ import com.datastax.demo.killrchat.resource.model.ChatRoomCreationModel;
 import com.datastax.demo.killrchat.resource.model.ChatRoomParticipantModel;
 //import com.datastax.demo.killrchat.resource.model.PagingByToken;
 import com.datastax.demo.killrchat.service.ChatRoomService;
+import com.google.common.collect.ImmutableMap;
 import org.springframework.http.HttpStatus;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +19,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
+import static com.datastax.demo.killrchat.resource.model.ChatRoomParticipantModel.Status;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
@@ -28,6 +31,9 @@ public class ChatRoomResource {
 
     @Inject
     private ChatRoomService service;
+
+    @Inject
+    private SimpMessagingTemplate template;
 
     @RequestMapping(method = POST, consumes = APPLICATION_JSON_VALUE)
     public void createChatRoom(@NotNull @RequestBody @Valid ChatRoomCreationModel model) {
@@ -53,11 +59,13 @@ public class ChatRoomResource {
     @RequestMapping(value = "/user", method = PUT, consumes = APPLICATION_JSON_VALUE)
     public void addUserToChatRoom(@NotNull @RequestBody @Valid ChatRoomParticipantModel model) {
         service.addUserToRoom(model.getRoom(), model.getParticipant());
+        template.convertAndSend("/topic/participants/"+model.getRoom().getRoomName(),model.getParticipant(), ImmutableMap.<String,Object>of("status", Status.JOIN));
     }
 
     @RequestMapping(value = "/user/remove", method = PUT, consumes = APPLICATION_JSON_VALUE)
     public void removeUserFromChatRoom(@NotNull @RequestBody @Valid ChatRoomParticipantModel model) {
         service.removeUserFromRoom(model.getRoom(), model.getParticipant());
+        template.convertAndSend("/topic/participants/"+model.getRoom().getRoomName(),model.getParticipant(), ImmutableMap.<String,Object>of("status", Status.LEAVE));
     }
 
     @ExceptionHandler(value = {

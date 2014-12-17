@@ -75,7 +75,7 @@ public class ChatRoomMessage {
         @PartitionKey
         private String roomName;
 
-        @ClusteringColumn(value = 2, reversed = true)
+        @ClusteringColumn(value = 1, reversed = true)
         @TimeUUID
         private UUID messageId;
     }

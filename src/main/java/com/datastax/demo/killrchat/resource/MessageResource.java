@@ -36,7 +36,7 @@ public class MessageResource {
     public void postNewMessage(@PathVariable String roomName, @NotNull @RequestBody @Valid MessagePosting messagePosting) throws JsonProcessingException {
         Validator.validateNotBlank(roomName, "Room name can not be blank for posting new message");
         final ChatMessageModel model = service.postNewMessage(messagePosting.getAuthor(), roomName, messagePosting.getContent());
-        template.convertAndSend("/topic/room/"+roomName, model);
+        template.convertAndSend("/topic/messages/"+roomName, model);
     }
 
     @RequestMapping(value = "/{roomName}", method = GET, produces = APPLICATION_JSON_VALUE)
