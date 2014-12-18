@@ -4,7 +4,7 @@ security.basic.enabled: false
 
 killrchat.security.rememberme.key: KillrChat
 
-cassandra.test.clean.files: true
+cassandra.test.clean.files: false
 
 cassandra:
     host: localhost
