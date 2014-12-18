@@ -23,7 +23,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 @RequestMapping("/messages")
 public class MessageResource {
 
-    static final int DEFAULT_MESSAGES_FETCH_SIZE = 10;
+    static final int DEFAULT_MESSAGES_FETCH_SIZE = 100;
 
     @Inject
     private MessageService service;

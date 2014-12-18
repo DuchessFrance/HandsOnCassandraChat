@@ -27,7 +27,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 @RequestMapping("/rooms")
 public class ChatRoomResource {
 
-    public static final int DEFAULT_CHAT_ROOMS_LIST_FETCH_SIZE = 10;
+    public static final int DEFAULT_CHAT_ROOMS_LIST_FETCH_SIZE = 100;
 
     @Inject
     private ChatRoomService service;

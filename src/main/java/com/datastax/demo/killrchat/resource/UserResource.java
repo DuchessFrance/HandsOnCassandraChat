@@ -29,7 +29,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 @RequestMapping("/users")
 public class UserResource {
 
-    public static final int DEFAULT_CHAT_ROOMS_LIST_FETCH_SIZE = 10;
+    public static final int DEFAULT_CHAT_ROOMS_LIST_FETCH_SIZE = 100;
 
     public static final String EMPTY_SPACE = "";
 
