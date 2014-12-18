@@ -45,7 +45,7 @@ public class UserResource {
         service.createUser(model);
     }
 
-    @RequestMapping(value = "/{login}", method = GET, produces = APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{login:.+}", method = GET, produces = APPLICATION_JSON_VALUE)
     @ResponseBody
     public UserModel findByLogin(@PathVariable String login) {
         return service.findByLogin(login).toModel();
