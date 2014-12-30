@@ -1,10 +1,7 @@
 package com.datastax.demo.killrchat.configuration;
 
 import com.datastax.demo.killrchat.entity.Schema;
-import com.datastax.demo.killrchat.entity.User;
 import com.datastax.driver.core.Cluster;
-import com.datastax.driver.core.Session;
-import com.datastax.driver.core.schemabuilder.SchemaBuilder;
 import info.archinnov.achilles.embedded.CassandraEmbeddedServerBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,11 +19,12 @@ public class CassandraConfiguration {
     private Environment env;
 
     @Profile(Profiles.SPRING_PROFILE_DEVELOPMENT)
-    @Bean
-    public Cluster cassandraNativeSessionDev() {
+    @Bean(destroyMethod = "close")
+    public Cluster cassandraNativeClusterDev() {
         final Cluster cluster = CassandraEmbeddedServerBuilder
                 .noEntityPackages()
                 .cleanDataFilesAtStartup(Boolean.parseBoolean(env.getProperty("cassandra.test.clean.files")))
+                .withDurableWrite(true)
                 .withClusterName(CLUSTER_NAME)
                 .buildNativeClusterOnly();
 
@@ -38,8 +36,8 @@ public class CassandraConfiguration {
     }
 
     @Profile(Profiles.SPRING_PROFILE_PRODUCTION)
-    @Bean
-    public Cluster cassandraNativeSessionProduction() {
+    @Bean(destroyMethod = "shutdown")
+    public Cluster cassandraNativeClusterProduction() {
 
         return Cluster.builder()
                 .addContactPoints(env.getProperty("cassandra.host"))

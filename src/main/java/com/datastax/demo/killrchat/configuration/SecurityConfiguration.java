@@ -103,6 +103,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/views/chat**").authenticated()
                 .antMatchers("/users/**").authenticated()
                 .antMatchers("/rooms/**").authenticated()
+                .antMatchers("/rooms").authenticated()
                 .antMatchers("/messages/**").authenticated();
 
     }
