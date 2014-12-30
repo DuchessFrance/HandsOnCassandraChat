@@ -16,13 +16,13 @@ import java.io.Serializable;
 
 
 @Entity(keyspace = Schema.KEYSPACE, table = Schema.PERSISTENT_TOKEN)
-public class PersistentToken implements Serializable {
+public class PersistentTokenEntity implements Serializable {
 
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("YYYY-MM-dd");
 
     private static final int MAX_USER_AGENT_LEN = 255;
 
-    @Id
+    @PartitionKey
     private String series;
 
     @JsonIgnore
@@ -114,7 +114,7 @@ public class PersistentToken implements Serializable {
             return false;
         }
 
-        PersistentToken that = (PersistentToken) o;
+        PersistentTokenEntity that = (PersistentTokenEntity) o;
 
         if (!series.equals(that.series)) {
             return false;
