@@ -13,14 +13,14 @@
             <tbody>
             <tr ng-repeat="room in allRooms">
                 <td>
-                    <a ng-if="userRoomNames.indexOf(room.roomName)>=0"><strong>{{room.roomName}}</strong></a>
-                    <span ng-if="userRoomNames.indexOf(room.roomName)==-1">{{room.roomName}}</span>
+                    <a ng-if="user.chatRooms.indexOf(room.roomName)>=0"><strong>{{room.roomName}}</strong></a>
+                    <span ng-if="user.chatRooms.indexOf(room.roomName)==-1">{{room.roomName}}</span>
 
                     <i class="fa fa-sign-in fa-lg pull-right clickable"
-                       ng-if="userRoomNames.indexOf(room.roomName)==-1"
+                       ng-if="user.chatRooms.indexOf(room.roomName)==-1"
                        ng-click="joinRoom(room)"></i>
                     <i class="fa fa-sign-out fa-lg pull-right clickable"
-                       ng-if="userRoomNames.indexOf(room.roomName)>=0"
+                       ng-if="user.chatRooms.indexOf(room.roomName)>=0"
                        ng-click="quitRoom(room)"></i>
                 </td>
                 <td>{{room.creator | displayUserName}}</td>

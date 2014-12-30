@@ -1,16 +1,28 @@
 <div class="row chat-room-banner-height">
-    <div class="chat-room-banner bg-primary">
-        <p>{{currentRoom.roomName}}</p>
+    <div class="row chat-room-banner bg-primary">
+        <div class="col-md-1 chat-room-banner-icon">
+            <i class="fa fa-users fa-3x"></i>
+        </div>
+        <div class="col-md-11">
+            <div class="row chat-room-banner-name">
+                <span>{{currentRoom.roomName}}</span>
+            </div>
+            <div class="row chat-room-banner-creator">
+                <!--<span><em><small>created by {{currentRoom.creator | displayUserName}} at {{currentRoom.creationDate}}</small></em></span>-->
+                <span><em><small>{{currentRoom.banner}}</small></em></span>
+            </div>
+        </div>
     </div>
 </div>
 <div class="row chat-room-messages-height">
-    <div class="chat-room-messages">
+    <div class="chat-room-messages" chat-scroll-on="messages" auto-load="loadPreviousMessages()">
+        <span us-spinner="{radius:30, width:8, length: 16}" spinner-key="loading-spinner"></span>
         <ul class="list-group">
             <li class="list-group-item" ng-repeat="message in messages">
                 <p class="chat-metadata text-right">
-                    <i class="fa fa-clock-o"></i>&nbsp;&nbsp;{{message.creationDate | onlyMinute}}&nbsp;&nbsp;<strong>{{message.author | displayUserName}}</strong>
+                    <i class="fa fa-clock-o"></i>&nbsp;&nbsp;{{message.creationDate | dateFormatToHHMMSS}}&nbsp;&nbsp;<strong>{{message.systemMessage ? '': (message.author | displayUserName)}}</strong>
                 </p>
-                <p class="chat-content text-justify text-muted">{{message.content}}</p>
+                <p ng-class="{false: 'chat-content text-justify', true: 'chat-content text-justify text-muted text-italic'}[message.systemMessage]">{{message.content}}</p>
             </li>
         </ul>
     </div>

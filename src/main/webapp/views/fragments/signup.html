@@ -6,58 +6,57 @@
         <p class="bg-danger well well-sm" ng-if="user_create_error != null">
             Error while creating user: {{user_create_error}}
         </p>
-        <form class="form-horizontal" role="form" name="user_form">
-            <div ng-class="{true: input_ok, false: input_error}[user_form.login.$valid]">
+        <form class="form-horizontal" role="form" name="form">
+            <div class="form-group has-feedback" valid-for="form.login.$valid">
                 <label for="login" class="col-sm-2 control-label">Login</label>
                 <div class="col-sm-10">
-                    <input type="text" class="form-control" id="login" name="login" placeholder="Login (minimum 3, maximum 20 characters)"
-                           ng-model="user.login" required ng-minlength="3" ng-maxlength="20">
-                    <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"
-                          ng-show="!user_form.login.$valid"></span>
+                    <input type="text" class="form-control" id="login" name="login" placeholder="Login [a-zA-Z0-9][a-zA-Z0-9_.-]{2,30}"
+                           ng-model="user.login" required ng-pattern="/^[a-zA-Z0-9][a-zA-Z0-9_.-]{2,30}$/">
+                    <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true" ng-show="!form.login.$valid"></span>
                 </div>
             </div>
-            <div ng-class="{true: input_ok, false: input_error}[user_form.password.$valid]">
+            <div class="form-group has-feedback" valid-for="form.password.$valid">
                 <label for="password" class="col-sm-2 control-label">Password</label>
                 <div class="col-sm-10">
                     <input type="password" class="form-control" id="password" name="password" placeholder="Password" ng-model="user.password" required>
-                    <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true" ng-show="!user_form.password.$valid"></span>
+                    <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true" ng-show="!form.password.$valid"></span>
                 </div>
             </div>
-            <div ng-class="{true: input_ok, false: input_error}[user_form.confirm_password.$error.match]">
+            <div class="form-group has-feedback" valid-for="form.confirm_password.$valid">
                 <label for="confirm_password" class="col-sm-2 control-label">Confirm</label>
                 <div class="col-sm-10">
-                    <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Password Confirm" match="user.password" ng-model="user.passwordConfirm" required>
-                    <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true" ng-show="user_form.confirm_password.$error.match"></span>
+                    <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Password Confirm" password-match="user.password" ng-model="user.passwordConfirm" required>
+                    <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true" ng-show="!form.confirm_password.$valid"></span>
                 </div>
             </div>
-            <div ng-class="{true: input_ok, false: input_error}[user_form.firstname.$valid]">
+            <div class="form-group has-feedback" valid-for="form.firstname.$valid">
                 <label for="firstname" class="col-sm-2 control-label">Firstname</label>
                 <div class="col-sm-10">
                     <input type="text" class="form-control" id="firstname" name="firstname" placeholder="Firstname" ng-model="user.firstname" required>
-                    <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true" ng-show="!user_form.firstname.$valid"></span>
+                    <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true" ng-show="!form.firstname.$valid"></span>
                 </div>
             </div>
-            <div ng-class="{true: input_ok, false: input_error}[user_form.lastname.$valid]">
+            <div class="form-group has-feedback" valid-for="form.lastname.$valid">
                 <label for="lastname" class="col-sm-2 control-label">Lastname</label>
                 <div class="col-sm-10">
                     <input type="text" class="form-control" id="lastname" name="lastname" placeholder="Lastname" ng-model="user.lastname" required>
-                    <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true" ng-show="!user_form.lastname.$valid"></span>
+                    <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true" ng-show="!form.lastname.$valid"></span>
                 </div>
             </div>
-            <div ng-class="{true: input_ok, false: input_error}[user_form.nickname.$valid]">
+            <div class="form-group has-feedback" valid-for="form.nickname.$valid">
                 <label for="nickname" class="col-sm-2 control-label">Nickname</label>
                 <div class="col-sm-10">
                     <input type="text" class="form-control" id="nickname" name="nickname" placeholder="Nickname" ng-model="user.nickname" required>
-                    <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true" ng-show="!user_form.nickname.$valid"></span>
+                    <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true" ng-show="!form.nickname.$valid"></span>
                 </div>
             </div>
-            <div ng-class="input_ok">
+            <div class="form-group has-feedback">
                 <label for="email" class="col-sm-2 control-label">Email</label>
                 <div class="col-sm-10">
                     <input type="text" class="form-control" id="email" name="email" placeholder="Email" ng-model="user.email">
                 </div>
             </div>
-            <div ng-class="input_ok">
+            <div class="form-group has-feedback">
                 <label for="bio" class="col-sm-2 control-label">Bio</label>
                 <div class="col-sm-10">
                     <input type="text" class="form-control" id="bio" name="bio" placeholder="Bio" ng-model="user.bio">

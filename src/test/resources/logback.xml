@@ -11,7 +11,7 @@
 
     <logger name="ACHILLES_DDL_SCRIPT" level="DEBUG"/>
 
-    <logger name="com.datastax.demo.killrchat.entity.User" level="OFF"/>
+    <logger name="com.datastax.demo.killrchat.entity.UserEntity" level="OFF"/>
 
 
 

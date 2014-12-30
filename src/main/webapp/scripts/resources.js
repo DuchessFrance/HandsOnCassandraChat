@@ -4,9 +4,6 @@ killrChat.factory('User', function($resource) {
         'login': {url: '/authenticate', method: 'POST', isArray:false, headers: {'Content-Type': 'application/x-www-form-urlencoded'},
             transformRequest: function(){return {} }},
         'load': {url : '/users/:login', method:'GET', isArray:false, headers:{'Accept': 'application/json'}},
-        'changePassword': {url: '/users/password', method: 'PUT', isArray:false, headers:{'Content-Type': 'application/json'}},
-        'listRooms': {url: '/users/rooms', method: 'GET', isArray:true, headers:{'Accept': 'application/json'}},
-        'listUsers': {url: '/users/list', method: 'GET', isArray:true, headers:{'Accept': 'application/json'}},
         'logout': {url: '/logout', method: 'GET', isArray:false, headers:{'Accept': 'application/json'}}
     });
 });
@@ -14,7 +11,7 @@ killrChat.factory('User', function($resource) {
 killrChat.factory('Room', function($resource) {
     return $resource('/rooms', [],{
         'create': {url: '/rooms', method: 'POST', isArray:false,headers: {'Content-Type': 'application/json'}},
-        'addParticipant': {url: '/rooms/user', method: 'PUT', isArray:false,headers: {'Content-Type': 'application/json'}},
+        "addParticipant": {url: '/rooms/user', method: 'PUT', isArray:false,headers: {'Content-Type': 'application/json'}},
         'removeParticipant': {url: '/rooms/user/remove', method: 'PUT', isArray:false,headers: {'Content-Type': 'application/json'}},
         'load': {url: '/rooms/:roomName', method: 'GET', isArray:false, headers:{'Accept': 'application/json'}},
         'list': {url: '/rooms/list', method: 'GET', isArray:true, headers:{'Accept': 'application/json'}}

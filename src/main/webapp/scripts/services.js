@@ -7,19 +7,12 @@ killrChat.service('ChatService', function(){
     };
 
     this.removeMatchingParticipant = function(participants, matchingParticipant) {
-
-        var indexToRemove = -1;
-        angular.forEach(participants, function(participant,index){
-            if(participant.login == matchingParticipant.login) {
-                indexToRemove = index;
-                return;
-            }
-        });
+        var indexToRemove = participants.map(function(p){return p.login}).indexOf(matchingParticipant.login);
         participants.splice(indexToRemove, 1);
     };
 
 
-    this.addParticipant = function(participant, allRoomsList, participantRoomsList, targetRoom) {
+    this.addParticipantToRoom = function(participant, allRoomsList, targetRoom) {
         var roomInExistingList = this.findMatchingRoom(allRoomsList, targetRoom);
 
         roomInExistingList.participants.push({
@@ -27,34 +20,26 @@ killrChat.service('ChatService', function(){
             firstname:participant.firstname,
             lastname:participant.lastname
         });
-
-        var copy = angular.copy(targetRoom);
-        delete copy.participants;
-        participantRoomsList.push(copy);
     };
 
-    this.removeParticipant = function(participant, allRoomsList, participantRoomsList, targetRoom) {
+    this.addRoomToUserRoomsList = function(userRooms, roomToJoin) {
+        var indexOf = userRooms.indexOf(roomToJoin);
+        if(indexOf == -1){
+            userRooms.push(roomToJoin);
+        }
+    };
 
-        var indexToRemove = -1;
-        angular.forEach(participantRoomsList, function(userRoom,index){
-            if(userRoom.roomName == targetRoom.roomName) {
-                indexToRemove = index;
-                return;
-            }
-        });
-
-        participantRoomsList.splice(indexToRemove,1);
-
+    this.removeParticipantFromRoom = function(participant, allRoomsList, targetRoom) {
         var roomInExistingList = this.findMatchingRoom(allRoomsList, targetRoom);
-
         if(roomInExistingList) {
-            angular.forEach(roomInExistingList.participants, function(participant,index){
-                if(participant.login == participant.login) {
-                    indexToRemove = index;
-                    return;
-                }
-            });
-            targetRoom.participants.splice(indexToRemove,1);
+            this.removeMatchingParticipant(roomInExistingList.participants, participant);
+        }
+    }
+
+    this.removeRoomFromUserRoomsList = function(userRooms, roomToLeave) {
+        var indexOf = userRooms.indexOf(roomToLeave);
+        if(indexOf > -1){
+            userRooms.splice(indexOf,1);
         }
     }
 });
