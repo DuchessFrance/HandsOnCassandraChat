@@ -1,6 +1,6 @@
 package com.datastax.demo.killrchat.security.service;
 
-import com.datastax.demo.killrchat.entity.PersistentToken;
+import com.datastax.demo.killrchat.entity.PersistentTokenEntity;
 import com.datastax.demo.killrchat.security.repository.PersistentTokenRepository;
 import com.datastax.demo.killrchat.service.UserService;
 
@@ -78,7 +78,7 @@ public class CustomPersistentRememberMeService extends
     @Override
     protected UserDetails processAutoLoginCookie(String[] cookieTokens, HttpServletRequest request, HttpServletResponse response) {
 
-        PersistentToken token = getPersistentToken(cookieTokens);
+        PersistentTokenEntity token = getPersistentToken(cookieTokens);
         String login = token.getUser().getUsername();
 
         // Token also matches, so login is valid. Update the token value, keeping the *same* series number.
@@ -100,7 +100,7 @@ public class CustomPersistentRememberMeService extends
         log.debug("Creating new persistent login for user {}", login);
         UserDetails user = userService.findByLogin(login).toUserDetails();
 
-        PersistentToken token = new PersistentToken();
+        PersistentTokenEntity token = new PersistentTokenEntity();
         token.setSeries(generateSeriesData());
         token.setUser(user);
         token.setTokenValue(generateTokenData());
@@ -141,7 +141,7 @@ public class CustomPersistentRememberMeService extends
     /**
      * Validate the token and return it.
      */
-    private PersistentToken getPersistentToken(String[] cookieTokens) {
+    private PersistentTokenEntity getPersistentToken(String[] cookieTokens) {
         if (cookieTokens.length != 2) {
             throw new InvalidCookieException("Cookie token did not contain " + 2 +
                     " tokens, but contained '" + Arrays.asList(cookieTokens) + "'");
@@ -150,7 +150,7 @@ public class CustomPersistentRememberMeService extends
         final String presentedSeries = cookieTokens[0];
         final String presentedToken = cookieTokens[1];
 
-        PersistentToken token = persistentTokenRepository.findById(presentedSeries);
+        PersistentTokenEntity token = persistentTokenRepository.findById(presentedSeries);
 
         if (token == null) {
             // No series match, so we can't authenticate using this cookie
@@ -179,7 +179,7 @@ public class CustomPersistentRememberMeService extends
         return new String(Base64.encode(newToken));
     }
 
-    private void addCookie(PersistentToken token, HttpServletRequest request, HttpServletResponse response) {
+    private void addCookie(PersistentTokenEntity token, HttpServletRequest request, HttpServletResponse response) {
         setCookie(
                 new String[]{token.getSeries(), token.getTokenValue()},
                 TOKEN_VALIDITY_SECONDS, request, response);

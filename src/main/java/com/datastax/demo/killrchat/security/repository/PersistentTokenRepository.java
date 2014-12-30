@@ -1,6 +1,6 @@
 package com.datastax.demo.killrchat.security.repository;
 
-import com.datastax.demo.killrchat.entity.PersistentToken;
+import com.datastax.demo.killrchat.entity.PersistentTokenEntity;
 import info.archinnov.achilles.persistence.PersistenceManager;
 import info.archinnov.achilles.type.OptionsBuilder;
 import org.springframework.stereotype.Repository;
@@ -17,20 +17,20 @@ public class PersistentTokenRepository {
 
     public static final int TOKEN_VALIDITY_SECONDS = 60 * 60 * 24 * TOKEN_VALIDITY_DAYS;
 
-    public void insert(PersistentToken token) {
+    public void insert(PersistentTokenEntity token) {
         manager.insert(token, OptionsBuilder.withTtl(TOKEN_VALIDITY_SECONDS));
     }
 
     public void deleteById(String series) {
-        manager.deleteById(PersistentToken.class, series);
+        manager.deleteById(PersistentTokenEntity.class, series);
 
     }
 
-    public PersistentToken findById(String presentedSeries) {
-        return manager.find(PersistentToken.class, presentedSeries);
+    public PersistentTokenEntity findById(String presentedSeries) {
+        return manager.find(PersistentTokenEntity.class, presentedSeries);
     }
 
-    public void update(PersistentToken token) {
+    public void update(PersistentTokenEntity token) {
         manager.update(token);
     }
 }

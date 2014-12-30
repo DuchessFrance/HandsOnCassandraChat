@@ -1,18 +1,16 @@
 package com.datastax.demo.killrchat.service;
 
-import com.datastax.demo.killrchat.entity.ChatRoom;
-import com.datastax.demo.killrchat.entity.UserChatRooms;
+import com.datastax.demo.killrchat.entity.ChatRoomEntity;
+import com.datastax.demo.killrchat.entity.UserEntity;
 import com.datastax.demo.killrchat.exceptions.ChatRoomAlreadyExistsException;
 import com.datastax.demo.killrchat.exceptions.ChatRoomDoesNotExistException;
 import com.datastax.demo.killrchat.model.ChatRoomModel;
-import com.datastax.demo.killrchat.model.LightChatRoomModel;
 import com.datastax.demo.killrchat.model.LightUserModel;
 import com.datastax.driver.core.querybuilder.Select;
 import com.google.common.base.Function;
 import com.google.common.collect.Sets;
 import info.archinnov.achilles.exception.AchillesLightWeightTransactionException;
 import info.archinnov.achilles.persistence.PersistenceManager;
-import info.archinnov.achilles.type.OptionsBuilder;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -22,110 +20,90 @@ import static com.datastax.demo.killrchat.entity.Schema.CHATROOMS;
 import static com.datastax.demo.killrchat.entity.Schema.KEYSPACE;
 import static com.datastax.driver.core.querybuilder.QueryBuilder.*;
 import static com.google.common.collect.FluentIterable.from;
+import static info.archinnov.achilles.type.OptionsBuilder.ifEqualCondition;
+import static info.archinnov.achilles.type.OptionsBuilder.ifNotExists;
 import static java.lang.String.format;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Service
 public class ChatRoomService {
 
-    private static final Select SELECT_FIRST_PAGE_FOR_ROOMS = select().from(KEYSPACE, CHATROOMS).limit(bindMarker("fetchSize"));
+    private static final Select SELECT_ROOMS = select().from(KEYSPACE, CHATROOMS).limit(bindMarker("fetchSize"));
 
     @Inject
     PersistenceManager manager;
 
-    private static final Function<ChatRoom, ChatRoomModel> CHAT_ROOM_TO_MODEL = new Function<ChatRoom, ChatRoomModel>() {
+    private static final Function<ChatRoomEntity, ChatRoomModel> CHAT_ROOM_TO_MODEL = new Function<ChatRoomEntity, ChatRoomModel>() {
         @Override
-        public ChatRoomModel apply(ChatRoom entity) {
+        public ChatRoomModel apply(ChatRoomEntity entity) {
             return entity.toModel();
         }
     };
 
-    private static final Function<UserChatRooms, LightChatRoomModel> USER_CHAT_ROOMS_TO_MODEL = new Function<UserChatRooms, LightChatRoomModel>() {
-        @Override
-        public LightChatRoomModel apply(UserChatRooms entity) {
-            return entity.toLightModel();
-        }
-    };
 
-    public void createChatRoom(String roomName, LightUserModel creator) {
+    public void createChatRoom(String roomName, String banner, LightUserModel creator) {
         final Set<LightUserModel> participantsList = Sets.newHashSet(creator);
         final String creatorLogin = creator.getLogin();
-        final ChatRoom room = new ChatRoom(roomName, creator, participantsList);
+        final ChatRoomEntity room = new ChatRoomEntity(roomName, creator, new Date(), banner, participantsList);
         try {
-            manager.insert(room, OptionsBuilder.ifNotExists());
+            manager.insert(room, ifNotExists());
         } catch (AchillesLightWeightTransactionException ex) {
             throw new ChatRoomAlreadyExistsException(format("The room '%s' already exists", roomName));
         }
-        manager.insert(new UserChatRooms(creatorLogin, roomName, creator));
+
+        final UserEntity userProxy = manager.forUpdate(UserEntity.class, creatorLogin);
+        userProxy.getChatRooms().add(roomName);
+        manager.update(userProxy);
+
     }
 
     public ChatRoomModel findRoomByName(String roomName) {
-        final ChatRoom chatRoom = manager.find(ChatRoom.class, roomName);
+        final ChatRoomEntity chatRoom = manager.find(ChatRoomEntity.class, roomName);
         if (chatRoom == null) {
             throw new ChatRoomDoesNotExistException(format("Chat room '%s' does not exists", roomName));
         }
         return chatRoom.toModel();
     }
 
-    public List<ChatRoomModel> listChatRooms(String fromRoomName, int fetchSize) {
-        final Select select;
-        final Object[] boundValues;
-        if (isBlank(fromRoomName)) {
-            select = SELECT_FIRST_PAGE_FOR_ROOMS;
-            boundValues = new Object[]{fetchSize};
-        } else {
-            select = select().from(KEYSPACE, CHATROOMS)
-                    .where(gt(token("room_name"), fcall("token", bindMarker("fromRoomName"))))
-                    .limit(bindMarker("fetchSize"));
-            boundValues = new Object[]{fromRoomName, fetchSize};
-        }
-        final List<ChatRoom> foundChatRooms = manager.typedQuery(ChatRoom.class, select, boundValues).get();
+    public List<ChatRoomModel> listChatRooms(int fetchSize) {
+        final List<ChatRoomEntity> foundChatRooms = manager.typedQuery(ChatRoomEntity.class, SELECT_ROOMS, new Object[]{fetchSize}).get();
         return from(foundChatRooms).transform(CHAT_ROOM_TO_MODEL).toList();
     }
 
-    public List<LightChatRoomModel> listChatRoomsForUserByPage(String login, String fromRoomNameExcluding, int fetchSize) {
-        final List<UserChatRooms> userChatRooms = manager.sliceQuery(UserChatRooms.class)
-                .forSelect()
-                .withPartitionComponents(login)
-                .fromClusterings(fromRoomNameExcluding)
-                .fromExclusiveToInclusiveBounds()
-                .get(fetchSize);
+    public void addUserToRoom(String roomName, LightUserModel participant) {
+        final String newParticipant = participant.getLogin();
+        final ChatRoomEntity chatRoomProxy = manager.forUpdate(ChatRoomEntity.class, roomName);
+        chatRoomProxy.getParticipants().add(participant);
 
-        return from(userChatRooms).transform(USER_CHAT_ROOMS_TO_MODEL).toList();
-    }
-
-    public void addUserToRoom(LightChatRoomModel chatRoomModel, LightUserModel userModel) {
-        final String roomName = chatRoomModel.getRoomName();
-        final String newParticipant = userModel.getLogin();
-        final LightUserModel chatRoomCreator = chatRoomModel.getCreator();
-        final ChatRoom chatRoomProxy = manager.forUpdate(ChatRoom.class, roomName);
-        chatRoomProxy.getParticipants().add(userModel);
         try {
-            manager.update(chatRoomProxy, OptionsBuilder.ifEqualCondition("creator", chatRoomCreator));
+            manager.update(chatRoomProxy, ifEqualCondition("name", roomName));
         } catch (AchillesLightWeightTransactionException ex) {
             throw new ChatRoomDoesNotExistException(format("The chat room '%s' does not exist", roomName));
         }
-        manager.insert(new UserChatRooms(newParticipant, roomName, chatRoomCreator));
 
+        final UserEntity userProxy = manager.forUpdate(UserEntity.class, newParticipant);
+        userProxy.getChatRooms().add(roomName);
+        manager.update(userProxy);
     }
 
-    public void removeUserFromRoom(LightChatRoomModel chatRoomModel, LightUserModel userModel) {
-        final String roomName = chatRoomModel.getRoomName();
-        final String participantToBeRemoved = userModel.getLogin();
-        final LightUserModel chatRoomCreator = chatRoomModel.getCreator();
-        final ChatRoom chatRoomProxy = manager.forUpdate(ChatRoom.class, roomName);
-        chatRoomProxy.getParticipants().remove(userModel);
+    public void removeUserFromRoom(String roomName, LightUserModel participant) {
+        final String participantToBeRemoved = participant.getLogin();
+        final ChatRoomEntity chatRoomProxy = manager.forUpdate(ChatRoomEntity.class, roomName);
+        chatRoomProxy.getParticipants().remove(participant);
         try {
-            manager.update(chatRoomProxy, OptionsBuilder.ifEqualCondition("creator", chatRoomCreator));
+            manager.update(chatRoomProxy, ifEqualCondition("name", roomName));
         } catch (AchillesLightWeightTransactionException ex) {
             throw new ChatRoomDoesNotExistException(format("The chat room '%s' does not exist", roomName));
         }
-        manager.deleteById(UserChatRooms.class, new UserChatRooms.CompoundPk(participantToBeRemoved, roomName));
+
+        final UserEntity userProxy = manager.forUpdate(UserEntity.class, participantToBeRemoved);
+        userProxy.getChatRooms().remove(roomName);
+        manager.update(userProxy);
 
         // Remove automatically the room if no participants left
         try {
-            manager.deleteById(ChatRoom.class, roomName, OptionsBuilder.ifEqualCondition("participants", null));
+            manager.deleteById(ChatRoomEntity.class, roomName, ifEqualCondition("participants", null));
         } catch (AchillesLightWeightTransactionException ex) {
+
         }
 
 

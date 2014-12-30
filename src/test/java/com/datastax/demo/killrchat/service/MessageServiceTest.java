@@ -1,11 +1,15 @@
 package com.datastax.demo.killrchat.service;
 
 import static com.datastax.demo.killrchat.entity.Schema.*;
+import static com.datastax.demo.killrchat.service.MessageService.JOINING_MESSAGE;
+import static com.datastax.demo.killrchat.service.MessageService.LEAVING_MESSAGE;
 import static com.datastax.driver.core.querybuilder.QueryBuilder.*;
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.verify;
 
-import com.datastax.demo.killrchat.entity.User;
-import com.datastax.demo.killrchat.model.ChatMessageModel;
+import com.datastax.demo.killrchat.entity.UserEntity;
+import com.datastax.demo.killrchat.model.MessageModel;
 import com.datastax.demo.killrchat.model.LightUserModel;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.Row;
@@ -20,8 +24,12 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,7 +38,7 @@ public class MessageServiceTest {
 
     @Rule
     public AchillesResource resource = AchillesResourceBuilder
-            .withEntityPackages(User.class.getPackage().getName())
+            .withEntityPackages(UserEntity.class.getPackage().getName())
             .withKeyspaceName(KEYSPACE)
             .withBeanValidation()
             .tablesToTruncate(CHATROOM_MESSAGES)
@@ -43,12 +51,15 @@ public class MessageServiceTest {
     private MessageService service = new MessageService();
 
     private LightUserModel johnDoe = new LightUserModel("jdoe","John","DOE");
-
     private LightUserModel helenSue = new LightUserModel("hsue","Helen","SUE");
+    private String johnAsJson;
+    private String helenAsJson;
 
     @Before
-    public void setUp() {
+    public void setUp() throws IOException {
         service.manager = this.manager;
+        johnAsJson = service.manager.serializeToJSON(johnDoe);
+        helenAsJson = manager.serializeToJSON(helenSue);
     }
 
     @Test
@@ -59,7 +70,7 @@ public class MessageServiceTest {
         String messageContent = "Starcraft2 is awesome!";
 
         //When
-        service.postNewMessage(johnDoe, roomName, messageContent);
+        final MessageModel messageModel = service.postNewMessage(johnDoe, roomName, messageContent);
 
         //Then
         final Select selectMessages = select().from(KEYSPACE, CHATROOM_MESSAGES)
@@ -69,7 +80,7 @@ public class MessageServiceTest {
         final Row lastMessage = session.execute(selectMessages).one();
 
         assertThat(lastMessage.getUUID("message_id")).isNotNull();
-        assertThat(lastMessage.getString("author")).contains(manager.serializeToJSON(johnDoe));
+        assertThat(lastMessage.getString("author")).contains(johnAsJson);
         assertThat(lastMessage.getString("content")).isEqualTo(messageContent);
         assertThat(lastMessage.getBool("system_message")).isFalse();
     }
@@ -99,24 +110,24 @@ public class MessageServiceTest {
 
         final PreparedStatement preparedStatement = session.prepare(createMessage);
 
-        session.execute(preparedStatement.bind(roomName, messageId1, manager.serializeToJSON(johnDoe), message1, false));
-        session.execute(preparedStatement.bind(roomName, messageId2, manager.serializeToJSON(helenSue), message2, false));
-        session.execute(preparedStatement.bind(roomName, messageId3, manager.serializeToJSON(johnDoe), message3, false));
-        session.execute(preparedStatement.bind(roomName, messageId4, manager.serializeToJSON(helenSue), message4, false));
-        session.execute(preparedStatement.bind(roomName, messageId5, manager.serializeToJSON(johnDoe), message5, false));
+        session.execute(preparedStatement.bind(roomName, messageId1, johnAsJson, message1, false));
+        session.execute(preparedStatement.bind(roomName, messageId2, helenAsJson, message2, false));
+        session.execute(preparedStatement.bind(roomName, messageId3, johnAsJson, message3, false));
+        session.execute(preparedStatement.bind(roomName, messageId4, helenAsJson, message4, false));
+        session.execute(preparedStatement.bind(roomName, messageId5, johnAsJson, message5, false));
 
         //When
-        final List<ChatMessageModel> messages = service.fetchNextMessagesForRoom(roomName, UUIDs.timeBased(), 2);
+        final List<MessageModel> messages = service.fetchNextMessagesForRoom(roomName, UUIDs.timeBased(), 2);
 
         //Then
         assertThat(messages).hasSize(2);
-        final ChatMessageModel lastMessage = messages.get(1);
+        final MessageModel lastMessage = messages.get(1);
 
         assertThat(lastMessage.getAuthor()).isEqualTo(johnDoe);
         assertThat(lastMessage.getMessageId()).isEqualTo(messageId5);
         assertThat(lastMessage.getContent()).isEqualTo(message5);
 
-        final ChatMessageModel beforeLastMessage = messages.get(0);
+        final MessageModel beforeLastMessage = messages.get(0);
 
         assertThat(beforeLastMessage.getAuthor()).isEqualTo(helenSue);
         assertThat(beforeLastMessage.getMessageId()).isEqualTo(messageId4);
@@ -147,27 +158,67 @@ public class MessageServiceTest {
 
         final PreparedStatement preparedStatement = session.prepare(createMessage);
 
-        session.execute(preparedStatement.bind(roomName, messageId1, manager.serializeToJSON(johnDoe), message1, false));
-        session.execute(preparedStatement.bind(roomName, messageId2, manager.serializeToJSON(helenSue), message2, false));
-        session.execute(preparedStatement.bind(roomName, messageId3, manager.serializeToJSON(johnDoe), message3, false));
-        session.execute(preparedStatement.bind(roomName, messageId4, manager.serializeToJSON(helenSue), message4, false));
-        session.execute(preparedStatement.bind(roomName, messageId5, manager.serializeToJSON(johnDoe), message5, false));
+        session.execute(preparedStatement.bind(roomName, messageId1, johnAsJson, message1, false));
+        session.execute(preparedStatement.bind(roomName, messageId2, helenAsJson, message2, false));
+        session.execute(preparedStatement.bind(roomName, messageId3, johnAsJson, message3, false));
+        session.execute(preparedStatement.bind(roomName, messageId4, helenAsJson, message4, false));
+        session.execute(preparedStatement.bind(roomName, messageId5, johnAsJson, message5, false));
 
         //When
-        final List<ChatMessageModel> messages = service.fetchNextMessagesForRoom(roomName, messageId4, 2);
+        final List<MessageModel> messages = service.fetchNextMessagesForRoom(roomName, messageId4, 2);
 
         //Then
         assertThat(messages).hasSize(2);
-        final ChatMessageModel lastMessage = messages.get(1);
+        final MessageModel lastMessage = messages.get(1);
 
         assertThat(lastMessage.getAuthor()).isEqualTo(johnDoe);
         assertThat(lastMessage.getMessageId()).isEqualTo(messageId3);
         assertThat(lastMessage.getContent()).isEqualTo(message3);
 
-        final ChatMessageModel beforeLastMessage = messages.get(0);
+        final MessageModel beforeLastMessage = messages.get(0);
 
         assertThat(beforeLastMessage.getAuthor()).isEqualTo(helenSue);
         assertThat(beforeLastMessage.getMessageId()).isEqualTo(messageId2);
         assertThat(beforeLastMessage.getContent()).isEqualTo(message2);
+    }
+
+    @Test
+    public void should_create_joining_message() throws Exception {
+        //Given
+        final String roomName = "games";
+
+        //When
+        service.createJoiningMessage(roomName, johnDoe);
+
+        //Then
+        final Select selectMessages = select().from(KEYSPACE, CHATROOM_MESSAGES)
+                .where(eq("room_name", roomName)).limit(1);
+
+        final Row lastMessage = session.execute(selectMessages).one();
+
+        assertThat(lastMessage.getUUID("message_id")).isNotNull();
+        assertThat(lastMessage.getString("author")).contains(KILLRCHAT_LOGIN);
+        assertThat(lastMessage.getString("content")).isEqualTo(format(JOINING_MESSAGE, "John DOE"));
+        assertThat(lastMessage.getBool("system_message")).isTrue();
+    }
+
+    @Test
+    public void should_create_leaving_message() throws Exception {
+        //Given
+        final String roomName = "games";
+
+        //When
+        service.createLeavingMessage(roomName, johnDoe);
+
+        //Then
+        final Select selectMessages = select().from(KEYSPACE, CHATROOM_MESSAGES)
+                .where(eq("room_name", roomName)).limit(1);
+
+        final Row lastMessage = session.execute(selectMessages).one();
+
+        assertThat(lastMessage.getUUID("message_id")).isNotNull();
+        assertThat(lastMessage.getString("author")).contains(KILLRCHAT_LOGIN);
+        assertThat(lastMessage.getString("content")).isEqualTo(format(LEAVING_MESSAGE, "John DOE"));
+        assertThat(lastMessage.getBool("system_message")).isTrue();
     }
 }

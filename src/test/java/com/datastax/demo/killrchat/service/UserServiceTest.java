@@ -7,10 +7,10 @@ import static com.datastax.demo.killrchat.entity.Schema.KEYSPACE;
 import static com.datastax.demo.killrchat.entity.Schema.USERS;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.datastax.demo.killrchat.exceptions.IncorrectOldPasswordException;
 import com.datastax.demo.killrchat.exceptions.UserAlreadyExistsException;
 import com.datastax.demo.killrchat.model.UserModel;
 import info.archinnov.achilles.exception.AchillesBeanValidationException;
+import info.archinnov.achilles.script.ScriptExecutor;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -18,34 +18,30 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
-import com.datastax.driver.core.querybuilder.Insert;
-import com.datastax.demo.killrchat.entity.User;
+import com.datastax.demo.killrchat.entity.UserEntity;
 import info.archinnov.achilles.junit.AchillesResource;
 import info.archinnov.achilles.junit.AchillesResourceBuilder;
-import info.archinnov.achilles.persistence.PersistenceManager;
-
-import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UserServiceTest {
 
     @Rule
     public AchillesResource resource = AchillesResourceBuilder
-            .withEntityPackages(User.class.getPackage().getName())
+            .withEntityPackages(UserEntity.class.getPackage().getName())
             .withKeyspaceName(KEYSPACE)
             .withBeanValidation()
             .tablesToTruncate(USERS)
             .truncateBeforeAndAfterTest().build();
 
-    private PersistenceManager manager = resource.getPersistenceManager();
-
     private Session session = resource.getNativeSession();
+
+    private ScriptExecutor scriptExecutor = resource.getScriptExecutor();
 
     private UserService service = new UserService();
 
     @Before
     public void setUp() {
-        service.manager = this.manager;
+        service.manager = resource.getPersistenceManager();
     }
 
     @Test
@@ -72,11 +68,10 @@ public class UserServiceTest {
     @Test
     public void should_find_user_by_login() throws Exception {
         //Given
-        final Insert insert = insertInto(USERS).value("login", "emc²").value("pass","a.einstein").value("firstname", "Albert").value("lastname", "EINSTEIN");
-        session.execute(insert);
+        scriptExecutor.executeScript("should_find_user_by_login.cql");
 
         //When
-        final User foundUser = service.findByLogin("emc²");
+        final UserEntity foundUser = service.findByLogin("emc²");
 
         //Then
         assertThat(foundUser.getFirstname()).isEqualTo("Albert");
