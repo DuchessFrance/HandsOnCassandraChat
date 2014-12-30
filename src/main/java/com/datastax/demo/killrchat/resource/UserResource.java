@@ -40,6 +40,7 @@ public class UserResource {
     private ChatRoomService chatRoomService;
 
     @RequestMapping(method = POST, consumes = APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void createUser(@NotNull @RequestBody @Valid UserModel model) {
         //TODO encrypt password properly for security
         service.createUser(model);
@@ -50,15 +51,7 @@ public class UserResource {
     public UserModel findByLogin(@PathVariable String login) {
         return service.findByLogin(login).toModel();
     }
-
-    @RequestMapping(value = "/rooms", method = GET, produces = APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public List<LightChatRoomModel> listChatRoomsForUserByPage(@RequestParam(required = false) String fromRoomName, @RequestParam(required = false) int fetchSize) {
-        final String login = SecurityUtils.getCurrentLogin();
-        final String fromRoom = StringUtils.isBlank(fromRoomName) ? EMPTY_SPACE : fromRoomName;
-        final int pageSize = fetchSize <= 0 ? DEFAULT_CHAT_ROOMS_LIST_FETCH_SIZE :fetchSize;
-        return chatRoomService.listChatRoomsForUserByPage(login, fromRoom, pageSize);
-    }
+    
 
     @ExceptionHandler(value = {
             UserAlreadyExistsException.class,

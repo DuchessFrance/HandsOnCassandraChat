@@ -6,20 +6,22 @@ import static org.mockito.Mockito.*;
 import com.datastax.demo.killrchat.model.ChatRoomModel;
 import com.datastax.demo.killrchat.model.LightChatRoomModel;
 import com.datastax.demo.killrchat.model.LightUserModel;
+import com.datastax.demo.killrchat.model.MessageModel;
 import com.datastax.demo.killrchat.resource.model.ChatRoomCreationModel;
 import com.datastax.demo.killrchat.resource.model.ChatRoomParticipantModel;
+import com.datastax.demo.killrchat.resource.model.ChatRoomParticipantModel.Status;
 import com.datastax.demo.killrchat.service.ChatRoomService;
+import com.datastax.demo.killrchat.service.MessageService;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
-import javax.inject.Inject;
+import java.util.Date;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -29,7 +31,10 @@ public class ChatRoomResourceTest {
     private ChatRoomResource resource;
 
     @Mock
-    private ChatRoomService service;
+    private ChatRoomService chatRoomService;
+
+    @Mock
+    private MessageService messageService;
 
     @Mock
     private SimpMessagingTemplate template;
@@ -43,17 +48,18 @@ public class ChatRoomResourceTest {
         final LightUserModel userModel = new LightUserModel("jdoe", "John", "DOE");
 
         //When
-        resource.createChatRoom(new ChatRoomCreationModel(roomName, userModel));
+        resource.createChatRoom(new ChatRoomCreationModel(roomName, "banner", userModel));
 
         //Then
-        verify(service).createChatRoom(roomName, userModel);
+        verify(chatRoomService).createChatRoom(roomName, "banner", userModel);
     }
 
     @Test
     public void should_find_room_by_name() throws Exception {
         //Given
-        final ChatRoomModel roomModel = new ChatRoomModel("games",john, Sets.<LightUserModel>newHashSet());
-        when(service.findRoomByName("games")).thenReturn(roomModel);
+        final Date now = new Date();
+        final ChatRoomModel roomModel = new ChatRoomModel("games",john, now, "banner", Sets.<LightUserModel>newHashSet());
+        when(chatRoomService.findRoomByName("games")).thenReturn(roomModel);
 
         //When
         final ChatRoomModel found = resource.findRoomByName("games");
@@ -67,35 +73,39 @@ public class ChatRoomResourceTest {
         //Given
 
         //When
-        resource.listChatRooms("games", 11);
+        resource.listChatRooms(11);
 
         //Then
-        verify(service).listChatRooms("games", 11);
+        verify(chatRoomService).listChatRooms(11);
     }
 
     @Test
     public void should_add_user_to_chat_room() throws Exception {
         //Given
-        final LightChatRoomModel room = new LightChatRoomModel("games",john);
+        final MessageModel joiningMessage = new MessageModel();
+        when(messageService.createJoiningMessage("games", john)).thenReturn(joiningMessage);
 
         //When
-        resource.addUserToChatRoom(new ChatRoomParticipantModel(room, john));
+        resource.addUserToChatRoom(new ChatRoomParticipantModel("games", john));
 
         //Then
-        verify(service).addUserToRoom(room, john);
-        verify(template).convertAndSend("/topic/participants/games",john, ImmutableMap.<String,Object>of("status", ChatRoomParticipantModel.Status.JOIN));
+        verify(chatRoomService).addUserToRoom("games", john);
+        verify(template).convertAndSend("/topic/participants/games", john, ImmutableMap.<String, Object>of("status", Status.JOIN));
+        verify(template).convertAndSend("/topic/messages/games", joiningMessage);
     }
 
     @Test
     public void should_remove_user_from_chat_room() throws Exception {
         //Given
-        final LightChatRoomModel room = new LightChatRoomModel("games",john);
+        final MessageModel leavingMessage = new MessageModel();
+        when(messageService.createLeavingMessage("games", john)).thenReturn(leavingMessage);
 
         //When
-        resource.removeUserFromChatRoom(new ChatRoomParticipantModel(room, john));
+        resource.removeUserFromChatRoom(new ChatRoomParticipantModel("games", john));
 
         //Then
-        verify(service).removeUserFromRoom(room, john);
-        verify(template).convertAndSend("/topic/participants/games",john, ImmutableMap.<String,Object>of("status", ChatRoomParticipantModel.Status.LEAVE));
+        verify(chatRoomService).removeUserFromRoom("games", john);
+        verify(template).convertAndSend("/topic/participants/games", john, ImmutableMap.<String, Object>of("status", Status.LEAVE));
+        verify(template).convertAndSend("/topic/messages/games", leavingMessage);
     }
 }

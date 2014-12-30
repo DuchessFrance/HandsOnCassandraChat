@@ -3,24 +3,19 @@ package com.datastax.demo.killrchat.resource;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
 
-import com.datastax.demo.killrchat.model.ChatMessageModel;
+import com.datastax.demo.killrchat.model.MessageModel;
 import com.datastax.demo.killrchat.model.LightUserModel;
-import com.datastax.demo.killrchat.resource.model.MessagePaging;
 import com.datastax.demo.killrchat.resource.model.MessagePosting;
 import com.datastax.demo.killrchat.service.MessageService;
 import com.datastax.driver.core.utils.UUIDs;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
-import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -44,14 +39,12 @@ public class MessageResourceTest {
     public void should_post_new_message() throws Exception {
         //Given
         final LightUserModel author = new LightUserModel("jdoe", "John", "DOE");
-        ChatMessageModel chatMessageModel = new ChatMessageModel();
-        given(service.postNewMessage(eq(author), eq("games"), eq("Wow sucks!"))).willReturn(chatMessageModel);
+        MessageModel messageModel = new MessageModel();
+        given(service.postNewMessage(eq(author), eq("games"), eq("Wow sucks!"))).willReturn(messageModel);
 
         //When
         resource.postNewMessage("games", new MessagePosting(author, "Wow sucks!"));
-
-        //Then
-        verify(template).convertAndSend("/topic/messages/games",chatMessageModel);
+        verify(template).convertAndSend("/topic/messages/games", messageModel);
     }
 
     @Test
@@ -59,12 +52,12 @@ public class MessageResourceTest {
         //Given
         UUID messageId = UUIDs.timeBased();
         final Date creationDate = new Date(UUIDs.unixTimestamp(messageId));
-        final ChatMessageModel message = new ChatMessageModel(messageId, creationDate, jdoe, "bla bla", false);
+        final MessageModel message = new MessageModel(messageId, creationDate, jdoe, "bla bla", false);
         when(service.fetchNextMessagesForRoom(eq("games"), any(UUID.class),eq(MessageResource.DEFAULT_MESSAGES_FETCH_SIZE)))
                 .thenReturn(Arrays.asList(message));
 
         //When
-        final List<ChatMessageModel> messages = resource.fetchNextMessagesForRoom("games", null, 0);
+        final List<MessageModel> messages = resource.fetchNextMessagesForRoom("games", null, 0);
 
         //Then
         assertThat(messages).containsExactly(message);
@@ -76,11 +69,11 @@ public class MessageResourceTest {
         UUID messageId = UUIDs.timeBased();
         UUID now = UUIDs.timeBased();
         final Date creationDate = new Date(UUIDs.unixTimestamp(messageId));
-        final ChatMessageModel message = new ChatMessageModel(messageId, creationDate, jdoe, "bla bla", false);
+        final MessageModel message = new MessageModel(messageId, creationDate, jdoe, "bla bla", false);
         when(service.fetchNextMessagesForRoom("games", now,11)).thenReturn(Arrays.asList(message));
 
         //When
-        final List<ChatMessageModel> messages = resource.fetchNextMessagesForRoom("games", now, 11);
+        final List<MessageModel> messages = resource.fetchNextMessagesForRoom("games", now, 11);
 
         //Then
         assertThat(messages).containsExactly(message);
