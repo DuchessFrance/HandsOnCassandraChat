@@ -15,14 +15,11 @@
                           ng-show="!room_form.name.$valid"></span>
                 </div>
             </div>
-            <div class="form-group has-feedback" valid-for="room_form.banner.$valid">
+            <div class="form-group has-feedback">
                 <label for="banner" class="col-md-offset-1 col-md-2 control-label">Banner</label>
                 <div class="col-md-6">
-                    <input type="text" class="form-control" id="banner" name="banner" placeholder="Room banner with pattern [a-zA-Z0-9][a-zA-Z0-9_. -]{2,100}"
-                           ng-model="newRoom.banner" required ng-pattern="/^[a-zA-Z0-9][a-zA-Z0-9_. -]{2,100}$/">
+                    <input type="text" class="form-control" id="banner" name="banner" placeholder="Optional room banner" ng-model="newRoom.banner">
                     <br/>
-                    <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"
-                          ng-show="!room_form.banner.$valid"></span>
                 </div>
             </div>
             <div class="form-group">
