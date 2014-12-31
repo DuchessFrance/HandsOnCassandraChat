@@ -123,10 +123,14 @@ killrChat.controller('SignUpModalCtrl',function ($scope, $modalInstance, User) {
 /**
  * Chat Navigation Controller
  */
-killrChat.controller('ChatNavigationCtrl',function ($scope, User, Room, ChatService) {
+killrChat.controller('ChatNavigationCtrl',function ($scope, Room, ChatService) {
 
     $scope.section = 'home';
-    $scope.currentRoom = {};
+    $scope.state = {
+        currentRoom: {}
+    };
+
+    //$scope.currentRoom = {};
 
     $scope.home = function() {
         $scope.section = 'home';
@@ -143,7 +147,7 @@ killrChat.controller('ChatNavigationCtrl',function ($scope, User, Room, ChatServ
     $scope.enterRoom = function(roomToEnter) {
         Room.load({roomName:roomToEnter}).$promise
             .then(function(currentRoom){
-                $scope.currentRoom = currentRoom;
+                $scope.state.currentRoom = currentRoom;
                 $scope.section = 'room';
                 $scope.$broadcast('loadRoomData');
             })
@@ -153,7 +157,7 @@ killrChat.controller('ChatNavigationCtrl',function ($scope, User, Room, ChatServ
     $scope.quitRoomBackHome = function(roomToLeave) {
         $scope.section = 'home';
         ChatService.removeRoomFromUserRoomsList($scope.user.chatRooms, roomToLeave);
-        $scope.currentRoom = {};
+        $scope.state.currentRoom = {};
     };
 });
 
@@ -175,8 +179,7 @@ killrChat.controller('UserRoomsCtrl', function($scope, Room) {
 /**
  * The real Chat
  */
-killrChat.controller('ChatCtrl', function($rootScope, $scope, Room, Message, ChatService){
-
+killrChat.controller('ChatScrollCtrl', function($scope, Message, ChatService){
     var self = this;
     $scope.messages = [];
     $scope.newMessage = {
@@ -188,38 +191,40 @@ killrChat.controller('ChatCtrl', function($rootScope, $scope, Room, Message, Cha
         stomp: null
     };
 
-    this.loadInitialRoomMessages = function() {
-        $scope.messages = Message.load({roomName:$scope.currentRoom.roomName, fetchSize: 20})
+    // Angular trick because errorDisplay() return the reference of the original function
+    $scope.displayGeneralError = function(message) {
+        $scope.errorDisplay()(message);
+    };
+
+    $scope.loadInitialRoomMessages = function() {
+        $scope.messages = Message.load({roomName:$scope.state.currentRoom.roomName, fetchSize: 20})
         $scope.messages.$promise.then(function(){
             self.initSockets();
-            $scope.$broadcast('resetScrollState');
         })
         .catch($scope.displayGeneralError);
     };
 
     $scope.loadPreviousMessages = function() {
-        var promise = Message.load({roomName:$scope.currentRoom.roomName, fromMessageId: $scope.messages[0].messageId, fetchSize: 20}).$promise;
-
+        var promise = Message.load({roomName:$scope.state.currentRoom.roomName, fromMessageId: $scope.messages[0].messageId, fetchSize: 20}).$promise;
         promise.then(function(messages) {
             messages.reverse().forEach(function(message){
                 $scope.messages.unshift(message);
             });
         })
         .catch($scope.displayGeneralError);
-
         return promise;
     };
 
     $scope.postMessage = function(){
         if($scope.newMessage.content){
-            var message = new Message($scope.newMessage);
-            message.$create({roomName:$scope.currentRoom.roomName})
-            .then(function(){
-                delete $scope.newMessage.content;
-            })
-            .catch($scope.displayGeneralError);
+            new Message($scope.newMessage)
+                .$create({roomName:$scope.state.currentRoom.roomName})
+                .then(function(){
+                    delete $scope.newMessage.content;
+                })
+                .catch($scope.displayGeneralError);
         } else {
-            $rootScope.generalError = 'Hey dude, post a non blank message ...';
+            $scope.displayGeneralError('Hey dude, post a non blank message ...');
         }
     };
 
@@ -233,11 +238,11 @@ killrChat.controller('ChatCtrl', function($rootScope, $scope, Room, Message, Cha
         var participant = angular.fromJson(message.body);
         var status = message.headers.status;
         $scope.$apply(function(){
-          if(status == 'JOIN') {
-              $scope.currentRoom.participants.push(participant);
-          } else if(status == 'LEAVE') {
-              ChatService.removeMatchingParticipant($scope.currentRoom.participants, participant);
-          }
+            if(status == 'JOIN') {
+                $scope.state.currentRoom.participants.push(participant);
+            } else if(status == 'LEAVE') {
+                ChatService.removeMatchingParticipant($scope.state.currentRoom.participants, participant);
+            }
         });
     };
 
@@ -246,13 +251,12 @@ killrChat.controller('ChatCtrl', function($rootScope, $scope, Room, Message, Cha
         $scope.socket.stomp = Stomp.over($scope.socket.client);
         $scope.socket.stomp.debug = function(str) {};
         $scope.socket.stomp.connect({}, function() {
-            $scope.socket.stomp.subscribe('/topic/messages/'+$scope.currentRoom.roomName, self.notifyNewMessage);
-            $scope.socket.stomp.subscribe('/topic/participants/'+$scope.currentRoom.roomName, self.notifyParticipant);
+            $scope.socket.stomp.subscribe('/topic/messages/'+$scope.state.currentRoom.roomName, self.notifyNewMessage);
+            $scope.socket.stomp.subscribe('/topic/participants/'+$scope.state.currentRoom.roomName, self.notifyParticipant);
         });
     };
 
-
-    this.closeSocket = function() {
+    $scope.closeSocket = function() {
         if($scope.socket.client) {
             $scope.socket.client.close();
         }
@@ -261,15 +265,8 @@ killrChat.controller('ChatCtrl', function($rootScope, $scope, Room, Message, Cha
         }
     };
 
-    $scope.$on('loadRoomData', function() {
-        self.closeSocket();
-        self.loadInitialRoomMessages();
-    });
-
-    $scope.$eval(self.loadInitialRoomMessages());
-
+    $scope.$eval($scope.loadInitialRoomMessages());
 });
-
 /**
  * Rooms Management
  */

@@ -57,30 +57,44 @@ killrChat.directive('ngEnter', function() {
 /**
  * Chat Messages Zone
  */
-killrChat.directive('chatScrollOn', function($log, usSpinnerService) {
+killrChat.directive('chatZone', function($log, usSpinnerService) {
     return {
         priority: 1,
-        restrict: 'A',
-        //templateUrl: '/views/templates/chatWindow.html',
+        restrict: 'E',
+        replace: true,
+        templateUrl: '/views/templates/chatWindow.html',
         scope: {
-            chatScrollOn : '=', // bind to list of chat messages
-            autoLoad : '&' // function to load old messages
+            state: '=',
+            user: '=',
+            errorDisplay: '&'
         },
-        link: function (scope, el) {
+        controller: 'ChatScrollCtrl',
+        link: function (scope, root) {
             var scrollMode = 'display';
             var loadMoreData = true;
-            var element = el[0];
-            element.scrollTop = 200;
+            var element = root[0].querySelector('#chat-scroll');
+            if(!element) {
+                scope.displayGeneralError("Cannot find element with id 'chat-scroll' in the template of 'chatZone' directive");
+                return;
+            }
 
-            scope.$on('resetScrollState',function(){
+            var wrappedElement = angular.element(element);
+            element.scrollTop = 10;
+
+            scope.$watch(function(){ // watch on currentRoom
+                return scope.state.currentRoom;
+            },
+            function(){ // on change of room reset scroll state
                 loadMoreData = true;
                 scrollMode = 'display';
+                scope.closeSocket();
+                scope.loadInitialRoomMessages();
             });
 
             //Change in the list of chat messages should be intercepted
             scope.$watchCollection(
                 function() {  // watch on chat message
-                    return scope.chatScrollOn;
+                    return scope.messages;
                 },
                 function(newMessages,oldMessages) { // on change of chat messages
                     if(scrollMode === 'display') {
@@ -93,14 +107,14 @@ killrChat.directive('chatScrollOn', function($log, usSpinnerService) {
                 }
             );
 
-            el.bind('scroll', function() {
+            wrappedElement.bind('scroll', function() {
                 if(element.clientHeight + element.scrollTop + 1 >= element.scrollHeight) {
                     scrollMode = 'display';
                 } else if(element.scrollTop == 0 && loadMoreData) {
                     scope.$apply(function(){
                         usSpinnerService.spin('loading-spinner');
                         scrollMode = 'loading';
-                        scope.autoLoad()
+                        scope.loadPreviousMessages()
                         .then(function(messages){
                             // if no more message found, stop loading messages on next calls
                             if(messages.length == 0) {
@@ -113,6 +127,10 @@ killrChat.directive('chatScrollOn', function($log, usSpinnerService) {
                 } else {
                     scrollMode = 'fixed';
                 }
+            });
+
+            wrappedElement.on('$destroy', function() {
+                wrappedElement.unbind('scroll');
             });
         }
     }

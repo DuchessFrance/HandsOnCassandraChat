@@ -1,7 +1,7 @@
 <p>Participants</p>
 <hr/>
 <ul class="nav nav-sidebar full-height">
-    <li ng-repeat="participant in currentRoom.participants">
+    <li ng-repeat="participant in state.currentRoom.participants">
         <a><i class="fa fa-user fa-lg pull-left"></i> {{participant.firstname}} {{participant.lastname}}</a>
     </li>
 </ul>
