@@ -31,9 +31,6 @@ public class UserEntity {
     private String lastname;
 
     @Column
-    private String nickname;
-
-    @Column
     private String email;
 
     @Column
@@ -43,12 +40,11 @@ public class UserEntity {
     @Column
     private Set<String> chatRooms;
 
-    public UserEntity(String login, String pass, String firstname, String lastname, String nickname, String email, String bio) {
+    public UserEntity(String login, String pass, String firstname, String lastname, String email, String bio) {
         this.login = login;
         this.pass = pass;
         this.firstname = firstname;
         this.lastname = lastname;
-        this.nickname = nickname;
         this.email = email;
         this.bio = bio;
     }
@@ -59,7 +55,6 @@ public class UserEntity {
         userEntity.setPass(model.getPassword());
         userEntity.setFirstname(model.getFirstname());
         userEntity.setLastname(model.getLastname());
-        userEntity.setNickname(model.getNickname());
         userEntity.setEmail(model.getEmail());
         userEntity.setBio(model.getBio());
         return userEntity;
@@ -72,7 +67,6 @@ public class UserEntity {
         model.setPassword(this.getPass());
         model.setFirstname(this.getFirstname());
         model.setLastname(this.getLastname());
-        model.setNickname(this.getNickname());
         model.setEmail(this.getEmail());
         model.setBio(this.getBio());
         model.setChatRooms(this.getChatRooms());
@@ -122,14 +116,6 @@ public class UserEntity {
 
     public void setLastname(String lastname) {
         this.lastname = lastname;
-    }
-
-    public String getNickname() {
-        return nickname;
-    }
-
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
     }
 
     public String getEmail() {

@@ -30,12 +30,10 @@ public class UserResourceTest {
     @Mock
     private ChatRoomService chatRoomService;
 
-    private LightUserModel john = new LightUserModel("jdoe", "John", "DOE");
-
     @Test
     public void should_create_user() throws Exception {
         //Given
-        final UserModel userModel = new UserModel("jdoe", "pass", "John", "DOE", "johnny", "jdoe@gmail.com", "bio");
+        final UserModel userModel = new UserModel("jdoe", "pass", "John", "DOE", "jdoe@gmail.com", "bio");
 
         //When
         resource.createUser(userModel);
@@ -47,7 +45,7 @@ public class UserResourceTest {
     @Test
     public void should_find_user_by_login() throws Exception {
         //Given
-        final UserEntity userEntity = new UserEntity("jdoe", "pass", "John", "DOE", "johnny", "jdoe@gmail.com", "bio");
+        final UserEntity userEntity = new UserEntity("jdoe", "pass", "John", "DOE", "jdoe@gmail.com", "bio");
         when(service.findByLogin("jdoe")).thenReturn(userEntity);
 
         //When

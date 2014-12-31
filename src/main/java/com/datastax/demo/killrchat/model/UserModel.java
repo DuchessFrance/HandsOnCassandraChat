@@ -27,18 +27,16 @@ public class UserModel extends LightUserModel {
 
     private Set<String> chatRooms;
 
-    public UserModel(String login, String password, String firstname, String lastname, String nickname, String email, String bio, Set<String> chatRooms) {
-        super(login, firstname, lastname);
-        this.nickname = nickname;
-        this.password = password;
-        this.email = email;
-        this.bio = bio;
-        this.chatRooms = chatRooms;
-    }
+//    public UserModel(String login, String password, String firstname, String lastname, String email, String bio, Set<String> chatRooms) {
+//        super(login, firstname, lastname);
+//        this.password = password;
+//        this.email = email;
+//        this.bio = bio;
+//        this.chatRooms = chatRooms;
+//    }
 
-    public UserModel(String login, String password, String firstname, String lastname, String nickname, String email, String bio) {
+    public UserModel(String login, String password, String firstname, String lastname, String email, String bio) {
         super(login, firstname, lastname);
-        this.nickname = nickname;
         this.password = password;
         this.email = email;
         this.bio = bio;
@@ -49,14 +47,6 @@ public class UserModel extends LightUserModel {
     }
 
     public UserModel() {
-    }
-
-    public String getNickname() {
-        return nickname;
-    }
-
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
     }
 
     public String getPassword() {

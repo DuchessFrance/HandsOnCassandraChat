@@ -68,14 +68,12 @@ public class LightUserModel {
 
         LightUserModel that = (LightUserModel) o;
 
-        return Objects.equals(this.login,that.login)
-                && Objects.equals(this.firstname, that.firstname)
-                && Objects.equals(this.lastname, that.lastname);
+        return Objects.equals(this.login,that.login);
 
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.login, this.firstname, this.lastname);
+        return Objects.hash(this.login);
     }
 }

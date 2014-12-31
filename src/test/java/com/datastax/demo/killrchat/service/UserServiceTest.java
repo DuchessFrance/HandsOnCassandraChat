@@ -47,7 +47,7 @@ public class UserServiceTest {
     @Test
     public void should_create_user() throws Exception {
         //Given
-        final UserModel model = new UserModel("emc²", "a.einstein", "Albert", "EINSTEIN", "smartGuy", "a.einstein@smart.com", "I am THE Genius");
+        final UserModel model = new UserModel("emc²", "a.einstein", "Albert", "EINSTEIN", "a.einstein@smart.com", "I am THE Genius");
 
         //When
         service.createUser(model);
@@ -59,7 +59,6 @@ public class UserServiceTest {
         assertThat(row.getString("login")).isEqualTo("emc²");
         assertThat(row.getString("firstname")).isEqualTo("Albert");
         assertThat(row.getString("lastname")).isEqualTo("EINSTEIN");
-        assertThat(row.getString("nickname")).isEqualTo("smartGuy");
         assertThat(row.getString("email")).isEqualTo("a.einstein@smart.com");
         assertThat(row.getString("bio")).isEqualTo("I am THE Genius");
     }
@@ -81,7 +80,7 @@ public class UserServiceTest {
     @Test(expected = UserAlreadyExistsException.class)
     public void should_fail_creating_user_if_already_exist() throws Exception {
         //Given
-        final UserModel model = new UserModel("emc²", "a.einstein", "Albert", "EINSTEIN", "smartGuy", "a.einstein@smart.com", "I am THE Genius");
+        final UserModel model = new UserModel("emc²", "a.einstein", "Albert", "EINSTEIN", "a.einstein@smart.com", "I am THE Genius");
 
         service.createUser(model);
 
@@ -92,7 +91,7 @@ public class UserServiceTest {
     @Test(expected = AchillesBeanValidationException.class)
     public void should_exception_if_password_not_set() throws Exception {
         //Given
-        final UserModel model = new UserModel("emc²", "", "Albert", "EINSTEIN", "smartGuy", "a.einstein@smart.com", "I am THE Genius");
+        final UserModel model = new UserModel("emc²", "", "Albert", "EINSTEIN", "a.einstein@smart.com", "I am THE Genius");
 
         //When
         service.createUser(model);

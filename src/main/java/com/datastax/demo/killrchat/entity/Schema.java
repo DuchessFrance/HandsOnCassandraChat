@@ -12,7 +12,7 @@ public interface Schema {
     static String PERSISTENT_TOKEN = "security_tokens";
     static String KILLRCHAT_LOGIN = "killrchat";
     static UserModel KILLRCHAT_USER = new UserModel(KILLRCHAT_LOGIN, RandomStringUtils.randomAlphanumeric(10),
-            KILLRCHAT_LOGIN, KILLRCHAT_LOGIN, KILLRCHAT_LOGIN,
-            "Administrative account", "", Sets.<String>newHashSet());
+            KILLRCHAT_LOGIN, KILLRCHAT_LOGIN,
+            "Administrative account", "");
 
 }

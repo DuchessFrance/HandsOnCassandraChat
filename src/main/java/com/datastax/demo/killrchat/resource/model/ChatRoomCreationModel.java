@@ -12,8 +12,7 @@ public class ChatRoomCreationModel {
 
     @Pattern(regexp="[a-zA-Z0-9][a-zA-Z0-9_.-]{2,30}")
     private String roomName;
-
-    @Pattern(regexp="[a-zA-Z0-9][a-zA-Z0-9_. -]{2,100}")
+    
     private String banner;
 
     @NotNull
