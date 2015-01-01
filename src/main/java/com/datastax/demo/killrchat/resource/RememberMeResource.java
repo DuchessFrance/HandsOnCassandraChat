@@ -10,14 +10,14 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 @RestController
-@RequestMapping("/security")
-public class SecurityResource {
+@RequestMapping("/remember-me")
+public class RememberMeResource {
 
 
     @Inject
     private UserService service;
 
-    @RequestMapping(value = "/remember-me", method = GET, produces = APPLICATION_JSON_VALUE)
+    @RequestMapping(method = GET, produces = APPLICATION_JSON_VALUE)
     @ResponseBody
     public UserModel getRememberMeUser() {
         return service.fetchRememberMeUser();
