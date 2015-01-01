@@ -11,10 +11,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
         <link rel="icon" href="images/favicon.ico" />
         <link rel="stylesheet" href="styles/bootstrap.css">
-        <!--<link rel="stylesheet" media="all" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.2.0/css/font-awesome.min.css">-->
         <link rel="stylesheet" media="all" type="text/css" href="styles/font-awesome.min.css">
-        <link rel="stylesheet" href="styles/main.css">
-        <link rel="stylesheet" href="styles/signin.css">
+        <link rel="stylesheet/less" type="text/css" href="styles/main.less" />
         <!-- endbuild -->
     </head>
     <body ng-app="KillrChat">
@@ -25,7 +23,7 @@
                     <ul class="nav navbar-nav">
                         <li><a href="http://cassandra.apache.org/" target="_blank">powered by <strong>Apache Cassandra™</strong></a></li>
                     </ul>
-                    <ul class="nav navbar-nav navbar-right" ng-if="user != null" ng-click="logout()">
+                    <ul class="nav navbar-nav navbar-right logout" ng-if="user != null" ng-click="logout()">
                         <li><a><i class="fa fa-sign-out fa-lg"></i></a></li>
                     </ul>
                 </div>
@@ -38,6 +36,7 @@
         <div class="container-fluid">
             <div class="row" ng-view/>
         </div>
+        <script src="bower_components/less/less.js"></script>
         <script src="bower_components/angular/angular.js"></script>
         <script src="bower_components/angular-bootstrap/ui-bootstrap.js"></script>
         <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
