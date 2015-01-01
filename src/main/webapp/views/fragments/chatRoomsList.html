@@ -18,10 +18,10 @@
                        class="clickable"><strong>{{room.roomName}}</strong></a>
                     <span ng-if="user.chatRooms.indexOf(room.roomName)==-1">{{room.roomName}}</span>
 
-                    <i class="fa fa-sign-in fa-lg pull-right clickable"
+                    <i class="fa fa-sign-in fa-lg pull-right clickable room-action"
                        ng-if="user.chatRooms.indexOf(room.roomName)==-1 && room.participants.length>0"
                        ng-click="joinRoom(room)"></i>
-                    <i class="fa fa-sign-out fa-lg pull-right clickable"
+                    <i class="fa fa-sign-out fa-lg pull-right clickable room-action"
                        ng-if="user.chatRooms.indexOf(room.roomName)>=0"
                        ng-click="quitRoom(room)"></i>
                 </td>

@@ -19,10 +19,10 @@
             <span us-spinner="{radius:30, width:8, length: 16}" spinner-key="loading-spinner"></span>
             <ul class="list-group">
                 <li class="list-group-item" ng-repeat="message in messages">
-                    <p class="chat-metadata text-right">
+                    <p class="message-metadata text-right">
                         <i class="fa fa-clock-o"></i>&nbsp;&nbsp;{{message.creationDate | dateFormatToHHMMSS}}&nbsp;&nbsp;<strong>{{message.systemMessage ? '': (message.author | displayUserName)}}</strong>
                     </p>
-                    <p ng-class="{false: 'chat-content text-justify', true: 'chat-content text-justify text-muted text-italic'}[message.systemMessage]">{{message.content}}</p>
+                    <p ng-class="{false: 'message-content text-justify', true: 'message-content text-justify text-muted text-italic'}[message.systemMessage]">{{message.content}}</p>
                 </li>
             </ul>
         </div>

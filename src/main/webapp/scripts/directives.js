@@ -57,7 +57,7 @@ killrChat.directive('ngEnter', function() {
 /**
  * Chat Messages Zone
  */
-killrChat.directive('chatZone', function(usSpinnerService) {
+killrChat.directive('chatZone', function(usSpinnerService, RealChatService, GeneralErrorService) {
     return {
         priority: 1,
         restrict: 'E',
@@ -65,16 +65,15 @@ killrChat.directive('chatZone', function(usSpinnerService) {
         templateUrl: '/views/templates/chatWindow.html',
         scope: {
             state: '=',
-            user: '=',
-            errorDisplay: '&'
+            user: '='
         },
-        controller: 'ChatScrollCtrl',
+        controller: 'ChatCtrl',
         link: function (scope, root) {
             var scrollMode = 'display';
             var loadMoreData = true;
             var element = root[0].querySelector('#chat-scroll');
             if(!element) {
-                scope.displayGeneralError("Cannot find element with id 'chat-scroll' in the template of 'chatZone' directive");
+                GeneralErrorService.displayGeneralError("Cannot find element with id 'chat-scroll' in the template of 'chatZone' directive");
                 return;
             }
 
@@ -87,8 +86,8 @@ killrChat.directive('chatZone', function(usSpinnerService) {
             function(){ // on change of room reset scroll state
                 loadMoreData = true;
                 scrollMode = 'display';
-                scope.closeSocket();
-                scope.loadInitialRoomMessages();
+                RealChatService.closeSocket(scope);
+                RealChatService.loadInitialRoomMessages(scope);
             });
 
             //Change in the list of chat messages should be intercepted
@@ -114,7 +113,7 @@ killrChat.directive('chatZone', function(usSpinnerService) {
                     scope.$apply(function(){
                         usSpinnerService.spin('loading-spinner');
                         scrollMode = 'loading';
-                        scope.loadPreviousMessages()
+                        RealChatService.loadPreviousMessages(scope)
                         .then(function(messages){
                             // if no more message found, stop loading messages on next calls
                             if(messages.length == 0) {
@@ -130,7 +129,7 @@ killrChat.directive('chatZone', function(usSpinnerService) {
             });
 
             wrappedElement.on('$destroy', function() {
-                scope.closeSocket();
+                RealChatService.closeSocket(scope);
                 wrappedElement.unbind('scroll');
             });
         }
@@ -138,22 +137,15 @@ killrChat.directive('chatZone', function(usSpinnerService) {
 });
 
 
-killrChat.directive('participantPopup', function($rootElement, $filter, $position, User) {
+killrChat.directive('participantPopup', function($rootElement, $filter, $position, User, GeneralErrorService) {
     return {
         priority: 1,
         restrict: 'A',
         scope: {
-            participant: '=',
-            errorDisplay: '&'
+            participant: '='
         },
         link: function(scope, element) {
             element.attr('popover-title',$filter('displayUserName')(scope.participant));
-
-
-            // Angular trick because errorDisplay() return the reference of the original function
-            var displayGeneralError = function(message) {
-                scope.errorDisplay()(message);
-            };
 
             function loadUserDetails(){
                 var foundPopupContent;
@@ -174,10 +166,9 @@ killrChat.directive('participantPopup', function($rootElement, $filter, $positio
                         .$promise
                         .then(function(detailedParticipant){
                             var template =
-                                "<p class='text-left'>Login : <strong>"+detailedParticipant.login+"</strong></p>" +
-                                "<p class='text-left'>Name  : <em>"+detailedParticipant.firstname+" "+detailedParticipant.lastname+"</em></p>" +
-                                "<p class='text-left'>Email : "+(detailedParticipant.email || "<em>N/A</em>") +"</p>" +
-                                "<p class='text-left'>Bio   : "+(detailedParticipant.bio || "<em>N/A</em>")+"</p>" ;
+                                "<p class='text-left text-nowrap'>Login : <strong>"+detailedParticipant.login+"</strong></p>" +
+                                "<p class='text-left text-nowrap'>Email : <a href='mailto:'"+detailedParticipant.email+"'>"+(detailedParticipant.email || "") +"</a></p>" +
+                                "<p class='text-left'>Bio   : "+(detailedParticipant.bio || "")+"</p>" ;
                             foundPopupContent.empty().html(template);
 
                             // Fix popup position
@@ -188,8 +179,11 @@ killrChat.directive('participantPopup', function($rootElement, $filter, $positio
 
                             // Now set the calculated positioning.
                             parent.css( ttPosition );
+
+                            var title = foundPopupContent.parent().children().eq(0);
+                            title.addClass("participant-title");
                         })
-                        .catch(displayGeneralError);
+                        .catch(GeneralErrorService.displayGeneralError);
                 }
             };
 

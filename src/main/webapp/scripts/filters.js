@@ -8,7 +8,7 @@ killrChat.filter('dateFormatToHHMMSS', function(){
 
 killrChat.filter('displayUserName', function(){
     return function(user) {
-        return user.firstname+' '+user.lastname;
+        return user.firstname+' '+user.lastname.toUpperCase();
     }
 });
 

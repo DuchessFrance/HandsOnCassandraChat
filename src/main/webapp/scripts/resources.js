@@ -25,8 +25,8 @@ killrChat.factory('Message', function($resource) {
     });
 });
 
-killrChat.factory('Security', function($resource) {
-    return $resource('/security/remember-me', [],{
-        'fetchAuthenticatedUser': {url: '/security/remember-me', method: 'GET', isArray:false,headers: {'Content-Type': 'application/json'}}
+killrChat.factory('RememberMe', function($resource) {
+    return $resource('/remember-me', [],{
+        'fetchAuthenticatedUser': {url: '/remember-me', method: 'GET', isArray:false,headers: {'Content-Type': 'application/json'}}
     });
 });

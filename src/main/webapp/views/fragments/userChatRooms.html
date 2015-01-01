@@ -1,8 +1,8 @@
 <div class="col-md-2 sidebar">
     <p>
-        <i class="clickable fa fa-home fa-lg" ng-click="home()"></i>
-        <i class="clickable fa fa-list-alt fa-lg" ng-click="allRooms()"></i>
-        <i class="clickable fa fa-plus-square fa-lg" ng-click="newRoom()"></i>
+        <span class="navigation-icon clickable"><i class="fa fa-home fa-lg" ng-click="home()"></i></span>
+        <span class="navigation-icon clickable"><i class="fa fa-list-alt fa-lg" ng-click="allRooms()"></i></span>
+        <span class="navigation-icon clickable"><i class="fa fa-plus-square fa-lg" ng-click="newRoom()"></i></span>
     </p>
     <p>My rooms</p>
     <hr/>
@@ -11,7 +11,7 @@
             <a>
                 <i class="fa fa-comments fa-lg pull-left"></i>
                 <span class="clickable" ng-click="enterRoom(room)">&nbsp;&nbsp;{{room}}</span>
-                <i class="clickable fa fa-sign-out fa-lg pull-right exit-room" ng-click="quitRoom(room)"></i>
+                <i class="clickable fa fa-sign-out fa-lg pull-right exit-room" ng-click="quitRoomBackHome(room)"></i>
             </a>
         </li>
     </ul>
