@@ -1,12 +1,27 @@
 /**
  * Navigation Bar Controller
  */
-killrChat.controller('NavBarCtrl', function($rootScope, $scope, $location, User){
+killrChat.controller('NavBarCtrl', function($rootScope, $scope, $location, User, Security){
     delete $rootScope.generalError;
-    $rootScope
-        .$on("$routeChangeError",function (event, current, previous, rejection) {
-            $rootScope.generalError = rejection.data.message;
-        });
+
+    $rootScope.$on("$routeChangeStart", function(event, next) {
+        delete $rootScope.generalError;
+        if(!$rootScope.user && next !='/'){
+            Security.fetchAuthenticatedUser()
+                .$promise
+                .then(function(user){
+                    $rootScope.user = user;
+                })
+                .catch(function(){
+                    $location.path('/');
+                });
+        }
+    });
+
+    $rootScope.$on("$routeChangeError",function (event, current, previous, rejection) {
+        console.info("route change error "+rejection.data.message);
+        $rootScope.generalError = rejection.data.message;
+    });
 
     $scope.closeAlert = function() {
         delete $rootScope.generalError;
@@ -296,10 +311,10 @@ killrChat.controller('RoomsListCtrl', function($scope, ChatService, Room){
             .then(function(){
                 ChatService.removeParticipantFromRoom($scope.user, $scope.allRooms, roomToLeave);
                 ChatService.removeRoomFromUserRoomsList($scope.user.chatRooms, roomToLeave.roomName);
-                //$scope.$emit('quitRoom',roomToLeave.roomName);
             })
             .catch($scope.displayGeneralError);
     };
+
     $scope.$evalAsync(self.loadInitialRooms());
 });
 

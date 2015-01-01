@@ -1,15 +1,20 @@
 package com.datastax.demo.killrchat.security.authority;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 
+@JsonTypeInfo(use= JsonTypeInfo.Id.CLASS, include= JsonTypeInfo.As.PROPERTY, property="class")
 public class CustomUserDetails implements UserDetails {
 
-    private final Collection<? extends GrantedAuthority> authorities;
-    private final String login;
-    private final String password;
+    private Collection<? extends GrantedAuthority> authorities;
+    private String login;
+    private String password;
+
+    public CustomUserDetails() {
+    }
 
     public CustomUserDetails(Collection<? extends GrantedAuthority> authorities, String login, String password) {
         this.authorities = authorities;

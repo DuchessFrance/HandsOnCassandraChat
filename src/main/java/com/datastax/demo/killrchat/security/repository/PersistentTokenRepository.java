@@ -7,6 +7,8 @@ import org.springframework.stereotype.Repository;
 
 import javax.inject.Inject;
 
+import static info.archinnov.achilles.type.OptionsBuilder.withTtl;
+
 @Repository
 public class PersistentTokenRepository {
 
@@ -18,7 +20,7 @@ public class PersistentTokenRepository {
     public static final int TOKEN_VALIDITY_SECONDS = 60 * 60 * 24 * TOKEN_VALIDITY_DAYS;
 
     public void insert(PersistentTokenEntity token) {
-        manager.insert(token, OptionsBuilder.withTtl(TOKEN_VALIDITY_SECONDS));
+        manager.insert(token, withTtl(TOKEN_VALIDITY_SECONDS));
     }
 
     public void deleteById(String series) {
@@ -31,6 +33,6 @@ public class PersistentTokenRepository {
     }
 
     public void update(PersistentTokenEntity token) {
-        manager.update(token);
+        manager.update(token, withTtl(TOKEN_VALIDITY_SECONDS));
     }
 }

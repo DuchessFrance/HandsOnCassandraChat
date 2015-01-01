@@ -1,5 +1,6 @@
 package com.datastax.demo.killrchat.entity;
 
+import com.datastax.demo.killrchat.security.authority.CustomUserDetails;
 import com.datastax.demo.killrchat.security.utils.JodaTimeToDateCodec;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;

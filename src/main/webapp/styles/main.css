@@ -55,7 +55,7 @@ body {
 }
 
 .full-height {
-    height: 87%;
+    height: 80%;
 }
 
 .nav-sidebar {
@@ -157,7 +157,6 @@ body {
     padding-top: 10px;
     padding-bottom: 10px;
     padding-left: 1px;
-    /*border-color: #555555;*/
 }
 
 .chat-metadata {

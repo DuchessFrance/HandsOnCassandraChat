@@ -1,14 +1,16 @@
 package com.datastax.demo.killrchat.service;
 
 import static com.datastax.driver.core.querybuilder.QueryBuilder.eq;
-import static com.datastax.driver.core.querybuilder.QueryBuilder.insertInto;
 import static com.datastax.driver.core.querybuilder.QueryBuilder.select;
 import static com.datastax.demo.killrchat.entity.Schema.KEYSPACE;
 import static com.datastax.demo.killrchat.entity.Schema.USERS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.datastax.demo.killrchat.exceptions.UserAlreadyExistsException;
+import com.datastax.demo.killrchat.exceptions.UserNotFoundException;
 import com.datastax.demo.killrchat.model.UserModel;
+import com.datastax.demo.killrchat.security.authority.CustomUserDetails;
+import com.google.common.collect.Sets;
 import info.archinnov.achilles.exception.AchillesBeanValidationException;
 import info.archinnov.achilles.script.ScriptExecutor;
 import org.junit.Before;
@@ -21,6 +23,12 @@ import com.datastax.driver.core.Session;
 import com.datastax.demo.killrchat.entity.UserEntity;
 import info.archinnov.achilles.junit.AchillesResource;
 import info.archinnov.achilles.junit.AchillesResourceBuilder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UserServiceTest {
@@ -99,5 +107,54 @@ public class UserServiceTest {
         //Then
     }
 
+    @Test
+    public void should_fetch_remember_me_user() throws Exception {
+        //Given
+        final Authentication authentication = new Authentication() {
+            @Override
+            public Collection<? extends GrantedAuthority> getAuthorities() {
+                return null;
+            }
 
+            @Override
+            public Object getCredentials() {
+                return null;
+            }
+
+            @Override
+            public Object getDetails() {
+                return null;
+            }
+
+            @Override
+            public Object getPrincipal() {
+                return "emc²";
+            }
+
+            @Override
+            public boolean isAuthenticated() {
+                return true;
+            }
+
+            @Override
+            public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
+
+            }
+
+            @Override
+            public String getName() {
+                return "emc²";
+            }
+        };
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        scriptExecutor.executeScript("should_find_user_by_login.cql");
+
+        //When
+        final UserModel userModel = service.fetchRememberMeUser();
+
+        //Then
+        assertThat(userModel.getLogin()).isEqualTo("emc²");
+        assertThat(userModel.getFirstname()).isEqualTo("Albert");
+        assertThat(userModel.getLastname()).isEqualTo("EINSTEIN");
+    }
 }

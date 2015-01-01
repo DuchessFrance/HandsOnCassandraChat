@@ -24,3 +24,9 @@ killrChat.factory('Message', function($resource) {
         'load': {url: '/messages/:roomName', method: 'GET', isArray:true, headers:{'Accept': 'application/json'}}
     });
 });
+
+killrChat.factory('Security', function($resource) {
+    return $resource('/security/remember-me', [],{
+        'fetchAuthenticatedUser': {url: '/security/remember-me', method: 'GET', isArray:false,headers: {'Content-Type': 'application/json'}}
+    });
+});

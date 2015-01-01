@@ -7,9 +7,13 @@ import com.datastax.demo.killrchat.entity.UserEntity;
 import com.datastax.demo.killrchat.exceptions.UserAlreadyExistsException;
 import com.datastax.demo.killrchat.exceptions.UserNotFoundException;
 import com.datastax.demo.killrchat.model.UserModel;
+import com.datastax.demo.killrchat.security.utils.SecurityUtils;
 import info.archinnov.achilles.exception.AchillesLightWeightTransactionException;
 import info.archinnov.achilles.persistence.PersistenceManager;
 import info.archinnov.achilles.type.OptionsBuilder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import static com.google.common.collect.FluentIterable.from;
@@ -35,5 +39,10 @@ public class UserService {
             throw new UserNotFoundException(format("Cannot find user with login '%s'", login));
         }
         return userEntity;
+    }
+
+    public UserModel fetchRememberMeUser() {
+        final String login = SecurityUtils.getCurrentLogin();
+        return findByLogin(login).toModel();
     }
 }

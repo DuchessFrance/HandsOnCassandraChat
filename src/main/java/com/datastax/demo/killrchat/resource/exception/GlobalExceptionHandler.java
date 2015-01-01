@@ -1,5 +1,7 @@
 package com.datastax.demo.killrchat.resource.exception;
 
+import com.datastax.demo.killrchat.exceptions.*;
+import info.archinnov.achilles.exception.AchillesException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
@@ -28,6 +30,21 @@ public class GlobalExceptionHandler {
     String handleBindingFailure(MethodArgumentNotValidException exception) {
         return convertErrorMessage(exception.getBindingResult().getAllErrors());
     }
+
+    @ExceptionHandler(value = {
+            UserAlreadyExistsException.class,
+            UserNotFoundException.class,
+            IncorrectOldPasswordException.class,
+            ChatRoomAlreadyExistsException.class,
+            ChatRoomDoesNotExistException.class,
+            AchillesException.class
+    })
+    @ResponseBody
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public String functionalExceptions(Exception exception) {
+        return exception.getMessage();
+    }
+
 
     private String convertErrorMessage(List<ObjectError> errors) {
         final StringBuilder errorMsg = new StringBuilder();

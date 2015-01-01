@@ -1,6 +1,7 @@
 package com.datastax.demo.killrchat.security.service;
 
 import com.datastax.demo.killrchat.entity.PersistentTokenEntity;
+import com.datastax.demo.killrchat.security.authority.CustomUserDetails;
 import com.datastax.demo.killrchat.security.repository.PersistentTokenRepository;
 import com.datastax.demo.killrchat.service.UserService;
 
@@ -83,10 +84,10 @@ public class CustomPersistentRememberMeService extends
 
         // Token also matches, so login is valid. Update the token value, keeping the *same* series number.
         log.debug("Refreshing persistent login token for user '{}', series '{}'", login, token.getSeries());
-        token.setTokenDate(new DateTime());
+//        token.setTokenDate(new DateTime());
         token.setTokenValue(generateTokenData());
-        token.setIpAddress(request.getRemoteAddr());
-        token.setUserAgent(request.getHeader("User-Agent"));
+//        token.setIpAddress(request.getRemoteAddr());
+//        token.setUserAgent(request.getHeader("User-Agent"));
         persistentTokenRepository.update(token);
         addCookie(token, request, response);
 

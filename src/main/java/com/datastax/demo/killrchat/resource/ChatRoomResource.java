@@ -1,6 +1,5 @@
 package com.datastax.demo.killrchat.resource;
 
-import com.datastax.demo.killrchat.exceptions.*;
 import com.datastax.demo.killrchat.model.ChatRoomModel;
 import com.datastax.demo.killrchat.model.LightUserModel;
 import com.datastax.demo.killrchat.model.MessageModel;
@@ -80,15 +79,5 @@ public class ChatRoomResource {
         final MessageModel leavingMessage = messageService.createLeavingMessage(roomName, participant);
         template.convertAndSend("/topic/participants/"+ roomName, participant, ImmutableMap.<String,Object>of("status", Status.LEAVE));
         template.convertAndSend("/topic/messages/"+roomName, leavingMessage);
-    }
-
-    @ExceptionHandler(value = {
-            ChatRoomAlreadyExistsException.class,
-            ChatRoomDoesNotExistException.class
-    })
-    @ResponseBody
-    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public String chatRoomResourceException(Exception exception) {
-        return exception.getMessage();
     }
 }

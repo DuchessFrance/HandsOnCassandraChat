@@ -4,19 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 import com.datastax.demo.killrchat.entity.UserEntity;
-import com.datastax.demo.killrchat.model.LightChatRoomModel;
-import com.datastax.demo.killrchat.model.LightUserModel;
 import com.datastax.demo.killrchat.model.UserModel;
-import com.datastax.demo.killrchat.service.ChatRoomService;
 import com.datastax.demo.killrchat.service.UserService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.Arrays;
-import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UserResourceTest {
@@ -26,9 +20,6 @@ public class UserResourceTest {
 
     @Mock
     private UserService service;
-
-    @Mock
-    private ChatRoomService chatRoomService;
 
     @Test
     public void should_create_user() throws Exception {
