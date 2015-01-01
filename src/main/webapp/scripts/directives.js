@@ -57,7 +57,7 @@ killrChat.directive('ngEnter', function() {
 /**
  * Chat Messages Zone
  */
-killrChat.directive('chatZone', function($log, usSpinnerService) {
+killrChat.directive('chatZone', function(usSpinnerService) {
     return {
         priority: 1,
         restrict: 'E',
@@ -130,8 +130,71 @@ killrChat.directive('chatZone', function($log, usSpinnerService) {
             });
 
             wrappedElement.on('$destroy', function() {
+                scope.closeSocket();
                 wrappedElement.unbind('scroll');
             });
         }
+    }
+});
+
+
+killrChat.directive('participantPopup', function($rootElement, $filter, $position, User) {
+    return {
+        priority: 1,
+        restrict: 'A',
+        scope: {
+            participant: '=',
+            errorDisplay: '&'
+        },
+        link: function(scope, element) {
+            element.attr('popover-title',$filter('displayUserName')(scope.participant));
+
+
+            // Angular trick because errorDisplay() return the reference of the original function
+            var displayGeneralError = function(message) {
+                scope.errorDisplay()(message);
+            };
+
+            function loadUserDetails(){
+                var foundPopupContent;
+                var allOpenPopUps = Array.prototype.slice.call($rootElement[0].querySelectorAll('.popover-content'));
+                if(allOpenPopUps.length == 1) {
+                    foundPopupContent = angular.element(allOpenPopUps[0]);
+                } else if (allOpenPopUps.length > 1) {
+                    var filtered = allOpenPopUps.filter(function(content) {
+                        return content.innerHTML == '<i class="participant-popup fa fa-spinner fa-spin"></i>';
+                    });
+                    if(filtered.length>0) {
+                        foundPopupContent = angular.element(filtered[0]);
+                    }
+                }
+
+                if(foundPopupContent) {
+                    User.load({login:scope.participant.login})
+                        .$promise
+                        .then(function(detailedParticipant){
+                            var template =
+                                "<p class='text-left'>Login : <strong>"+detailedParticipant.login+"</strong></p>" +
+                                "<p class='text-left'>Name  : <em>"+detailedParticipant.firstname+" "+detailedParticipant.lastname+"</em></p>" +
+                                "<p class='text-left'>Email : "+(detailedParticipant.email || "<em>N/A</em>") +"</p>" +
+                                "<p class='text-left'>Bio   : "+(detailedParticipant.bio || "<em>N/A</em>")+"</p>" ;
+                            foundPopupContent.empty().html(template);
+
+                            // Fix popup position
+                            var parent = foundPopupContent.parent().parent();
+                            var ttPosition = $position.positionElements(element, parent, 'left', true);
+                            ttPosition.top += 'px';
+                            ttPosition.left += 'px';
+
+                            // Now set the calculated positioning.
+                            parent.css( ttPosition );
+                        })
+                        .catch(displayGeneralError);
+                }
+            };
+
+            element.bind(element.attr('popover-trigger'),loadUserDetails);
+        }
+
     }
 });

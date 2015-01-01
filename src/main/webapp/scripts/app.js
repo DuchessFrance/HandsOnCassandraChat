@@ -19,3 +19,16 @@ var killrChat = angular.module('KillrChat', ['ngRoute','ngResource','ui.bootstra
             });
 
 });
+
+killrChat.run(["$templateCache", function ($templateCache) {
+    $templateCache.put("template/popover/popover.html",
+        "<div class=\"popover {{placement}}\" ng-class=\"{ in: isOpen(), fade: animation() }\">\n" +
+        "  <div class=\"arrow\"></div>\n" +
+        "\n" +
+        "  <div class=\"popover-inner\">\n" +
+        "      <h3 class=\"popover-title\" ng-bind-html=\"title | unsafe\" ng-show=\"title\"></h3>\n" +
+        "      <div class=\"popover-content text-center\"ng-bind-html=\"content | unsafe\"></div>\n" +
+        "  </div>\n" +
+        "</div>\n" +
+        "");
+}]);

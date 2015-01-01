@@ -26,7 +26,9 @@
                 <chat-zone state="state" user="user" error-display="displayGeneralError"></chat-zone>
 
                 <!--Participants Column-->
-                <div id="chatParticipants" class="col-md-2 sidebar col-md-offset-10" ng-include="'views/fragments/chatParticipants.html'"></div>
+                <div id="chatParticipants" class="col-md-2 sidebar col-md-offset-10"
+                     ng-controller="ChatParticipantsCtrl"
+                     ng-include="'views/fragments/chatParticipants.html'"></div>
             </div>
 
         </div>

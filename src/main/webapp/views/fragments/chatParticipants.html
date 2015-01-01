@@ -2,6 +2,24 @@
 <hr/>
 <ul class="nav nav-sidebar full-height">
     <li ng-repeat="participant in state.currentRoom.participants">
-        <a><i class="fa fa-user fa-lg pull-left"></i> {{participant.firstname}} {{participant.lastname}}</a>
+        <!--<a class="clickable"-->
+           <!--ng-click="getParticipantInfo(participant)"-->
+           <!--popover-append-to-body="true"-->
+           <!--popover-trigger="click"-->
+           <!--popover-placement="left"-->
+           <!--popover-title="{{participant | displayUserName}}"-->
+           <!--popover="<i class='participant-popup fa fa-spinner fa-spin'></i>">-->
+
+        <a class="clickable"
+           popover="<i class='participant-popup fa fa-spinner fa-spin'></i>"
+           popover-placement="left"
+           popover-append-to-body="true"
+           popover-trigger="mouseenter"
+
+           participant-popup
+           participant="participant"
+           error-display="displayGeneralError">
+            <i class="fa fa-user fa-lg pull-left"></i> {{participant | displayUserName}}
+        </a>
     </li>
 </ul>

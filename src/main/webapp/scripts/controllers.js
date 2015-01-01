@@ -11,6 +11,7 @@ killrChat.controller('NavBarCtrl', function($rootScope, $scope, $location, User,
                 .$promise
                 .then(function(user){
                     $rootScope.user = user;
+                    $rootScope.user.chatRooms.sort();
                 })
                 .catch(function(){
                     $location.path('/');
@@ -90,6 +91,7 @@ killrChat.controller('SignInCtrl', function ($rootScope, $scope, $modal, $locati
 
             $rootScope.user.$promise
             .then(function(){
+                $rootScope.user.chatRooms.sort();
                 //Switch to chat view
                 $location.path('/chat');
             })
@@ -145,8 +147,6 @@ killrChat.controller('ChatNavigationCtrl',function ($scope, Room, ChatService) {
         currentRoom: {}
     };
 
-    //$scope.currentRoom = {};
-
     $scope.home = function() {
         $scope.section = 'home';
     };
@@ -163,8 +163,8 @@ killrChat.controller('ChatNavigationCtrl',function ($scope, Room, ChatService) {
         Room.load({roomName:roomToEnter}).$promise
             .then(function(currentRoom){
                 $scope.state.currentRoom = currentRoom;
+                $scope.state.currentRoom.participants.sort(ChatService.sortParticipant);
                 $scope.section = 'room';
-                $scope.$broadcast('loadRoomData');
             })
             .catch($scope.displayGeneralError);
     };
@@ -194,7 +194,7 @@ killrChat.controller('UserRoomsCtrl', function($scope, Room) {
 /**
  * The real Chat
  */
-killrChat.controller('ChatScrollCtrl', function($scope, Message, ChatService){
+killrChat.controller('ChatScrollCtrl', function($scope, $q, Message, User, ChatService){
     var self = this;
     $scope.messages = [];
     $scope.newMessage = {
@@ -254,9 +254,9 @@ killrChat.controller('ChatScrollCtrl', function($scope, Message, ChatService){
         var status = message.headers.status;
         $scope.$apply(function(){
             if(status == 'JOIN') {
-                $scope.state.currentRoom.participants.push(participant);
+                ChatService.addParticipantToCurrentRoom($scope.state.currentRoom, participant);
             } else if(status == 'LEAVE') {
-                ChatService.removeMatchingParticipant($scope.state.currentRoom.participants, participant);
+                ChatService.removeParticipantFromCurrentRoom($scope.state.currentRoom, participant);
             }
         });
     };
@@ -282,6 +282,43 @@ killrChat.controller('ChatScrollCtrl', function($scope, Message, ChatService){
 
     $scope.$eval($scope.loadInitialRoomMessages());
 });
+
+/**
+ * Chat participants
+ */
+killrChat.controller('ChatParticipantsCtrl', function($scope, $rootElement, User){
+
+    $scope.getParticipantInfo = function(participant) {
+        var foundPopupContent;
+        var allOpenPopUps = Array.prototype.slice.call($rootElement[0].querySelectorAll('.popover-content'));
+        if(allOpenPopUps.length == 1) {
+            foundPopupContent = angular.element(allOpenPopUps[0]);
+        } else if (allOpenPopUps.length > 1) {
+            var filtered = allOpenPopUps.filter(function(content) {
+                return content.innerHTML == '<i class="participant-popup fa fa-spinner fa-spin"></i>';
+            });
+            if(filtered.length>0) {
+                foundPopupContent = angular.element(filtered[0]);
+            }
+        }
+
+        if(foundPopupContent) {
+            User.load({login:participant.login})
+                .$promise
+                .then(function(detailedParticipant){
+                    var template =
+                        "<p class='text-left'>Login : <strong>"+detailedParticipant.login+"</strong></p>" +
+                        "<p class='text-left'>Name  : <em>"+detailedParticipant.firstname+" "+detailedParticipant.lastname+"</em></p>" +
+                        "<p class='text-left'>Email : "+(detailedParticipant.email || "<em>N/A</em>") +"</p>" +
+                        "<p class='text-left'>Bio   : "+(detailedParticipant.bio || "<em>N/A</em>")+"</p>" ;
+                    foundPopupContent.empty().html(template);
+                })
+                .catch($scope.displayGeneralError);
+        }
+    }
+
+});
+
 /**
  * Rooms Management
  */
@@ -292,14 +329,24 @@ killrChat.controller('RoomsListCtrl', function($scope, ChatService, Room){
 
     this.loadInitialRooms = function() {
         $scope.allRooms = Room.list({fetchSize:100});
-        $scope.allRooms.$promise.catch($scope.displayGeneralError);
+        $scope.allRooms.$promise
+            .then(function(){
+                $scope.allRooms.sort(function(roomA,roomB){
+                    return roomA.roomName.localeCompare(roomB.roomName);
+                });
+
+                $scope.allRooms.forEach(function(room){
+                   room.participants.sort(ChatService.sortParticipant);
+                });
+            })
+            .catch($scope.displayGeneralError);
     };
 
     $scope.joinRoom = function(roomToJoin) {
         new Room({roomName:roomToJoin.roomName, participant:$scope.user})
             .$addParticipant()
             .then(function(){
-                ChatService.addParticipantToRoom($scope.user, $scope.allRooms, roomToJoin);
+                ChatService.addMeToThisRoom($scope.user, $scope.allRooms, roomToJoin);
                 ChatService.addRoomToUserRoomsList($scope.user.chatRooms, roomToJoin.roomName);
             })
             .catch($scope.displayGeneralError);
@@ -309,7 +356,7 @@ killrChat.controller('RoomsListCtrl', function($scope, ChatService, Room){
         new Room({roomName:roomToLeave.roomName, participant:$scope.user})
             .$removeParticipant()
             .then(function(){
-                ChatService.removeParticipantFromRoom($scope.user, $scope.allRooms, roomToLeave);
+                ChatService.removeMeFromThisRoom($scope.user, $scope.allRooms, roomToLeave);
                 ChatService.removeRoomFromUserRoomsList($scope.user.chatRooms, roomToLeave.roomName);
             })
             .catch($scope.displayGeneralError);

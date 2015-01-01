@@ -23,6 +23,10 @@ body {
 	cursor: pointer;
 }
 
+.help {
+    cursor: help;
+}
+
 .sidebar {
     position: fixed;
     top: 51px;

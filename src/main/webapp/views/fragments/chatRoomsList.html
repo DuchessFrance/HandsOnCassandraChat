@@ -19,7 +19,7 @@
                     <span ng-if="user.chatRooms.indexOf(room.roomName)==-1">{{room.roomName}}</span>
 
                     <i class="fa fa-sign-in fa-lg pull-right clickable"
-                       ng-if="user.chatRooms.indexOf(room.roomName)==-1"
+                       ng-if="user.chatRooms.indexOf(room.roomName)==-1 && room.participants.length>0"
                        ng-click="joinRoom(room)"></i>
                     <i class="fa fa-sign-out fa-lg pull-right clickable"
                        ng-if="user.chatRooms.indexOf(room.roomName)>=0"
@@ -28,7 +28,7 @@
                 <td>{{room.creator | displayUserName}}</td>
                 <td>{{room.participants.length}}</td>
                 <td>
-                    <span class="dropdown" dropdown>
+                    <span class="dropdown" dropdown ng-if="room.participants.length>0">
                       <a href class="dropdown-toggle" dropdown-toggle>
                           List of participants
                       </a>
