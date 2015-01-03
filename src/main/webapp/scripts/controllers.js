@@ -4,15 +4,6 @@
 killrChat.controller('NavBarCtrl', function($rootScope, $scope, RememberMeService, GeneralErrorService, SecurityService){
     delete $rootScope.generalError;
 
-    $rootScope.$on("$routeChangeStart", function(event, next) {
-        delete $rootScope.generalError;
-        RememberMeService.fetchAuthenticatedUser(next);
-    });
-
-    $rootScope.$on("$routeChangeError",function (event, current, previous, rejection) {
-        GeneralErrorService.displayGeneralError(rejection);
-    });
-
     $scope.closeAlert = function() {
         GeneralErrorService.clearGeneralError();
     };

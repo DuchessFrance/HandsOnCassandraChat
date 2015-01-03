@@ -20,7 +20,7 @@ var killrChat = angular.module('KillrChat', ['ngRoute','ngResource','ngCookies',
 
 });
 
-killrChat.run(["$templateCache", function ($templateCache) {
+killrChat.run(["$rootScope", "$templateCache", "RememberMeService", function ($rootScope,$templateCache, RememberMeService) {
     $templateCache.put("template/popover/popover.html",
         "<div class=\"popover {{placement}}\" ng-class=\"{ in: isOpen(), fade: animation() }\">\n" +
         "  <div class=\"arrow\"></div>\n" +
@@ -31,4 +31,13 @@ killrChat.run(["$templateCache", function ($templateCache) {
         "  </div>\n" +
         "</div>\n" +
         "");
+    $rootScope.generalError = null;
+    $rootScope.$on("$routeChangeStart", function(event, next) {
+        delete $rootScope.generalError;
+        RememberMeService.fetchAuthenticatedUser(next);
+    });
+
+    $rootScope.$on("$routeChangeError",function (event, current, previous, rejection) {
+        GeneralErrorService.displayGeneralError(rejection);
+    });
 }]);
