@@ -11,6 +11,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UserResourceTest {
@@ -19,12 +20,16 @@ public class UserResourceTest {
     private UserResource resource;
 
     @Mock
+    private PasswordEncoder passwordEncoder;
+
+    @Mock
     private UserService service;
 
     @Test
     public void should_create_user() throws Exception {
         //Given
         final UserModel userModel = new UserModel("jdoe", "pass", "John", "DOE", "jdoe@gmail.com", "bio");
+        when(passwordEncoder.encode("pass")).thenReturn("pass");
 
         //When
         resource.createUser(userModel);

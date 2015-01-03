@@ -3,6 +3,7 @@ package com.datastax.demo.killrchat.resource;
 import com.datastax.demo.killrchat.model.UserModel;
 import com.datastax.demo.killrchat.service.UserService;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
@@ -20,10 +21,13 @@ public class UserResource {
     @Inject
     private UserService service;
 
+    @Inject
+    private PasswordEncoder passwordEncoder;
+
     @RequestMapping(method = POST, consumes = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void createUser(@NotNull @RequestBody @Valid UserModel model) {
-        //TODO encrypt password properly for security
+        model.setPassword(passwordEncoder.encode(model.getPassword()));
         service.createUser(model);
     }
 
