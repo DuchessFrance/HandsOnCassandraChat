@@ -1,6 +1,6 @@
 'use strict';
 
-var killrChat = angular.module('KillrChat', ['ngRoute','ngResource','ui.bootstrap','angularSpinner'])
+var killrChat = angular.module('KillrChat', ['ngRoute','ngResource','ngCookies', 'ui.bootstrap','angularSpinner'])
     .config(function ($routeProvider, $httpProvider) {
         $httpProvider.defaults.headers.common = {
             'Accept': 'application/json',

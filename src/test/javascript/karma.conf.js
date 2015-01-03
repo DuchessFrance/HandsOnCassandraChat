@@ -16,6 +16,7 @@ module.exports = function (config) {
             'src/main/webapp/bower_components/angular-bootstrap/ui-bootstrap-tpls.js',
             'src/main/webapp/bower_components/angular-route/angular-route.js',
             'src/main/webapp/bower_components/angular-resource/angular-resource.js',
+            'src/main/webapp/bower_components/angular-cookies/angular-cookies.js',
             'src/main/webapp/bower_components/angular-spinner/angular-spinner.js',
             'src/main/webapp/bower_components/angular-spinner/spin.js',
             'src/main/webapp/bower_components/angular-mocks/angular-mocks.js',
