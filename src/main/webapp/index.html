@@ -24,11 +24,11 @@
                         <li><a href="http://cassandra.apache.org/" target="_blank">powered by <strong>Apache Cassandra™</strong></a></li>
                     </ul>
                     <ul class="nav navbar-nav navbar-right logout" ng-if="user != null" ng-click="logout()">
-                        <li><a><i class="fa fa-sign-out fa-lg"></i></a></li>
+                        <li><a title="Sign Out"><i class="fa fa-sign-out fa-lg clickable"></i></a></li>
                     </ul>
                 </div>
             </div>
-            <div class="alert alert-danger" role="alert" ng-show="generalError">
+            <div class="alert alert-danger" role="alert" ng-show="generalError!=null">
                 <button type="button" class="close" ng-click="closeAlert()">×</button>
                 {{generalError}}
             </div>
