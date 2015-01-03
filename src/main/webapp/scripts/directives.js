@@ -168,7 +168,9 @@ killrChat.directive('participantPopup', function($rootElement, $filter, $positio
                             var template =
                                 "<p class='text-left text-nowrap'>Login : <strong>"+detailedParticipant.login+"</strong></p>" +
                                 "<p class='text-left text-nowrap'>Email : <a href='mailto:'"+detailedParticipant.email+"'>"+(detailedParticipant.email || "") +"</a></p>" +
-                                "<p class='text-left'>Bio   : "+(detailedParticipant.bio || "")+"</p>" ;
+                                "<p class='text-left'>Bio   : <em>"+(detailedParticipant.bio || "")+"</em></p>" +
+                                "<br/>" +
+                                "<p class='text-left text-danger text-italic'>Click on the participant to close this</p>";
                             foundPopupContent.empty().html(template);
 
                             // Fix popup position

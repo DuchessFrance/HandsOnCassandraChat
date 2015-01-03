@@ -1,9 +1,9 @@
 killrChat.service('RememberMeService',function($rootScope, $location, $cookieStore, RememberMe){
 
-    const SPRING_SECURITY_REMEMBER_ME_COOKIE = 'SPRING_SECURITY_REMEMBER_ME_COOKIE';
+    const HAS_SPRING_SECURITY_REMEMBER_ME_COOKIE = 'HAS_SPRING_SECURITY_REMEMBER_ME_COOKIE';
 
     this.fetchAuthenticatedUser = function(nextRoute){
-        if(!$rootScope.user && nextRoute !='/' && $cookieStore.get(SPRING_SECURITY_REMEMBER_ME_COOKIE)){
+        if(!$rootScope.user && nextRoute !='/' && $cookieStore.get(HAS_SPRING_SECURITY_REMEMBER_ME_COOKIE)){
             RememberMe.fetchAuthenticatedUser()
             .$promise
             .then(function(user){
@@ -39,7 +39,8 @@ killrChat.service('GeneralErrorService', function($rootScope){
     };
 });
 
-killrChat.service('SecurityService', function($rootScope, $location, User) {
+killrChat.service('SecurityService', function($rootScope, $location, $cookieStore, User) {
+    const HAS_SPRING_SECURITY_REMEMBER_ME_COOKIE = 'HAS_SPRING_SECURITY_REMEMBER_ME_COOKIE';
 
     this.login = function($scope) {
         new User().$login({
@@ -50,6 +51,11 @@ killrChat.service('SecurityService', function($rootScope, $location, User) {
         .then(function() {
             // Reset any previous error
             delete $scope.loginError;
+
+            // Set cookie to mark the presence of Spring Security remember me cookie
+            if($scope.rememberMe){
+                $cookieStore.put(HAS_SPRING_SECURITY_REMEMBER_ME_COOKIE,true);
+            }
 
             User.load({login: $scope.username}).$promise
                 .then(function(user){
@@ -73,6 +79,7 @@ killrChat.service('SecurityService', function($rootScope, $location, User) {
            .then(function() {
                $location.path('/');
                delete $rootScope.user;
+               $cookieStore.remove(HAS_SPRING_SECURITY_REMEMBER_ME_COOKIE);
            });
     };
 });

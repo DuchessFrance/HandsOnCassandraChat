@@ -168,11 +168,12 @@ describe('Services Tests', function () {
     });
 
     describe('SecurityService', function () {
-        var $location, $rootScope, $q, SecurityService, User;
-        beforeEach(inject(function (_$rootScope_, _$location_,_$q_,_SecurityService_,_User_) {
+        var $location, $rootScope, $q, $cookieStore, SecurityService, User;
+        beforeEach(inject(function (_$rootScope_, _$location_,_$q_,_$cookieStore_,_SecurityService_,_User_) {
             $rootScope = _$rootScope_;
             $location = _$location_;
             $q = _$q_;
+            $cookieStore = _$cookieStore_;
             SecurityService = _SecurityService_;
             User = _User_;
         }));
@@ -207,6 +208,7 @@ describe('Services Tests', function () {
             });
 
             spyOn($location,"path");
+            spyOn($cookieStore,"put");
 
             //When
             SecurityService.login($scope);
@@ -226,6 +228,7 @@ describe('Services Tests', function () {
             expect($rootScope.user).toBe(user);
             expect($rootScope.user.chatRooms).toEqual(['a','b','c']);
             expect($location.path).toHaveBeenCalledWith('/chat');
+            expect($cookieStore.put).toHaveBeenCalledWith('HAS_SPRING_SECURITY_REMEMBER_ME_COOKIE', true);
         });
 
         it('shoud display error when fails to load user',function(){
@@ -290,6 +293,7 @@ describe('Services Tests', function () {
             });
 
             spyOn($location,"path");
+            spyOn($cookieStore,"remove");
 
             //When
             SecurityService.logout();
@@ -298,6 +302,7 @@ describe('Services Tests', function () {
             //Then
             expect($location.path).toHaveBeenCalledWith('/');
             expect($rootScope.user).toBeUndefined();
+            expect($cookieStore.remove).toHaveBeenCalledWith('HAS_SPRING_SECURITY_REMEMBER_ME_COOKIE');
 
         });
     });
