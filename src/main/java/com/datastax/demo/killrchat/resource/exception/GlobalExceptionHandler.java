@@ -46,6 +46,12 @@ public class GlobalExceptionHandler {
     }
 
 
+    @ExceptionHandler(RememberMeDoesNotExistException.class)
+    @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
+    public String rememberMeException(RememberMeDoesNotExistException exception) {
+        return exception.getMessage();
+    }
+
     private String convertErrorMessage(List<ObjectError> errors) {
         final StringBuilder errorMsg = new StringBuilder();
         for (ObjectError error : errors) {

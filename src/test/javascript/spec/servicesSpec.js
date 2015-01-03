@@ -6,17 +6,18 @@ describe('Services Tests', function () {
 
     describe('RememberMeService', function () {
 
-        var $q, $rootScope, $location, RememberMe, RememberMeService;
+        var $q, $rootScope, $location, $cookieStore, RememberMe, RememberMeService;
 
-        beforeEach(inject(function (_$q_, _$rootScope_, _$location_, _RememberMe_, _RememberMeService_) {
+        beforeEach(inject(function (_$q_, _$rootScope_, _$location_, _$cookieStore_, _RememberMe_, _RememberMeService_) {
             $q = _$q_;
             $rootScope = _$rootScope_;
             $location = _$location_;
+            $cookieStore = _$cookieStore_;
             RememberMe = _RememberMe_;
             RememberMeService = _RememberMeService_;
         }));
 
-        it('should fetch authenticated user when route is not "/"', function (){
+        it('should fetch authenticated user when route is not "/" and remember me cookie', function (){
             //Given
             var user = {
                 chatRooms: ['b','c','a']
@@ -28,6 +29,7 @@ describe('Services Tests', function () {
                 $promise: deferred.promise
             });
             spyOn($location,"path");
+            spyOn($cookieStore,'get').and.returnValue('abc');
 
             //When
             RememberMeService.fetchAuthenticatedUser('/chat');
@@ -48,6 +50,7 @@ describe('Services Tests', function () {
                 $promise: rejected.promise
             });
             spyOn($location,"path");
+            spyOn($cookieStore,'get').and.returnValue('abc');
 
             //When
             RememberMeService.fetchAuthenticatedUser('/chat');
@@ -80,6 +83,20 @@ describe('Services Tests', function () {
 
             //Then
             expect($location.path).not.toHaveBeenCalled();
+        });
+
+        it('should not fetch user if no spring security remember me cookie',function(){
+            //Given
+            spyOn($cookieStore,'get').and.returnValue(null);
+            spyOn($location,"path");
+            spyOn(RememberMe,"fetchAuthenticatedUser");
+
+            //When
+            RememberMeService.fetchAuthenticatedUser('/chat');
+
+            //Then
+            expect($location.path).not.toHaveBeenCalled();
+            expect(RememberMe.fetchAuthenticatedUser).not.toHaveBeenCalled();
         });
     });
 
@@ -135,7 +152,7 @@ describe('Services Tests', function () {
             GeneralErrorService.displayGeneralError(null);
 
             //Then
-            expect($rootScope.generalError).toBeUndefined();
+            expect($rootScope.generalError).toBe(null);
         });
 
         it('should clear error', function(){

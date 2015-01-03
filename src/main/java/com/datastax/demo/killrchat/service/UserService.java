@@ -4,6 +4,7 @@ package com.datastax.demo.killrchat.service;
 import javax.inject.Inject;
 
 import com.datastax.demo.killrchat.entity.UserEntity;
+import com.datastax.demo.killrchat.exceptions.RememberMeDoesNotExistException;
 import com.datastax.demo.killrchat.exceptions.UserAlreadyExistsException;
 import com.datastax.demo.killrchat.exceptions.UserNotFoundException;
 import com.datastax.demo.killrchat.model.UserModel;
@@ -43,6 +44,9 @@ public class UserService {
 
     public UserModel fetchRememberMeUser() {
         final String login = SecurityUtils.getCurrentLogin();
+        if ("anonymousUser".equals(login)) {
+            throw new RememberMeDoesNotExistException(format("There is no remember me information for the login '%s'", login));
+        }
         return findByLogin(login).toModel();
     }
 }

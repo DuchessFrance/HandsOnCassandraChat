@@ -1,7 +1,9 @@
-killrChat.service('RememberMeService',function($rootScope, $location, RememberMe){
+killrChat.service('RememberMeService',function($rootScope, $location, $cookieStore, RememberMe){
+
+    const SPRING_SECURITY_REMEMBER_ME_COOKIE = 'SPRING_SECURITY_REMEMBER_ME_COOKIE';
 
     this.fetchAuthenticatedUser = function(nextRoute){
-        if(!$rootScope.user && nextRoute !='/'){
+        if(!$rootScope.user && nextRoute !='/' && $cookieStore.get(SPRING_SECURITY_REMEMBER_ME_COOKIE)){
             RememberMe.fetchAuthenticatedUser()
             .$promise
             .then(function(user){
