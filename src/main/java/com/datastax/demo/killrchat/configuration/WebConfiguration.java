@@ -23,14 +23,13 @@ public class WebConfiguration implements ServletContextInitializer, EmbeddedServ
 
     @Override
     public void customize(ConfigurableEmbeddedServletContainer container) {
-
+        container.setContextPath("/killrchat");
     }
 
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
 
         log.info("Web application configuration, using profiles: {}", Arrays.toString(env.getActiveProfiles()));
-
 
         log.info("Web application fully configured");
     }

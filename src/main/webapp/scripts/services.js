@@ -158,7 +158,7 @@ killrChat.service('WebSocketService', function(ParticipantService){
 
     this.initSockets = function($scope) {
         self.closeSocket($scope);
-        $scope.socket.client = new SockJS('/chat');
+        $scope.socket.client = new SockJS('/killrchat/chat');
         $scope.socket.stomp = Stomp.over($scope.socket.client);
         $scope.socket.stomp.debug = function(str) {};
         $scope.socket.stomp.connect({}, function() {

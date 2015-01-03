@@ -62,7 +62,7 @@ killrChat.directive('chatZone', function(usSpinnerService, WebSocketService, Cha
         priority: 1,
         restrict: 'E',
         replace: true,
-        templateUrl: '/views/templates/chatWindow.html',
+        templateUrl: 'views/templates/chatWindow.html',
         scope: {
             state: '=',
             user: '='
