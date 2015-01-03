@@ -23,7 +23,7 @@ public class SecurityUtilsTest {
     @Test
     public void should_return_a_login_from_user_details() throws Exception {
         //Given
-        final UserDetails userDetails = new CustomUserDetails(Sets.<GrantedAuthority>newHashSet(),"emc²","a.einstein");
+        final UserDetails userDetails = new CustomUserDetails(Sets.<GrantedAuthority>newHashSet(),"emc2","a.einstein");
         final Authentication authentication = new Authentication() {
             @Override
             public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -57,7 +57,7 @@ public class SecurityUtilsTest {
 
             @Override
             public String getName() {
-                return "emc²";
+                return "emc2";
             }
         };
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -66,7 +66,7 @@ public class SecurityUtilsTest {
         final String currentLogin = SecurityUtils.getCurrentLogin();
 
         //Then
-        assertThat(currentLogin).isEqualTo("emc²");
+        assertThat(currentLogin).isEqualTo("emc2");
     }
 
     @Test
@@ -90,7 +90,7 @@ public class SecurityUtilsTest {
 
             @Override
             public Object getPrincipal() {
-                return "emc²";
+                return "emc2";
             }
 
             @Override
@@ -105,7 +105,7 @@ public class SecurityUtilsTest {
 
             @Override
             public String getName() {
-                return "emc²";
+                return "emc2";
             }
         };
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -114,7 +114,7 @@ public class SecurityUtilsTest {
         final String currentLogin = SecurityUtils.getCurrentLogin();
 
         //Then
-        assertThat(currentLogin).isEqualTo("emc²");
+        assertThat(currentLogin).isEqualTo("emc2");
     }
 
     @Test(expected = UserNotFoundException.class)
@@ -153,7 +153,7 @@ public class SecurityUtilsTest {
 
             @Override
             public String getName() {
-                return "emc²";
+                return "emc2";
             }
         };
         SecurityContextHolder.getContext().setAuthentication(authentication);
