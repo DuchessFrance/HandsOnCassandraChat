@@ -128,7 +128,7 @@ killrChat.controller('UserRoomsCtrl', function($scope, NavigationService) {
 /**
  * The real Chat
  */
-killrChat.controller('ChatCtrl', function($scope, RealChatService){
+killrChat.controller('ChatCtrl', function($scope, ChatService){
     $scope.messages = [];
     $scope.newMessage = {
         author: $scope.user,
@@ -140,28 +140,28 @@ killrChat.controller('ChatCtrl', function($scope, RealChatService){
     };
 
     $scope.postMessage = function(){
-        RealChatService.postMessage($scope);
+        ChatService.postMessage($scope);
     };
 
-    //$scope.$eval(RealChatService.loadInitialRoomMessages($scope));
+    //$scope.$eval(ChatService.loadInitialRoomMessages($scope));
 });
 
 /**
  * Rooms Management
  */
-killrChat.controller('RoomsListCtrl', function($scope, RoomService){
+killrChat.controller('ListAllRoomsCtrl', function($scope, ListAllRoomsService){
 
     $scope.allRooms = [];
 
     $scope.joinRoom = function(roomToJoin) {
-        RoomService.joinRoom($scope, roomToJoin);
+        ListAllRoomsService.joinRoom($scope, roomToJoin);
     };
 
     $scope.quitRoom = function(roomToLeave) {
-        RoomService.quitRoom($scope, roomToLeave);
+        ListAllRoomsService.quitRoom($scope, roomToLeave);
     };
 
-    $scope.$evalAsync(RoomService.loadInitialRooms($scope));
+    $scope.$evalAsync(ListAllRoomsService.loadInitialRooms($scope));
 });
 
 /**

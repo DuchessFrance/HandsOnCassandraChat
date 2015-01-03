@@ -45,32 +45,33 @@ killrChat.service('SecurityService', function($rootScope, $location, User) {
             j_password: $scope.password,
             _spring_security_remember_me: $scope.rememberMe
         })
-            .then(function() {
-                // Reset any previous error
-                delete $scope.loginError;
+        .then(function() {
+            // Reset any previous error
+            delete $scope.loginError;
 
-                $rootScope.user = User.load({login: $scope.username});
-
-                $rootScope.user.$promise
-                    .then(function(){
-                        $rootScope.user.chatRooms.sort();
-                        //Switch to chat view
-                        $location.path('/chat');
-                    })
-                    .catch(function(httpResponse){
-                        $scope.loginError = httpResponse.message;
-                    });
-            })
-            .catch(function(httpResponse){
-                $scope.loginError = httpResponse.data.message;
-            });
+            User.load({login: $scope.username}).$promise
+                .then(function(user){
+                    $rootScope.user = user;
+                    $rootScope.user.chatRooms.sort();
+                    //Switch to chat view
+                    $location.path('/chat');
+                })
+                .catch(function(httpResponse){
+                    $scope.loginError = httpResponse.message;
+                });
+        })
+        .catch(function(httpResponse){
+            $scope.loginError = httpResponse.data.message;
+        });
     }
 
     this.logout = function() {
-       User.logout(function() {
-           $location.path('/');
-           delete $rootScope.user;
-       });
+       User.logout()
+           .$promise
+           .then(function() {
+               $location.path('/');
+               delete $rootScope.user;
+           });
     };
 });
 
@@ -110,8 +111,10 @@ killrChat.service('ParticipantService', function(){
 });
 
 killrChat.service('NavigationService', function(Room, ParticipantService, UserRoomsService, GeneralErrorService){
+
     this.enterRoom = function($scope, roomToEnter) {
-        Room.load({roomName:roomToEnter}).$promise
+        Room.load({roomName:roomToEnter})
+            .$promise
             .then(function(currentRoom){
                 $scope.state.currentRoom = currentRoom;
                 $scope.state.currentRoom.participants.sort(ParticipantService.sortParticipant);
@@ -120,7 +123,7 @@ killrChat.service('NavigationService', function(Room, ParticipantService, UserRo
             .catch(GeneralErrorService.displayGeneralError);
     };
 
-    this.quitRoomBackHome = function($scope, roomToLeave, GeneralErrorService) {
+    this.quitRoomBackHome = function($scope, roomToLeave) {
         new Room({roomName:roomToLeave, participant:$scope.user})
             .$removeParticipant()
             .then(function(){
@@ -132,10 +135,9 @@ killrChat.service('NavigationService', function(Room, ParticipantService, UserRo
     };
 });
 
-killrChat.service('RealChatService', function(Message, ParticipantService, GeneralErrorService){
+killrChat.service('WebSocketService', function(ParticipantService){
 
     var self = this;
-
     this.notifyNewMessage = function($scope,message) {
         $scope.$apply(function(){
             $scope.messages.push(angular.fromJson(message.body));
@@ -171,10 +173,22 @@ killrChat.service('RealChatService', function(Message, ParticipantService, Gener
         });
     };
 
+    this.closeSocket = function($scope) {
+        if($scope.socket.client) {
+            $scope.socket.client.close();
+        }
+        if($scope.socket.stomp) {
+            $scope.socket.stomp.disconnect();
+        }
+    };
+});
+
+killrChat.service('ChatService', function(Message, WebSocketService, GeneralErrorService){
+
     this.loadInitialRoomMessages = function($scope) {
         $scope.messages = Message.load({roomName:$scope.state.currentRoom.roomName, fetchSize: 20});
         $scope.messages.$promise.then(function(){
-            self.initSockets($scope);
+            WebSocketService.initSockets($scope);
         })
         .catch(GeneralErrorService.displayGeneralError);
     };
@@ -203,17 +217,9 @@ killrChat.service('RealChatService', function(Message, ParticipantService, Gener
         }
     };
 
-    this.closeSocket = function($scope) {
-        if($scope.socket.client) {
-            $scope.socket.client.close();
-        }
-        if($scope.socket.stomp) {
-            $scope.socket.stomp.disconnect();
-        }
-    };
 });
 
-killrChat.service('RoomService', function(Room, ParticipantService, GeneralErrorService){
+killrChat.service('RoomService', function(ParticipantService){
 
     var self = this;
     this.findMatchingRoom = function(rooms,matchingRoom) {
@@ -259,25 +265,29 @@ killrChat.service('RoomService', function(Room, ParticipantService, GeneralError
         }
     };
 
-    this.loadInitialRooms = function($scope) {
-        $scope.allRooms = Room.list({fetchSize:100});
-        $scope.allRooms.$promise
-            .then(function(){
-                $scope.allRooms.sort(self.sortRooms);
+});
 
-                $scope.allRooms.forEach(function(room){
-                    room.participants.sort(ParticipantService.sortParticipant);
-                });
-            })
-            .catch(GeneralErrorService.displayGeneralError);
+killrChat.service('ListAllRoomsService', function(Room, RoomService, ParticipantService, GeneralErrorService){
+
+    this.loadInitialRooms = function($scope) {
+        Room.list({fetchSize:100})
+        .$promise
+        .then(function(allRooms){
+            $scope.allRooms = allRooms;
+            $scope.allRooms.sort(RoomService.sortRooms);
+            $scope.allRooms.forEach(function(room){
+                room.participants.sort(ParticipantService.sortParticipant);
+            });
+        })
+        .catch(GeneralErrorService.displayGeneralError);
     };
 
     this.joinRoom = function($scope, roomToJoin) {
         new Room({roomName:roomToJoin.roomName, participant:$scope.user})
             .$addParticipant()
             .then(function(){
-                self.addMeToThisRoom($scope.user, $scope.allRooms, roomToJoin);
-                self.addRoomToUserRoomsList($scope.user.chatRooms, roomToJoin.roomName);
+                RoomService.addMeToThisRoom($scope.user, $scope.allRooms, roomToJoin);
+                RoomService.addRoomToUserRoomsList($scope.user.chatRooms, roomToJoin.roomName);
             })
             .catch(GeneralErrorService.displayGeneralError);
     };
@@ -286,8 +296,8 @@ killrChat.service('RoomService', function(Room, ParticipantService, GeneralError
         new Room({roomName:roomToLeave.roomName, participant:$scope.user})
             .$removeParticipant()
             .then(function(){
-                self.removeMeFromThisRoom($scope.user, $scope.allRooms, roomToLeave);
-                self.removeRoomFromUserRoomsList($scope.user.chatRooms, roomToLeave.roomName);
+                RoomService.removeMeFromThisRoom($scope.user, $scope.allRooms, roomToLeave);
+                RoomService.removeRoomFromUserRoomsList($scope.user.chatRooms, roomToLeave.roomName);
             })
             .catch(GeneralErrorService.displayGeneralError);
     };
@@ -300,6 +310,7 @@ killrChat.service('RoomCreationService', function(Room){
            .$create()
            .then(function(){
                $scope.user.chatRooms.push($scope.newRoom.roomName);
+               $scope.user.chatRooms.sort();
                delete $scope.newRoom.roomName;
                delete $scope.newRoom.banner;
            })

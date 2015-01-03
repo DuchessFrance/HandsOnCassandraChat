@@ -57,7 +57,7 @@ killrChat.directive('ngEnter', function() {
 /**
  * Chat Messages Zone
  */
-killrChat.directive('chatZone', function(usSpinnerService, RealChatService, GeneralErrorService) {
+killrChat.directive('chatZone', function(usSpinnerService, WebSocketService, ChatService, GeneralErrorService) {
     return {
         priority: 1,
         restrict: 'E',
@@ -86,8 +86,8 @@ killrChat.directive('chatZone', function(usSpinnerService, RealChatService, Gene
             function(){ // on change of room reset scroll state
                 loadMoreData = true;
                 scrollMode = 'display';
-                RealChatService.closeSocket(scope);
-                RealChatService.loadInitialRoomMessages(scope);
+                WebSocketService.closeSocket(scope);
+                ChatService.loadInitialRoomMessages(scope);
             });
 
             //Change in the list of chat messages should be intercepted
@@ -113,7 +113,7 @@ killrChat.directive('chatZone', function(usSpinnerService, RealChatService, Gene
                     scope.$apply(function(){
                         usSpinnerService.spin('loading-spinner');
                         scrollMode = 'loading';
-                        RealChatService.loadPreviousMessages(scope)
+                        ChatService.loadPreviousMessages(scope)
                         .then(function(messages){
                             // if no more message found, stop loading messages on next calls
                             if(messages.length == 0) {
@@ -129,7 +129,7 @@ killrChat.directive('chatZone', function(usSpinnerService, RealChatService, Gene
             });
 
             wrappedElement.on('$destroy', function() {
-                RealChatService.closeSocket(scope);
+                WebSocketService.closeSocket(scope);
                 wrappedElement.unbind('scroll');
             });
         }
