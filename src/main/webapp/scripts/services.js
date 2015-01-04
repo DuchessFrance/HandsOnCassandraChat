@@ -3,16 +3,20 @@ killrChat.service('RememberMeService',function($rootScope, $location, $cookieSto
     const HAS_SPRING_SECURITY_REMEMBER_ME_COOKIE = 'HAS_SPRING_SECURITY_REMEMBER_ME_COOKIE';
 
     this.fetchAuthenticatedUser = function(nextRoute){
-        if(!$rootScope.user && nextRoute !='/' && $cookieStore.get(HAS_SPRING_SECURITY_REMEMBER_ME_COOKIE)){
-            RememberMe.fetchAuthenticatedUser()
-            .$promise
-            .then(function(user){
-                $rootScope.user = user;
-                $rootScope.user.chatRooms.sort();
-            })
-            .catch(function(){
+        if(!$rootScope.user && nextRoute !='/'){
+            if($cookieStore.get(HAS_SPRING_SECURITY_REMEMBER_ME_COOKIE)) {
+                RememberMe.fetchAuthenticatedUser()
+                .$promise
+                .then(function(user){
+                    $rootScope.user = user;
+                    $rootScope.user.chatRooms.sort();
+                })
+                .catch(function(){
+                    $location.path('/');
+                });
+            } else {
                 $location.path('/');
-            });
+            }
         }
     };
 });

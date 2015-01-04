@@ -64,12 +64,16 @@ describe('Services Tests', function () {
         it('should not fetch user if path = "/"',function(){
             //Given
             spyOn($location,"path");
+            spyOn($cookieStore,'get');
+            spyOn(RememberMe,'fetchAuthenticatedUser');
 
             //When
-            RememberMeService.fetchAuthenticatedUser('/chat');
+            RememberMeService.fetchAuthenticatedUser('/');
 
             //Then
             expect($rootScope.user).toBeUndefined();
+            expect($cookieStore.get).not.toHaveBeenCalled();
+            expect(RememberMe.fetchAuthenticatedUser).not.toHaveBeenCalled();
             expect($location.path).not.toHaveBeenCalled();
         });
 
@@ -95,7 +99,7 @@ describe('Services Tests', function () {
             RememberMeService.fetchAuthenticatedUser('/chat');
 
             //Then
-            expect($location.path).not.toHaveBeenCalled();
+            expect($location.path).toHaveBeenCalledWith('/');
             expect(RememberMe.fetchAuthenticatedUser).not.toHaveBeenCalled();
         });
     });
