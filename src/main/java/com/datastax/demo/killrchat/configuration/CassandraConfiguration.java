@@ -2,7 +2,11 @@ package com.datastax.demo.killrchat.configuration;
 
 import com.datastax.demo.killrchat.entity.Schema;
 import com.datastax.driver.core.Cluster;
+import com.datastax.driver.core.Session;
 import info.archinnov.achilles.embedded.CassandraEmbeddedServerBuilder;
+import info.archinnov.achilles.script.ScriptExecutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -12,6 +16,8 @@ import javax.inject.Inject;
 
 @Configuration
 public class CassandraConfiguration {
+
+    private static final Logger logger = LoggerFactory.getLogger(CassandraConfiguration.class);
 
     private static final String CLUSTER_NAME = "killrchat";
 
@@ -28,6 +34,7 @@ public class CassandraConfiguration {
                 .withClusterName(CLUSTER_NAME)
                 .buildNativeClusterOnly();
 
+        logger.info("Create keyspace "+Schema.KEYSPACE+" if necessary ");
         String keyspaceCreation = "CREATE KEYSPACE IF NOT EXISTS "+Schema.KEYSPACE+" WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1}";
 
         cluster.connect().execute(keyspaceCreation);
@@ -36,13 +43,25 @@ public class CassandraConfiguration {
     }
 
     @Profile(Profiles.SPRING_PROFILE_PRODUCTION)
-    @Bean(destroyMethod = "shutdown")
+    @Bean(destroyMethod = "close")
     public Cluster cassandraNativeClusterProduction() {
 
-        return Cluster.builder()
+        Cluster cluster = Cluster.builder()
                 .addContactPoints(env.getProperty("cassandra.host"))
                 .withPort(Integer.parseInt(env.getProperty("cassandra.cql.port")))
                 .withClusterName(CLUSTER_NAME)
                 .build();
+
+        maybeCreateSchema(cluster);
+
+        return cluster;
+    }
+
+    private void maybeCreateSchema(Cluster cluster) {
+        logger.info("Execute schema creation script 'cassandra/schema_creation.cql' if necessary");
+        final Session session = cluster.connect();
+        final ScriptExecutor scriptExecutor = new ScriptExecutor(session);
+        scriptExecutor.executeScript("cassandra/schema_creation.cql");
+        session.close();
     }
 }
