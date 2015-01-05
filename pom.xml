@@ -179,14 +179,6 @@
                 <groupId>com.kelveden</groupId>
                 <artifactId>maven-karma-plugin</artifactId>
                 <version>1.6</version>
-                <executions>
-                    <execution>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>start</goal>
-                        </goals>
-                    </execution>
-                </executions>
                 <configuration>
                     <configFile>src/test/javascript/karma.conf.js</configFile>
                     <reportsDirectory>${project.build.directory}/karma-reports</reportsDirectory>
