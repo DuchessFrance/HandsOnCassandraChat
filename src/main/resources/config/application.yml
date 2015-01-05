@@ -4,9 +4,13 @@ security.basic.enabled: false
 
 killrchat.security.rememberme.key: KillrChat
 
-cassandra.test.clean.files: false
-
 cassandra:
     host: localhost
     cql.port: 9042
 
+
+dev.cassandra:
+    folders:
+        data: /tmp/killrchat_cassandra/data
+        commitlog: /tmp/killrchat_cassandra/commitlog
+        saved_caches: /tmp/killrchat_cassandra/saved_caches

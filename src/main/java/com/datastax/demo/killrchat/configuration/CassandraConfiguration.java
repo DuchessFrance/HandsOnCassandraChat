@@ -29,7 +29,10 @@ public class CassandraConfiguration {
     public Cluster cassandraNativeClusterDev() {
         final Cluster cluster = CassandraEmbeddedServerBuilder
                 .noEntityPackages()
-                .cleanDataFilesAtStartup(Boolean.parseBoolean(env.getProperty("cassandra.test.clean.files")))
+                .cleanDataFilesAtStartup(false)
+                .withDataFolder(env.getProperty("dev.cassandra.folders.data"))
+                .withCommitLogFolder(env.getProperty("dev.cassandra.folders.commitlog"))
+                .withSavedCachesFolder(env.getProperty("dev.cassandra.folders.saved_caches"))
                 .withDurableWrite(true)
                 .withClusterName(CLUSTER_NAME)
                 .buildNativeClusterOnly();
