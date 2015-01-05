@@ -25,6 +25,7 @@
         <el-api.version>3.0.0</el-api.version>
         <el-impl.version>2.2</el-impl.version>
         <joda-time.version>2.3</joda-time.version>
+        <logback.conf.file>${basedir}/src/main/resources/logback_dev.xml</logback.conf.file>
     </properties>
 
     <dependencies>
@@ -163,6 +164,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring-boot.version}</version>
                 <configuration>
+                    <jvmArguments> -Dlogback.configurationFile=${logback.conf.file}</jvmArguments>
                     <arguments>
                         <argument>--spring.profiles.active=${spring.profiles.active}</argument>
                     </arguments>
@@ -201,22 +203,65 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <!-- log configuration -->
-                <logback.loglevel>DEBUG</logback.loglevel>
                 <!-- Spring profile to use -->
                 <spring.profiles.active>dev</spring.profiles.active>
+                <logback.conf.file>${basedir}/src/main/resources/logback_dev.xml</logback.conf.file>
             </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.comphenix.maven</groupId>
+                        <artifactId>yaml-properties-plugin</artifactId>
+                        <version>0.1.0</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>read-yaml-properties</goal>
+                                </goals>
+                                <phase>process-sources</phase>
+                                <configuration>
+                                    <files>
+                                        <!-- YAML files that will be loaded. The element name is the file ID. -->
+                                        <application>${basedir}/src/main/resources/config/application.yml</application>
+                                    </files>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>1.5</version>
+                        <executions>
+                            <execution>
+                                <id>create_embedded_cassandra_folders</id>
+                                <phase>process-resources</phase>
+                                <configuration>
+                                    <target>
+                                        <mkdir dir="${yaml.application.dev.cassandra.folders.data}"/>
+                                        <mkdir dir="${yaml.application.dev.cassandra.folders.commitlog}"/>
+                                        <mkdir dir="${yaml.application.dev.cassandra.folders.saved_caches}"/>
+                                    </target>
+                                </configuration>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+
         </profile>
         <profile>
             <id>prod</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <activeByDefault>false</activeByDefault>
             </activation>
             <properties>
-                <!-- log configuration -->
-                <logback.loglevel>INFO</logback.loglevel>
                 <!-- Spring profile to use -->
                 <spring.profiles.active>prod</spring.profiles.active>
+                <logback.conf.file>${basedir}/src/main/resources/logback_prod.xml</logback.conf.file>
             </properties>
         </profile>
     </profiles>
@@ -231,6 +276,11 @@
         <pluginRepository>
             <id>spring-releases</id>
             <url>https://repo.spring.io/libs-release</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>comphenix-rep</id>
+            <name>Comphenix Maven Releases</name>
+            <url>http://repo.comphenix.net/content/groups/public</url>
         </pluginRepository>
     </pluginRepositories>
 </project>
